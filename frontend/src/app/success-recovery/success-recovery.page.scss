@@ -1,0 +1,67 @@
+ion-content {
+  --background: url('../../assets/Fondo.png') no-repeat center center / cover;
+}
+
+.success-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 30px;
+  text-align: center;
+}
+
+.checkmark-box {
+  width: 150px;
+  height: 150px;
+  background: white;
+  border: 4px solid #1a5c96;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 50px;
+  
+  .checkmark {
+    font-size: 100px;
+    color: #2dd36f; /* Green color for success */
+    --ionicon-stroke-width: 45px;
+  }
+}
+
+.success-text {
+  color: #1a5c96;
+  font-size: 1.8rem;
+  font-weight: bold;
+  line-height: 1.4;
+  margin-bottom: 60px;
+}
+
+.button-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.rate-button {
+  --background: white;
+  --color: #1a5c96;
+  --box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  font-weight: bold;
+  width: 250px;
+  height: 50px;
+  font-size: 1.1rem;
+  text-transform: none;
+}
+
+.login-link-container {
+  margin-top: 20px;
+  
+  .login-link {
+    color: #1a5c96;
+    text-decoration: underline;
+    font-weight: bold;
+    cursor: pointer;
+  }
+}

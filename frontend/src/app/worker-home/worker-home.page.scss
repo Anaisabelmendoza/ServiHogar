@@ -1,0 +1,263 @@
+.worker-background {
+  --background: url('../../assets/Fondo.png') no-repeat center top / cover;
+}
+
+.gradient-toolbar {
+  --background: linear-gradient(90deg, #6fdcdb 0%, #30b6e1 100%);
+  --min-height: 56px;
+
+  .back-btn {
+    color: white;
+    font-size: 1.8rem;
+  }
+
+  .profile-btn {
+    --color: white;
+    font-size: 1.8rem;
+  }
+}
+
+.worker-container {
+  padding: 20px 20px 40px 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+// Bienvenida
+.welcome-row {
+  margin-bottom: 5px;
+}
+
+.welcome-title {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #04608c;
+  margin: 10px 0 0 0;
+
+  em {
+    font-style: italic;
+    color: #04608c;
+  }
+}
+
+// Toggle Activo
+.active-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  margin: 8px 0 20px 0;
+
+  .active-label {
+    font-size: 1rem;
+    color: #333;
+    font-weight: 500;
+  }
+
+  .active-toggle {
+    --background: #ccc;
+    --background-checked: #04c48c;
+    --handle-background: white;
+    --handle-background-checked: white;
+  }
+}
+
+// Tabs
+.tabs-row {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.tab-btn {
+  flex: 1;
+  padding: 12px 0;
+  border-radius: 30px;
+  border: 2px solid #04608c;
+  background: white;
+  font-size: 1rem;
+  font-weight: bold;
+  color: #04608c;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &.tab-selected {
+    background: white;
+    border-color: #04608c;
+    box-shadow: 0 0 0 2px #04608c;
+  }
+
+  &:not(.tab-selected) {
+    border-color: #ccc;
+    color: #555;
+    box-shadow: none;
+  }
+}
+
+// Etiqueta de sección
+.section-label {
+  font-size: 1rem;
+  font-weight: bold;
+  color: #04608c;
+  margin: 0 0 14px 0;
+}
+
+// Historial header con icono maletín
+.historial-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+
+  .section-label {
+    margin: 0;
+  }
+
+  .briefcase-icon {
+    font-size: 1.8rem;
+    color: #04608c;
+    opacity: 0.7;
+  }
+}
+
+// Estado inactivo
+.inactive-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 40px;
+  gap: 12px;
+
+  .inactive-icon {
+    font-size: 4rem;
+    color: #aaa;
+  }
+
+  .inactive-title {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #888;
+    margin: 0;
+  }
+
+  .inactive-text {
+    font-size: 0.9rem;
+    color: #aaa;
+    text-align: center;
+    margin: 0;
+    padding: 0 10px;
+  }
+}
+
+// Estado vacío
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 30px;
+  gap: 12px;
+
+  .empty-icon {
+    font-size: 3.5rem;
+    color: #04608c;
+    opacity: 0.35;
+  }
+
+  .empty-text {
+    font-size: 0.95rem;
+    color: #04608c;
+    opacity: 0.5;
+    text-align: center;
+  }
+}
+
+// Tarjeta de solicitud / historial
+.request-card,
+.history-card {
+  background: white;
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  margin-bottom: 12px;
+
+  .card-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+  }
+
+  .client-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+    background: #d0eaf5;
+    border: 2px solid #eee;
+  }
+
+  .client-info {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+
+    .client-name {
+      font-size: 1rem;
+      font-weight: bold;
+      color: #222;
+    }
+
+    .stars-row {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+
+      .stars-label {
+        font-size: 0.8rem;
+        color: #666;
+      }
+    }
+
+    .job-date {
+      font-size: 0.8rem;
+      color: #888;
+    }
+
+    .job-service {
+      font-size: 0.85rem;
+      color: #04608c;
+      font-weight: 600;
+    }
+  }
+
+  .card-actions {
+    display: flex;
+    gap: 2px;
+
+    .action-icon {
+      --color: #04608c;
+      font-size: 1.3rem;
+      --padding-start: 5px;
+      --padding-end: 5px;
+    }
+  }
+
+  .job-rating {
+    display: flex;
+    align-items: center;
+  }
+}
+
+// Estrellas
+.stars {
+  display: flex;
+  gap: 2px;
+
+  .star-icon {
+    font-size: 1rem;
+    color: #ffc107;
+  }
+}

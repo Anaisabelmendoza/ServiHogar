@@ -1,0 +1,145 @@
+.client-background {
+  --background: url('../../assets/Fondo.png') no-repeat center center / cover;
+}
+
+.gradient-toolbar {
+  --background: linear-gradient(90deg, #6fdcdb 0%, #30b6e1 100%);
+  --min-height: 60px;
+  
+  .back-btn {
+    font-size: 1.5rem;
+    color: white;
+    margin-left: 5px;
+  }
+  
+  .action-btn {
+    font-size: 1.5rem;
+  }
+  
+  .calendar-btn {
+    color: #04608c;
+  }
+  
+  .profile-btn {
+    color: white;
+    font-size: 1.8rem;
+  }
+}
+
+.welcome-section {
+  text-align: center;
+  padding: 30px 20px 20px 20px;
+
+  .main-title {
+    color: #04608c;
+    font-size: 2rem;
+    font-weight: bold;
+    margin: 0 0 40px 0;
+  }
+
+  .sub-title {
+    color: #04608c;
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin: 0 0 20px 0;
+  }
+}
+
+.professionals-list {
+  padding: 0 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+
+  .professional-card {
+    background: white;
+    border-radius: 8px;
+    padding: 12px 15px;
+    display: flex;
+    align-items: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    border: 2px solid transparent;
+    transition: all 0.2s ease;
+
+    &.selected {
+      border-color: #00a2ff;
+      box-shadow: 0 0 8px rgba(0, 162, 255, 0.4);
+    }
+
+    .prof-avatar {
+      margin-right: 15px;
+      
+      img {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        object-fit: cover;
+      }
+    }
+
+    .prof-info {
+      flex: 1;
+
+      .prof-name {
+        color: #04608c;
+        font-size: 1rem;
+        font-weight: bold;
+        margin: 0 0 5px 0;
+      }
+
+      .prof-rating {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        
+        .rating-text {
+          color: #04608c;
+          font-size: 0.8rem;
+        }
+
+        .stars {
+          display: flex;
+          gap: 2px;
+          
+          ion-icon {
+            color: #04608c;
+            font-size: 1rem;
+          }
+        }
+      }
+    }
+
+    .prof-actions {
+      display: flex;
+      gap: 5px;
+
+      .contact-icon {
+        --color: #04608c;
+        margin: 0;
+        --padding-start: 5px;
+        --padding-end: 5px;
+        font-size: 1.3rem;
+      }
+    }
+  }
+}
+
+.submit-button-container {
+  display: flex;
+  justify-content: center;
+  margin: 30px 0;
+
+  .submit-btn {
+    --background: #ffffff;
+    --color: #04608c;
+    --background-activated: #f0f0f0;
+    --background-focused: #f0f0f0;
+    --background-hover: #f0f0f0;
+    font-weight: bold;
+    font-size: 1.1rem;
+    --padding-start: 40px;
+    --padding-end: 40px;
+    text-transform: none;
+    --box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+  }
+}

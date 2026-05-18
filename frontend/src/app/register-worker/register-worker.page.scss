@@ -1,0 +1,135 @@
+ion-header {
+  position: absolute;
+  top: 0;
+  width: 100%;
+  z-index: 10;
+}
+
+.transparent-toolbar {
+  --background: transparent;
+  --color: white;
+}
+
+ion-content {
+  --background: #f4f7f6;
+}
+
+.register-container {
+  background: url('../../assets/Fondo.png') no-repeat center top / cover;
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  padding-bottom: 50px;
+  
+  @media (min-width: 768px) {
+    max-width: 450px;
+    margin: 0 auto;
+    box-shadow: 0 0 40px rgba(0,0,0,0.1);
+  }
+}
+
+.title {
+  color: #1a5c96;
+  font-size: 2.2rem;
+  font-weight: bold;
+  text-align: center;
+  margin-top: 80px;
+  margin-bottom: 40px;
+}
+
+.form-container {
+  width: 100%;
+  max-width: 380px;
+  padding: 0 10px;
+}
+
+.custom-input {
+  --background: transparent;
+  margin-bottom: 20px;
+
+  ion-label {
+    color: #1a5c96;
+    font-weight: bold;
+    margin-bottom: 8px !important;
+    font-size: 1.1rem;
+    text-shadow: 0 1px 1px rgba(255,255,255,0.5);
+  }
+
+  ion-input {
+    background: white;
+    border-radius: 10px;
+    --padding-start: 15px;
+    height: 45px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+}
+
+.privacy-container {
+  margin: 20px 0;
+  
+  ion-checkbox {
+    --size: 20px;
+    --checkbox-background-checked: #1a5c96;
+    --border-color: #1a5c96;
+    
+    .privacy-text {
+      color: #1a5c96;
+      font-style: italic;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+  }
+}
+
+.profession-selection {
+  margin: 20px 0;
+  
+  .subtitle {
+    color: #1a5c96;
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin-bottom: 15px;
+    text-decoration: underline;
+  }
+
+  .radio-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+
+    ion-item {
+      --background: transparent;
+      --padding-start: 0;
+      font-size: 0.9rem;
+      color: #1a5c96;
+      font-weight: 600;
+
+      ion-radio {
+        --color: #1a5c96;
+        --color-checked: #1a5c96;
+        font-size: 0.9rem;
+        margin-right: 10px;
+      }
+    }
+  }
+}
+
+.button-container {
+  margin-top: 30px;
+  display: flex;
+  justify-content: center;
+}
+
+.next-button, .send-button {
+  --background: white;
+  --color: #1a5c96;
+  --box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  font-weight: bold;
+  width: 180px;
+  height: 50px;
+  font-size: 1.2rem;
+  text-transform: none;
+}

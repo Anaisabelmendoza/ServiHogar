@@ -1,0 +1,211 @@
+.client-background {
+  --background: url('../../assets/Fondo.png') no-repeat center top / cover;
+}
+
+.gradient-toolbar {
+  --background: linear-gradient(90deg, #6fdcdb 0%, #30b6e1 100%);
+  --min-height: 60px;
+  
+  .back-btn {
+    font-size: 1.8rem;
+    color: white;
+    margin-left: 5px;
+  }
+}
+
+.tracking-container {
+  padding: 40px 20px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.main-title {
+  color: #04608c;
+  font-size: 1.6rem;
+  font-weight: bold;
+  text-align: center;
+  margin: 0 0 30px 0;
+}
+
+.location-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 15px;
+  align-self: flex-start;
+  padding-left: 10px;
+
+  ion-icon {
+    color: #04608c;
+    font-size: 1.5rem;
+  }
+
+  h2 {
+    color: #04608c;
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin: 0;
+  }
+}
+
+.map-container {
+  width: 100%;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  
+  .map-image {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    display: block;
+  }
+}
+
+.professional-card {
+  background: white;
+  border-radius: 8px;
+  padding: 12px 15px;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  margin-bottom: 40px;
+
+  .prof-avatar {
+    margin-right: 15px;
+    
+    img {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+  }
+
+  .prof-info {
+    flex: 1;
+
+    .prof-name {
+      color: #04608c;
+      font-size: 1rem;
+      font-weight: bold;
+      margin: 0 0 5px 0;
+    }
+
+    .prof-rating {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      
+      .rating-text {
+        color: #04608c;
+        font-size: 0.8rem;
+      }
+
+      .stars {
+        display: flex;
+        gap: 2px;
+        
+        ion-icon {
+          color: #04608c;
+          font-size: 1rem;
+        }
+      }
+    }
+  }
+
+  .prof-actions {
+    display: flex;
+    gap: 5px;
+
+    .contact-icon {
+      --color: #04608c;
+      margin: 0;
+      --padding-start: 5px;
+      --padding-end: 5px;
+      font-size: 1.3rem;
+    }
+  }
+}
+
+.action-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  width: 100%;
+  max-width: 300px;
+  margin: 0 auto;
+
+  .action-btn {
+    --background: #ffffff;
+    --color: #04608c;
+    --background-activated: #f0f0f0;
+    --background-focused: #f0f0f0;
+    --background-hover: #f0f0f0;
+    font-weight: bold;
+    font-size: 1.1rem;
+    --padding-top: 10px;
+    --padding-bottom: 10px;
+    text-transform: none;
+    --box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    margin: 0;
+  }
+}
+
+ion-modal.cancel-modal {
+  --width: 90%;
+  --max-width: 350px;
+  --height: fit-content;
+  --border-radius: 12px;
+  --background: transparent;
+  
+  &::part(content) {
+    background: transparent;
+    box-shadow: none;
+  }
+  
+  .modal-content {
+    background: white;
+    padding: 30px 20px;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+
+    .modal-title {
+      color: #04608c;
+      font-size: 1.5rem;
+      font-weight: bold;
+      margin: 0 0 30px 0;
+    }
+
+    .modal-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+
+      ion-button {
+        flex: 1;
+        font-weight: bold;
+        text-transform: none;
+        font-size: 1rem;
+        --box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        margin: 0;
+      }
+
+      .confirm-btn {
+        --background: #04608c;
+        --color: white;
+      }
+
+      .cancel-btn {
+        --background: #ffffff;
+        --color: #04608c;
+        border: 1px solid #eee;
+        border-radius: 30px;
+      }
+    }
+  }
+}

@@ -1,0 +1,129 @@
+.client-background {
+  --background: url('../../assets/Fondo.png') no-repeat center top / cover;
+}
+
+.gradient-toolbar {
+  --background: linear-gradient(90deg, #6fdcdb 0%, #30b6e1 100%);
+  --min-height: 60px;
+  
+  .back-btn {
+    font-size: 1.8rem;
+    color: white;
+    margin-left: 5px;
+  }
+}
+
+.review-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 30px 20px;
+}
+
+.main-title {
+  color: #04608c;
+  font-size: 1.5rem;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.prof-avatar {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .fallback-icon {
+    font-size: 4rem;
+    color: #c1dadf;
+  }
+}
+
+.prof-name {
+  color: #04608c;
+  font-size: 1.4rem;
+  font-weight: bold;
+  margin: 0 0 15px 0;
+  text-align: center;
+}
+
+.rating-stars {
+  display: flex;
+  gap: 5px;
+  margin-bottom: 50px;
+  
+  ion-icon {
+    color: #04608c;
+    font-size: 1.8rem;
+    transition: all 0.2s ease;
+    
+    &:active {
+      transform: scale(1.2);
+    }
+  }
+}
+
+.comment-title {
+  color: #04608c;
+  font-size: 1.3rem;
+  font-weight: bold;
+  text-align: center;
+  margin: 0 0 30px 0;
+  max-width: 250px;
+}
+
+.comment-input-wrapper {
+  width: 100%;
+  max-width: 300px;
+  margin-bottom: 40px;
+
+  .custom-input {
+    --padding-bottom: 10px;
+    --padding-start: 0;
+    --padding-end: 0;
+    border-bottom: 1px solid #04608c;
+    color: #04608c;
+    font-size: 1.1rem;
+    text-align: center;
+
+    &::part(native) {
+      padding-bottom: 10px;
+      text-align: center;
+    }
+  }
+}
+
+.submit-button-container {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+
+  .submit-btn {
+    --background: #ffffff;
+    --color: #04608c;
+    --background-activated: #f0f0f0;
+    --background-focused: #f0f0f0;
+    --background-hover: #f0f0f0;
+    font-weight: bold;
+    font-size: 1.1rem;
+    --padding-top: 15px;
+    --padding-bottom: 15px;
+    --padding-start: 40px;
+    --padding-end: 40px;
+    text-transform: none;
+    --box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+  }
+}

@@ -1,0 +1,88 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar class="gradient-toolbar">
+    <ion-buttons slot="start">
+      <ion-back-button class="back-btn" [defaultHref]="isWorker ? '/worker-home' : '/home'" text="" icon="chevron-back"></ion-back-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" [class.worker-background]="isWorker" [class.client-background]="!isWorker">
+  <div class="profile-container">
+
+    <!-- Título de bienvenida -->
+    <h1 class="welcome-title">Bienvenido <em>{{ userName }}</em></h1>
+
+    <!-- Avatar -->
+    <div class="avatar-section">
+      <div class="avatar-wrapper">
+        <img *ngIf="avatarUrl" [src]="avatarUrl" class="avatar-img" alt="Foto de perfil" />
+        <div *ngIf="!avatarUrl" class="avatar-placeholder">
+          <ion-icon name="person" class="avatar-icon"></ion-icon>
+        </div>
+      </div>
+    </div>
+
+    <!-- Botón editar foto -->
+    <div class="edit-photo-btn-container">
+      <button class="edit-btn" (click)="editPhoto()">
+        <ion-icon name="pencil-outline"></ion-icon>
+        <span>EDITAR FOTO</span>
+      </button>
+      <!-- Input oculto para seleccionar foto -->
+      <input type="file" id="photoInput" accept="image/*" style="display:none" (change)="handlePhotoChange($event)" />
+    </div>
+
+    <!-- Botón editar datos -->
+    <div class="edit-data-btn-container">
+      <button class="edit-btn" (click)="toggleEdit()">
+        <ion-icon name="pencil-outline"></ion-icon>
+        <span>EDITAR DATOS</span>
+      </button>
+    </div>
+
+    <!-- Tarjeta de datos -->
+    <div class="data-card">
+      <div class="data-field">
+        <span class="field-label">Nombre</span>
+        <input *ngIf="isEditing" [(ngModel)]="nombre" class="field-input" type="text" />
+        <span *ngIf="!isEditing" class="field-value">{{ nombre || 'Xxx-xxx-xx' }}</span>
+      </div>
+      <div class="data-field">
+        <span class="field-label">Apellidos</span>
+        <input *ngIf="isEditing" [(ngModel)]="apellidos" class="field-input" type="text" />
+        <span *ngIf="!isEditing" class="field-value">{{ apellidos || 'Xxx-xxx-xx' }}</span>
+      </div>
+      <div class="data-field">
+        <span class="field-label">Número teléfono</span>
+        <input *ngIf="isEditing" [(ngModel)]="telefono" class="field-input" type="tel" />
+        <span *ngIf="!isEditing" class="field-value">{{ telefono || 'Xxx-xxx-xx' }}</span>
+      </div>
+      <div class="data-field" [class.no-border]="!isWorker">
+        <span class="field-label">Correo electrónico</span>
+        <input *ngIf="isEditing" [(ngModel)]="email" class="field-input" type="email" />
+        <span *ngIf="!isEditing" class="field-value">{{ email || 'Xxx-xxx-xx' }}</span>
+      </div>
+
+      <!-- Profesión (solo visible para el profesional) -->
+      <div class="data-field no-border" *ngIf="isWorker">
+        <span class="field-label">Profesión:</span>
+        <input *ngIf="isEditing" [(ngModel)]="profesion" class="field-input" type="text" />
+        <span *ngIf="!isEditing" class="field-value">{{ profesion || 'Xxx-xxx-xx' }}</span>
+      </div>
+
+      <!-- Botón guardar (solo al editar) -->
+      <div *ngIf="isEditing" class="save-btn-container">
+        <button class="save-btn" (click)="saveData()">Guardar cambios</button>
+      </div>
+    </div>
+
+    <!-- Cerrar sesión -->
+    <div class="logout-btn-container">
+      <button class="logout-btn" (click)="logout()">
+        <ion-icon name="log-out-outline"></ion-icon>
+        <span>Cerrar sesión</span>
+      </button>
+    </div>
+
+  </div>
+</ion-content>

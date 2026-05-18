@@ -1,0 +1,23 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar class="transparent-toolbar">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/login" text="" icon="chevron-back"></ion-back-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <div class="selection-container">
+    <h1 class="title">¡ Bienvenido !</h1>
+
+    <div class="buttons-container">
+      <ion-button expand="block" shape="round" class="selection-button" (click)="goToRegister('cliente')">
+        Cliente
+      </ion-button>
+
+      <ion-button expand="block" shape="round" class="selection-button" (click)="goToRegister('trabajador')">
+        Trabajador
+      </ion-button>
+    </div>
+  </div>
+</ion-content>

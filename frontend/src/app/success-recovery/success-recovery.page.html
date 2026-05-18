@@ -1,0 +1,21 @@
+<ion-content [fullscreen]="true">
+  <div class="success-container">
+    <div class="checkmark-box">
+      <ion-icon name="checkmark-outline" class="checkmark"></ion-icon>
+    </div>
+
+    <h2 class="success-text">
+      Su contraseña se ha recuperado satisfactoriamente
+    </h2>
+
+    <div class="button-container">
+      <ion-button expand="block" shape="round" class="rate-button" (click)="goToLogin()">
+        Valora la Aplicación
+      </ion-button>
+    </div>
+    
+    <div class="login-link-container">
+      <a (click)="goToLogin()" class="login-link">Volver al Login</a>
+    </div>
+  </div>
+</ion-content>

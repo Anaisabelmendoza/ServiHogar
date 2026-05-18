@@ -1,0 +1,28 @@
+<ion-content [fullscreen]="true">
+  <div class="login-container">
+    <div class="logo-space"></div>
+
+    <div class="form-container">
+      <ion-item lines="none" class="custom-input">
+        <ion-label position="stacked">Correo electrónico</ion-label>
+        <ion-input type="email" [(ngModel)]="email" placeholder=""></ion-input>
+      </ion-item>
+
+      <ion-item lines="none" class="custom-input">
+        <ion-label position="stacked">Contraseña</ion-label>
+        <ion-input type="password" [(ngModel)]="password" placeholder=""></ion-input>
+      </ion-item>
+
+      <div class="button-container">
+        <ion-button expand="block" shape="round" class="send-button" (click)="login()">
+          Enviar
+        </ion-button>
+      </div>
+
+      <div class="links-container">
+        <a routerLink="/register-selection" class="link">Registrarme</a>
+        <a routerLink="/forgot-password" class="link">¿Olvidaste tu contraseña?</a>
+      </div>
+    </div>
+  </div>
+</ion-content>

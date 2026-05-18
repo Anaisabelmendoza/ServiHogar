@@ -1,0 +1,116 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar class="gradient-toolbar">
+    <ion-buttons slot="start">
+      <ion-back-button class="back-btn" defaultHref="/login" text="" icon="chevron-back"></ion-back-button>
+    </ion-buttons>
+    <ion-buttons slot="end">
+      <ion-button class="profile-btn" routerLink="/profile">
+        <ion-icon name="person-circle" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="worker-background">
+  <div class="worker-container">
+
+    <!-- Título de bienvenida -->
+    <div class="welcome-row">
+      <h1 class="welcome-title">Bienvenido <em>{{ workerName }}</em></h1>
+    </div>
+
+    <!-- Toggle Activo -->
+    <div class="active-row">
+      <span class="active-label">Activo:</span>
+      <ion-toggle [(ngModel)]="isActive" (ionChange)="toggleActiveState()" class="active-toggle" color="success"></ion-toggle>
+    </div>
+
+    <!-- Tabs Solicitudes / Historial -->
+    <div class="tabs-row">
+      <button class="tab-btn" [class.tab-selected]="activeTab === 'solicitudes'" (click)="setTab('solicitudes')">
+        Solicitudes
+      </button>
+      <button class="tab-btn" [class.tab-selected]="activeTab === 'historial'" (click)="setTab('historial')">
+        Historial
+      </button>
+    </div>
+
+    <!-- ===== TAB: SOLICITUDES ===== -->
+    <div *ngIf="activeTab === 'solicitudes'">
+
+      <!-- Profesional INACTIVO -->
+      <div *ngIf="!isActive" class="inactive-state">
+        <ion-icon name="pause-circle-outline" class="inactive-icon"></ion-icon>
+        <p class="inactive-title">Estás inactivo</p>
+        <p class="inactive-text">Activa el toggle para empezar a recibir solicitudes de trabajo.</p>
+      </div>
+
+      <!-- Profesional ACTIVO -->
+      <div *ngIf="isActive">
+        <p class="section-label">Mostrando solicitudes:</p>
+
+        <div *ngIf="requests.length === 0" class="empty-state">
+          <ion-icon name="document-outline" class="empty-icon"></ion-icon>
+          <p class="empty-text">No tienes solicitudes pendientes</p>
+        </div>
+
+        <div class="request-card" *ngFor="let req of requests" (click)="openJobDetail(req)">
+          <div class="card-left">
+            <img [src]="req.avatar" class="client-avatar" alt="Avatar cliente"
+                 (error)="req.avatar = 'assets/avatar-placeholder.png'" />
+            <div class="client-info">
+              <span class="client-name">{{ req.clientName }}</span>
+              <div class="stars-row">
+                <span class="stars-label">Puntuación media</span>
+                <div class="stars">
+                  <ion-icon *ngFor="let s of getStars(req.rating); let i = index"
+                            [name]="s" class="star-icon"></ion-icon>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="card-actions">
+            <ion-button fill="clear" class="action-icon" (click)="callClient(req)">
+              <ion-icon name="call" slot="icon-only"></ion-icon>
+            </ion-button>
+            <ion-button fill="clear" class="action-icon" (click)="chatClient(req)">
+              <ion-icon name="chatbubble-ellipses" slot="icon-only"></ion-icon>
+            </ion-button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ===== TAB: HISTORIAL ===== -->
+    <div *ngIf="activeTab === 'historial'">
+      <div class="historial-header">
+        <p class="section-label">Historial:</p>
+        <ion-icon name="briefcase-outline" class="briefcase-icon"></ion-icon>
+      </div>
+
+      <div *ngIf="history.length === 0" class="empty-state">
+        <p class="empty-text">No tienes trabajos registrados aún</p>
+      </div>
+
+      <div class="history-card" *ngFor="let job of history">
+        <div class="card-left">
+          <img [src]="job.avatar" class="client-avatar" alt="Avatar cliente"
+               (error)="job.avatar = 'assets/avatar-placeholder.png'" />
+          <div class="client-info">
+            <span class="client-name">{{ job.clientName }}</span>
+            <span class="job-date">{{ job.date }}</span>
+            <span class="job-service">{{ job.service }}</span>
+          </div>
+        </div>
+        <div class="job-rating">
+          <div class="stars">
+            <ion-icon *ngFor="let s of getStars(job.rating); let i = index"
+                      [name]="s" class="star-icon"></ion-icon>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</ion-content>

@@ -1,0 +1,82 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar class="gradient-toolbar">
+    <ion-buttons slot="start">
+      <ion-back-button class="back-btn" defaultHref="/worker-home" text="" icon="chevron-back"></ion-back-button>
+    </ion-buttons>
+    <ion-buttons slot="end">
+      <ion-button class="header-icon-btn">
+        <ion-icon name="calendar-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+      <ion-button class="header-icon-btn" routerLink="/profile">
+        <ion-icon name="person-circle" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="worker-background">
+  <div class="detail-container">
+
+    <!-- Título -->
+    <h1 class="page-title">Detalles del trabajo</h1>
+
+    <!-- Toggle activo -->
+    <div class="active-row">
+      <span class="active-label">Activo:</span>
+      <ion-toggle [(ngModel)]="isActive" class="active-toggle" color="success"></ion-toggle>
+    </div>
+
+    <!-- Tarjeta Destino -->
+    <div class="detail-card">
+      <div class="card-title-row">
+        <ion-icon name="location" class="card-title-icon location-icon"></ion-icon>
+        <span class="card-title">Destino</span>
+      </div>
+      <div class="map-container">
+        <img src="assets/map.png" alt="Mapa de destino" class="map-img" />
+        <div class="map-address" *ngIf="clientAddress">
+          <ion-icon name="navigate-outline"></ion-icon>
+          {{ clientAddress }}
+        </div>
+      </div>
+    </div>
+
+    <!-- Tarjeta Descripción del problema -->
+    <div class="detail-card">
+      <div class="card-title-row">
+        <ion-icon name="chatbubble-ellipses" class="card-title-icon chat-icon"></ion-icon>
+        <span class="card-title">Descripcion del problema</span>
+      </div>
+      <div class="description-box">
+        <p class="description-text" *ngIf="problemDescription">{{ problemDescription }}</p>
+        <p class="description-placeholder" *ngIf="!problemDescription">Sin descripción proporcionada.</p>
+      </div>
+    </div>
+
+    <!-- Tarjeta Tipo de cita -->
+    <div class="detail-card">
+      <div class="card-title-row">
+        <ion-icon name="calendar" class="card-title-icon calendar-icon"></ion-icon>
+        <span class="card-title">Tipo de cita</span>
+      </div>
+      <div class="appointment-type-row">
+        <ion-button *ngIf="appointmentType === 'urgente'" class="urgente-btn" expand="block">
+          <ion-icon name="warning" slot="start"></ion-icon>
+          Urgente
+        </ion-button>
+        <ion-button *ngIf="appointmentType === 'programar'" class="programada-btn" expand="block">
+          <ion-icon name="time" slot="start"></ion-icon>
+          Programada — {{ appointmentDate }}
+        </ion-button>
+      </div>
+    </div>
+
+    <!-- Botón Empezar -->
+    <div class="start-btn-container">
+      <ion-button shape="round" class="start-btn" (click)="startJob()">
+        Empezar
+      </ion-button>
+    </div>
+
+  </div>
+</ion-content>

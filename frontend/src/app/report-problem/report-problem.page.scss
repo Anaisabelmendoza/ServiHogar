@@ -1,0 +1,109 @@
+.client-background,
+.worker-background {
+  --background: url('../../assets/Fondo.png') no-repeat center top / cover;
+}
+
+.gradient-toolbar {
+  --background: linear-gradient(90deg, #6fdcdb 0%, #30b6e1 100%);
+  --min-height: 60px;
+  
+  .back-btn {
+    font-size: 1.8rem;
+    color: white;
+    margin-left: 5px;
+  }
+}
+
+.report-container {
+  display: flex;
+  flex-direction: column;
+  padding: 30px 20px;
+}
+
+.main-title {
+  color: #04608c;
+  font-size: 1.8rem;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 40px;
+  line-height: 1.2;
+}
+
+.checkbox-list {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  margin-bottom: 50px;
+  padding: 0 10px;
+
+  .checkbox-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+
+    .custom-checkbox {
+      width: 24px;
+      height: 24px;
+      background: white;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      
+      ion-icon {
+        color: #04608c;
+        font-size: 1.2rem;
+      }
+    }
+
+    span {
+      color: #04608c;
+      font-size: 1.15rem;
+      font-weight: 500;
+    }
+
+    &.other-item {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+
+      .other-input {
+        flex: 1;
+        --padding-bottom: 5px;
+        --padding-start: 5px;
+        --padding-end: 0;
+        border-bottom: 1px solid #04608c;
+        color: #04608c;
+        font-size: 1.1rem;
+        margin-left: 5px;
+
+        &::part(native) {
+          padding-bottom: 5px;
+        }
+      }
+    }
+  }
+}
+
+.submit-button-container {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+
+  .submit-btn {
+    --background: #ffffff;
+    --color: #04608c;
+    --background-activated: #f0f0f0;
+    --background-focused: #f0f0f0;
+    --background-hover: #f0f0f0;
+    font-weight: bold;
+    font-size: 1.1rem;
+    --padding-top: 15px;
+    --padding-bottom: 15px;
+    --padding-start: 30px;
+    --padding-end: 30px;
+    text-transform: none;
+    --box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+  }
+}

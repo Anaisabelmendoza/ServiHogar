@@ -1,0 +1,60 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar class="gradient-toolbar">
+    <ion-title class="toolbar-title">TRABAJANDO</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="worker-background">
+  <div class="working-container">
+
+    <!-- Bienvenida -->
+    <h1 class="welcome-title">Bienvenido {{ workerName }}</h1>
+
+    <!-- Texto Trabajando -->
+    <p class="working-label">Trabajando.....</p>
+
+    <!-- Barra de progreso animada -->
+    <div class="progress-bar-wrapper">
+      <div class="progress-bar-track">
+        <div class="progress-bar-fill" [style.width.%]="progressPercent"></div>
+      </div>
+    </div>
+
+    <!-- Cronómetro -->
+    <div class="timer-display">
+      {{ timerDisplay }}
+    </div>
+
+    <!-- Botones de acción -->
+    <div class="actions-container">
+      <ion-button shape="round" class="action-btn" (click)="finishJob()">
+        Finalizado con éxito
+      </ion-button>
+      <ion-button shape="round" class="action-btn" (click)="cancelJob()">
+        Cancelar trabajo
+      </ion-button>
+      <ion-button shape="round" class="action-btn" (click)="reportProblem()">
+        Reportar problema
+      </ion-button>
+    </div>
+
+  </div>
+
+  <!-- Modal confirmar cancelación -->
+  <ion-modal [isOpen]="isCancelModalOpen" (didDismiss)="dismissCancelModal()" class="cancel-modal">
+    <ng-template>
+      <div class="modal-content">
+        <h2 class="modal-title">¿Cancelar Trabajo?</h2>
+        <div class="modal-buttons">
+          <ion-button shape="round" class="confirm-btn" (click)="confirmCancel()">
+            Aceptar
+          </ion-button>
+          <ion-button shape="round" class="dismiss-btn" (click)="dismissCancelModal()">
+            Cancelar
+          </ion-button>
+        </div>
+      </div>
+    </ng-template>
+  </ion-modal>
+
+</ion-content>

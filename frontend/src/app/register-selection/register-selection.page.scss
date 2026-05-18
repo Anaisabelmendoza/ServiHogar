@@ -1,0 +1,48 @@
+ion-content {
+  --background: url('../../assets/Fondo.png') no-repeat center center / cover;
+}
+
+.transparent-toolbar {
+  --background: transparent;
+  --color: white;
+}
+
+ion-back-button {
+  --color: white;
+  font-size: 1.5rem;
+}
+
+.selection-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  height: 100%;
+}
+
+.title {
+  color: #1a5c96;
+  font-size: 2.5rem;
+  font-weight: bold;
+  text-align: center;
+  margin-top: 50px;
+  margin-bottom: 150px;
+}
+
+.buttons-container {
+  width: 100%;
+  max-width: 300px;
+  display: flex;
+  flex-direction: column;
+  gap: 60px;
+}
+
+.selection-button {
+  --background: white;
+  --color: #1a5c96;
+  --box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  font-weight: bold;
+  height: 60px;
+  font-size: 1.3rem;
+  text-transform: none;
+}

@@ -1,0 +1,15 @@
+{
+    "name": "diegoblazquezanguis/backend",
+    "autoload": {
+        "psr-4": {
+            "Diegoblazquezanguis\\Backend\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "AnaIsabel Dev",
+            "email": "anaisabel.mendoza@escuelaestech.es"
+        }
+    ],
+    "require": {}
+}

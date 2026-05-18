@@ -1,0 +1,61 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar class="gradient-toolbar">
+    <ion-buttons slot="start">
+      <ion-back-button class="back-btn" defaultHref="/service-description" text="" icon="chevron-back"></ion-back-button>
+    </ion-buttons>
+    <ion-buttons slot="end">
+      <ion-button class="action-btn calendar-btn">
+        <ion-icon name="calculator" slot="icon-only"></ion-icon>
+      </ion-button>
+      <ion-button class="action-btn profile-btn" (click)="logout()">
+        <ion-icon name="person-circle" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="client-background">
+  <div class="welcome-section">
+    <h1 class="main-title">Gracias por elegirnos</h1>
+    <h2 class="sub-title">Selecciona un profesional disponible:</h2>
+  </div>
+
+  <div class="professionals-list">
+    <div class="professional-card" 
+         *ngFor="let prof of professionals" 
+         [class.selected]="selectedProfessionalId === prof.id"
+         (click)="selectProfessional(prof.id)">
+         
+      <div class="prof-avatar">
+        <img [src]="prof.avatar" alt="Avatar de {{ prof.name }}">
+      </div>
+      
+      <div class="prof-info">
+        <h3 class="prof-name">{{ prof.name }}</h3>
+        <div class="prof-rating">
+          <span class="rating-text">Puntuación media</span>
+          <div class="stars">
+            <ion-icon *ngFor="let star of [1,2,3,4,5]; let i = index" 
+                      [name]="i < prof.rating ? 'star' : 'star-outline'">
+            </ion-icon>
+          </div>
+        </div>
+      </div>
+      
+      <div class="prof-actions">
+        <ion-button fill="clear" class="contact-icon" (click)="callProfessional(prof); $event.stopPropagation()">
+          <ion-icon name="call" slot="icon-only"></ion-icon>
+        </ion-button>
+        <ion-button fill="clear" class="contact-icon" (click)="chatProfessional(prof); $event.stopPropagation()">
+          <ion-icon name="chatbubble" slot="icon-only"></ion-icon>
+        </ion-button>
+      </div>
+    </div>
+  </div>
+
+  <div class="submit-button-container" *ngIf="selectedProfessionalId">
+    <ion-button shape="round" class="submit-btn" (click)="confirmSelection()">
+      Aceptar
+    </ion-button>
+  </div>
+</ion-content>

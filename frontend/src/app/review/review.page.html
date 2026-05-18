@@ -1,0 +1,39 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar class="gradient-toolbar">
+    <ion-buttons slot="start">
+      <ion-back-button class="back-btn" defaultHref="/home" text="" icon="chevron-back"></ion-back-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="client-background">
+  <div class="review-container">
+    <h1 class="main-title">Comenta Tu Experiencia</h1>
+
+    <div class="prof-avatar">
+      <img *ngIf="profAvatar && !imageError" [src]="profAvatar" alt="Avatar" (error)="handleImageError($event)">
+      <ion-icon name="person" class="fallback-icon" *ngIf="!profAvatar || imageError"></ion-icon>
+    </div>
+
+    <h2 class="prof-name">{{ profName || 'Nombre trabajador' }}</h2>
+
+    <div class="rating-stars">
+      <ion-icon *ngFor="let star of [1,2,3,4,5]; let i = index" 
+                [name]="i < selectedRating ? 'star' : 'star-outline'"
+                (click)="setRating(i + 1)">
+      </ion-icon>
+    </div>
+
+    <h3 class="comment-title">¿Quieres añadir un comentario?</h3>
+
+    <div class="comment-input-wrapper">
+      <ion-input type="text" [(ngModel)]="commentText" class="custom-input"></ion-input>
+    </div>
+
+    <div class="submit-button-container">
+      <ion-button shape="round" class="submit-btn" (click)="submitReview()">
+        Enviar reseña
+      </ion-button>
+    </div>
+  </div>
+</ion-content>

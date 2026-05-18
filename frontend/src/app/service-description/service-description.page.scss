@@ -1,0 +1,151 @@
+.client-background {
+  --background: url('../../assets/Fondo.png') no-repeat center center / cover;
+}
+
+.gradient-toolbar {
+  --background: linear-gradient(90deg, #6fdcdb 0%, #30b6e1 100%);
+  --min-height: 60px;
+  
+  .back-btn {
+    font-size: 1.5rem;
+    color: white;
+    margin-left: 5px;
+  }
+  
+  .action-btn {
+    font-size: 1.5rem;
+  }
+  
+  .calendar-btn {
+    color: #04608c;
+  }
+  
+  .profile-btn {
+    color: white;
+    font-size: 1.8rem;
+  }
+}
+
+.title-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin: 20px 0 25px;
+
+  .title-icon {
+    font-size: 1.8rem;
+    color: #04608c;
+  }
+
+  .page-title {
+    color: #04608c;
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin: 0;
+  }
+}
+
+.description-container {
+  padding: 0 20px;
+  
+  .text-area-card {
+    background: white;
+    border-radius: 8px;
+    padding: 5px 15px 15px 15px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+
+    .custom-textarea {
+      --placeholder-color: #999;
+      --placeholder-font-style: italic;
+      font-size: 1.05rem;
+      color: #333;
+      margin-bottom: 10px;
+      
+      &::part(native) {
+        padding-top: 10px;
+      }
+    }
+
+    .attachment-actions {
+      display: flex;
+      gap: 5px;
+      
+      .attach-icon {
+        --color: #04608c;
+        margin: 0;
+        --padding-start: 5px;
+        --padding-end: 5px;
+        font-size: 1.5rem;
+      }
+    }
+
+    .attachments-preview {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+      padding-top: 10px;
+      border-top: 1px solid #eee;
+      overflow-x: auto;
+      
+      .preview-item {
+        position: relative;
+        min-width: 60px;
+        height: 60px;
+        
+        .preview-thumb {
+          width: 60px;
+          height: 60px;
+          object-fit: cover;
+          border-radius: 8px;
+          border: 1px solid #ddd;
+        }
+
+        .video-thumb {
+          background: #f0f0f0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #04608c;
+          font-size: 1.5rem;
+        }
+
+        .remove-btn {
+          position: absolute;
+          top: -10px;
+          right: -10px;
+          --padding-start: 0;
+          --padding-end: 0;
+          margin: 0;
+          height: 24px;
+          width: 24px;
+          font-size: 1.5rem;
+          background: white;
+          border-radius: 50%;
+        }
+      }
+    }
+  }
+}
+
+.submit-button-container {
+  display: flex;
+  justify-content: center;
+  margin: 40px 0;
+
+  .submit-btn {
+    --background: #ffffff;
+    --color: #04608c;
+    --background-activated: #f0f0f0;
+    --background-focused: #f0f0f0;
+    --background-hover: #f0f0f0;
+    font-weight: bold;
+    font-size: 1.1rem;
+    --padding-start: 40px;
+    --padding-end: 40px;
+    text-transform: none;
+    --box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+  }
+}

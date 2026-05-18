@@ -1,0 +1,80 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar class="transparent-toolbar">
+    <ion-buttons slot="start">
+      <!-- Botón para volver al paso 1 o a la selección -->
+      <ion-back-button *ngIf="step === 1" defaultHref="/register-selection" text="" icon="chevron-back"></ion-back-button>
+      <ion-button *ngIf="step === 2" (click)="step = 1">
+        <ion-icon slot="icon-only" name="chevron-back"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <div class="register-container">
+    <h1 class="title">Registro Cliente</h1>
+
+    <div class="form-container">
+      
+      <!-- PASO 1: DATOS PERSONALES -->
+      <div *ngIf="step === 1">
+        <ion-item lines="none" class="custom-input">
+          <ion-label position="stacked">Nombre y Apellidos</ion-label>
+          <ion-input type="text" placeholder=""></ion-input>
+        </ion-item>
+
+        <ion-item lines="none" class="custom-input">
+          <ion-label position="stacked">DNI</ion-label>
+          <ion-input type="text" placeholder=""></ion-input>
+        </ion-item>
+
+        <ion-item lines="none" class="custom-input">
+          <ion-label position="stacked">Domicilio</ion-label>
+          <ion-input type="text" placeholder=""></ion-input>
+        </ion-item>
+
+        <ion-item lines="none" class="custom-input">
+          <ion-label position="stacked">Teléfono</ion-label>
+          <ion-input type="tel" placeholder=""></ion-input>
+        </ion-item>
+
+        <div class="button-container">
+          <ion-button expand="block" shape="round" class="next-button" (click)="step = 2">
+            Siguiente <ion-icon name="chevron-forward-outline" slot="end"></ion-icon>
+          </ion-button>
+        </div>
+      </div>
+
+      <!-- PASO 2: CREDENCIALES -->
+      <div *ngIf="step === 2">
+        <ion-item lines="none" class="custom-input">
+          <ion-label position="stacked">Email</ion-label>
+          <ion-input type="email" placeholder=""></ion-input>
+        </ion-item>
+
+        <ion-item lines="none" class="custom-input">
+          <ion-label position="stacked">Contraseña</ion-label>
+          <ion-input type="password" placeholder=""></ion-input>
+        </ion-item>
+
+        <ion-item lines="none" class="custom-input">
+          <ion-label position="stacked">Confirmar Contraseña</ion-label>
+          <ion-input type="password" placeholder=""></ion-input>
+        </ion-item>
+
+        <div class="privacy-container">
+          <ion-checkbox labelPlacement="end" justify="start">
+            <span class="privacy-text">Aceptar política de privacidad</span>
+          </ion-checkbox>
+        </div>
+
+        <div class="button-container">
+          <ion-button expand="block" shape="round" class="send-button">
+            Enviar
+          </ion-button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</ion-content>

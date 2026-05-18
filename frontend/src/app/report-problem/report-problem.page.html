@@ -1,0 +1,90 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar class="gradient-toolbar">
+    <ion-buttons slot="start">
+      <ion-back-button class="back-btn" [defaultHref]="isWorker ? '/worker-working' : '/service-tracking'" text="" icon="chevron-back"></ion-back-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" [class.worker-background]="isWorker" [class.client-background]="!isWorker">
+  <div class="report-container">
+    <h1 class="main-title">Seleccione la incidencia<br>del servicio</h1>
+
+    <!-- Opciones para el CLIENTE -->
+    <div class="checkbox-list" *ngIf="!isWorker">
+      <div class="checkbox-item" (click)="toggleReason('incompleto')">
+        <div class="custom-checkbox" [class.checked]="selectedReasons['incompleto']">
+          <ion-icon name="checkmark" *ngIf="selectedReasons['incompleto']"></ion-icon>
+        </div>
+        <span>El trabajo no se completó</span>
+      </div>
+
+      <div class="checkbox-item" (click)="toggleReason('comportamiento')">
+        <div class="custom-checkbox" [class.checked]="selectedReasons['comportamiento']">
+          <ion-icon name="checkmark" *ngIf="selectedReasons['comportamiento']"></ion-icon>
+        </div>
+        <span>Mal comportamiento del profesional</span>
+      </div>
+
+      <div class="checkbox-item" (click)="toggleReason('tarde')">
+        <div class="custom-checkbox" [class.checked]="selectedReasons['tarde']">
+          <ion-icon name="checkmark" *ngIf="selectedReasons['tarde']"></ion-icon>
+        </div>
+        <span>El profesional llegó tarde</span>
+      </div>
+
+      <div class="checkbox-item" (click)="toggleReason('danos')">
+        <div class="custom-checkbox" [class.checked]="selectedReasons['danos']">
+          <ion-icon name="checkmark" *ngIf="selectedReasons['danos']"></ion-icon>
+        </div>
+        <span>Daños en mi propiedad</span>
+      </div>
+
+      <div class="checkbox-item other-item" (click)="toggleReason('otros')">
+        <div class="custom-checkbox" [class.checked]="selectedReasons['otros']">
+          <ion-icon name="checkmark" *ngIf="selectedReasons['otros']"></ion-icon>
+        </div>
+        <span>Otros:</span>
+        <ion-input type="text" [(ngModel)]="otherReasonText" class="other-input" (click)="$event.stopPropagation()"></ion-input>
+      </div>
+    </div>
+
+    <!-- Opciones para el TRABAJADOR/PROFESIONAL -->
+    <div class="checkbox-list" *ngIf="isWorker">
+      <div class="checkbox-item" (click)="toggleReason('ausente')">
+        <div class="custom-checkbox" [class.checked]="selectedReasons['ausente']">
+          <ion-icon name="checkmark" *ngIf="selectedReasons['ausente']"></ion-icon>
+        </div>
+        <span>El cliente no estaba en el domicilio</span>
+      </div>
+
+      <div class="checkbox-item" (click)="toggleReason('comportamiento')">
+        <div class="custom-checkbox" [class.checked]="selectedReasons['comportamiento']">
+          <ion-icon name="checkmark" *ngIf="selectedReasons['comportamiento']"></ion-icon>
+        </div>
+        <span>Comportamiento inadecuado del cliente</span>
+      </div>
+
+      <div class="checkbox-item" (click)="toggleReason('impago')">
+        <div class="custom-checkbox" [class.checked]="selectedReasons['impago']">
+          <ion-icon name="checkmark" *ngIf="selectedReasons['impago']"></ion-icon>
+        </div>
+        <span>Desacuerdo con el pago o condiciones</span>
+      </div>
+
+      <div class="checkbox-item other-item" (click)="toggleReason('otros')">
+        <div class="custom-checkbox" [class.checked]="selectedReasons['otros']">
+          <ion-icon name="checkmark" *ngIf="selectedReasons['otros']"></ion-icon>
+        </div>
+        <span>Otros:</span>
+        <ion-input type="text" [(ngModel)]="otherReasonText" class="other-input" (click)="$event.stopPropagation()"></ion-input>
+      </div>
+    </div>
+
+    <div class="submit-button-container">
+      <ion-button shape="round" class="submit-btn" (click)="submitReport()">
+        Reportar problema
+      </ion-button>
+    </div>
+  </div>
+</ion-content>
