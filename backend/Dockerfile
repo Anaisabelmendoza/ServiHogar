@@ -28,6 +28,9 @@ WORKDIR /var/www/html
 # Copy all application files
 COPY . .
 
+# Create env file from example
+RUN cp .env.example .env
+
 # Install Laravel dependencies
 RUN composer install --no-interaction --optimize-autoloader --no-dev --ignore-platform-reqs
 
