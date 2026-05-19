@@ -16,8 +16,14 @@ export class RegisterClientPage implements OnInit {
   email: string = '';
   phone: string = '';
   password: string = '';
+  confirmPassword: string = '';
+  showPassword: boolean = false;
+  showConfirmPassword: boolean = false;
   dni: string = '';
   domicilio: string = '';
+  codigo_postal: string = '';
+  ciudad: string = '';
+  provincia: string = '';
 
   constructor(
     private http: HttpClient,
@@ -29,9 +35,27 @@ export class RegisterClientPage implements OnInit {
   ngOnInit() {
   }
 
+  isPasswordValid(pass: string): boolean {
+    if (!pass) return true;
+    const hasUpper = /[A-Z]/.test(pass);
+    const hasNumber = /[0-9]/.test(pass);
+    const hasSign = /[!@#$%^&*(),.?":{}|<>\-_]/.test(pass);
+    return hasUpper && hasNumber && hasSign;
+  }
+
   async register() {
-    if (!this.name || !this.email || !this.phone || !this.password) {
+    if (!this.name || !this.email || !this.phone || !this.password || !this.domicilio || !this.codigo_postal || !this.ciudad || !this.provincia) {
       this.showAlert('Error', 'Por favor, rellena todos los campos');
+      return;
+    }
+
+    if (!this.isPasswordValid(this.password)) {
+      this.showAlert('Error', 'La contraseña no cumple con los requisitos de seguridad');
+      return;
+    }
+
+    if (this.password !== this.confirmPassword) {
+      this.showAlert('Error', 'Las contraseñas no coinciden');
       return;
     }
 
@@ -47,7 +71,11 @@ export class RegisterClientPage implements OnInit {
       name: this.name,
       email: this.email,
       telefono: this.phone,
-      password: this.password
+      password: this.password,
+      domicilio: this.domicilio,
+      codigo_postal: this.codigo_postal,
+      ciudad: this.ciudad,
+      provincia: this.provincia
     }).subscribe({
       next: (res: any) => {
         loading.dismiss();

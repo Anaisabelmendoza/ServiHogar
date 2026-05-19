@@ -13,6 +13,7 @@ import { AlertController, LoadingController } from '@ionic/angular';
 export class LoginPage implements OnInit {
   email: string = '';
   password: string = '';
+  showPassword: boolean = false;
 
   constructor(
     private http: HttpClient,

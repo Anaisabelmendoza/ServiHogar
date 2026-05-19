@@ -11,6 +11,8 @@ export class ServiceDescriptionPage implements OnInit {
   description: string = '';
   appointmentType: string | null = null;
   appointmentDateTime: string | null = null;
+  serviceId: string | null = null;
+  address: string | null = null;
   
   attachedFiles: { name: string, url: string, type: string }[] = [];
 
@@ -23,6 +25,12 @@ export class ServiceDescriptionPage implements OnInit {
       }
       if (params['datetime']) {
         this.appointmentDateTime = params['datetime'];
+      }
+      if (params['service']) {
+        this.serviceId = params['service'];
+      }
+      if (params['address']) {
+        this.address = params['address'];
       }
     });
   }
@@ -70,8 +78,11 @@ export class ServiceDescriptionPage implements OnInit {
     // Navigate to professional selection
     this.router.navigate(['/professional-selection'], {
       queryParams: {
+        service: this.serviceId,
+        description: this.description,
         type: this.appointmentType,
-        datetime: this.appointmentDateTime
+        datetime: this.appointmentDateTime,
+        address: this.address
       }
     });
   }

@@ -61,7 +61,8 @@ export class WorkerJobDetailPage implements OnInit {
     this.router.navigate(['/worker-working'], {
       queryParams: {
         clientName: this.clientName,
-        id: this.requestId
+        id: this.requestId,
+        address: this.clientAddress
       }
     });
   }

@@ -3,7 +3,7 @@
     <ion-buttons slot="start">
       <ion-back-button class="back-btn" defaultHref="/worker-home" text="" icon="chevron-back"></ion-back-button>
     </ion-buttons>
-    <ion-title class="toolbar-title">VALORAR TRABAJADOR</ion-title>
+    <ion-title class="toolbar-title">FINALIZAR Y FACTURAR</ion-title>
   </ion-toolbar>
 </ion-header>
 
@@ -11,41 +11,72 @@
   <div class="review-container">
 
     <!-- Título -->
-    <h1 class="page-title">Comenta Tu Experiencia</h1>
+    <h1 class="page-title">Informe y Factura del Servicio</h1>
 
-    <!-- Avatar del cliente -->
-    <div class="avatar-circle">
-      <img *ngIf="clientAvatar" [src]="clientAvatar" class="avatar-img" alt="Foto cliente"
-           (error)="clientAvatar = ''" />
-      <div *ngIf="!clientAvatar" class="avatar-placeholder">
-        <ion-icon name="person" class="avatar-icon"></ion-icon>
+    <!-- Tarjeta del Cliente -->
+    <div class="client-card">
+      <div class="avatar-circle">
+        <img *ngIf="clientAvatar" [src]="clientAvatar" class="avatar-img" alt="Foto cliente"
+             (error)="clientAvatar = ''" />
+        <div *ngIf="!clientAvatar" class="avatar-placeholder">
+          <ion-icon name="person" class="avatar-icon"></ion-icon>
+        </div>
+      </div>
+      <p class="client-name">{{ clientName || 'Nombre cliente' }}</p>
+      
+      <!-- Valorar al cliente -->
+      <p class="stars-label">Valoración del cliente:</p>
+      <div class="stars-row">
+        <ion-icon
+          *ngFor="let i of [1,2,3,4,5]"
+          [name]="i <= rating ? 'star' : 'star-outline'"
+          class="star-icon"
+          (click)="setRating(i)">
+        </ion-icon>
       </div>
     </div>
 
-    <!-- Nombre cliente -->
-    <p class="client-name">{{ clientName || 'Nombre cliente' }}</p>
-
-    <!-- Estrellas interactivas -->
-    <div class="stars-row">
-      <ion-icon
-        *ngFor="let i of [1,2,3,4,5]"
-        [name]="i <= rating ? 'star' : 'star-outline'"
-        class="star-icon"
-        (click)="setRating(i)">
-      </ion-icon>
+    <!-- Informe de lo realizado -->
+    <div class="section-card">
+      <h2 class="section-title">
+        <ion-icon name="document-text-outline"></ion-icon>
+        Informe del Trabajo Realizado
+      </h2>
+      <p class="section-desc">Escribe una descripción de los trabajos ejecutados para el cliente.</p>
+      <textarea [(ngModel)]="worker_report" rows="4" class="custom-textarea"
+                placeholder="Ej: Se localizó la fuga en el codo de la tubería del baño, se sustituyó el tramo dañado por uno de cobre y se verificó que la presión es correcta."></textarea>
     </div>
 
-    <!-- Campo de comentario -->
-    <p class="comment-label">¿Quieres añadir un comentario?</p>
-    <div class="comment-line">
-      <input [(ngModel)]="comment" type="text" class="comment-input"
-             placeholder="Escribe aquí tu opinión..." />
+    <!-- Datos de la Factura -->
+    <div class="section-card">
+      <h2 class="section-title">
+        <ion-icon name="receipt-outline"></ion-icon>
+        Detalles de la Factura
+      </h2>
+      <p class="section-desc">Genera el importe desglosado para el cobro del servicio.</p>
+      
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Precio Total del Servicio (€)</label>
+          <input [(ngModel)]="invoice_price" type="number" step="0.01" class="custom-input" placeholder="0.00" />
+        </div>
+
+        <div class="form-group">
+          <label>Horas de Mano de Obra</label>
+          <input [(ngModel)]="invoice_hours" type="number" step="0.5" class="custom-input" placeholder="Ej: 1.5" />
+        </div>
+      </div>
+
+      <div class="form-group" style="margin-top: 16px;">
+        <label>Materiales y otros costes (€ o descripción)</label>
+        <input [(ngModel)]="invoice_materials" type="text" class="custom-input" placeholder="Ej: Tubería PVC 2m, Codo, Pegamento especial" />
+      </div>
     </div>
 
     <!-- Botón enviar -->
-    <div class="submit-btn-container" *ngIf="rating > 0">
-      <ion-button shape="round" class="submit-btn" (click)="submitReview()">
-        Enviar valoración
+    <div class="submit-btn-container">
+      <ion-button shape="round" class="submit-btn" (click)="submitReview()" [disabled]="!invoice_price || !worker_report">
+        Finalizar Trabajo y Generar Factura
       </ion-button>
     </div>
 

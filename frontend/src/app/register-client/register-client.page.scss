@@ -64,6 +64,8 @@ ion-content {
     --padding-start: 15px;
     height: 45px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    --color: #000000 !important;
+    color: #000000 !important;
   }
 }
 
@@ -90,7 +92,7 @@ ion-content {
   justify-content: center;
 }
 
-.send-button {
+.next-button, .send-button {
   --background: white;
   --color: #1a5c96;
   --box-shadow: 0 4px 6px rgba(0,0,0,0.1);
@@ -99,4 +101,37 @@ ion-content {
   height: 50px;
   font-size: 1.2rem;
   text-transform: none;
+}
+
+.profession-selection {
+  margin: 20px 0;
+  
+  .subtitle {
+    color: #1a5c96;
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin-bottom: 15px;
+    text-decoration: underline;
+  }
+
+  .radio-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+
+    ion-item {
+      --background: transparent;
+      --padding-start: 0;
+      font-size: 0.9rem;
+      color: #1a5c96;
+      font-weight: 600;
+
+      ion-checkbox {
+        --size: 20px;
+        --checkbox-background-checked: #1a5c96;
+        --border-color: #1a5c96;
+        margin-right: 10px;
+      }
+    }
+  }
 }

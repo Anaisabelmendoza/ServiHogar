@@ -12,10 +12,12 @@ export class HomePage implements OnInit {
   role: string = 'cliente';
 
   services = [
-    { id: 'fontaneria', name: 'Fontanería', image: 'assets/services/fontaneria.jpg' },
-    { id: 'limpieza', name: 'Limpieza', image: 'assets/services/limpieza.jpg' },
-    { id: 'electricidad', name: 'Electricidad', image: 'assets/services/electricidad.jpg' },
-    { id: 'carpinteria', name: 'Carpintería', image: 'assets/services/carpinteria.jpg' }
+    { id: 'electricista', name: 'Electricista', image: 'assets/services/electricidad.jpg' },
+    { id: 'carpintero', name: 'Carpintero', image: 'assets/services/carpinteria.jpg' },
+    { id: 'pintor', name: 'Pintor', image: 'assets/services/pintura.jpg' },
+    { id: 'fontanero', name: 'Fontanero', image: 'assets/services/fontaneria.jpg' },
+    { id: 'obrero', name: 'Obrero', image: 'assets/services/obrero.jpg' },
+    { id: 'cerrajero', name: 'Cerrajero', image: 'assets/services/cerrajeria.jpg' }
   ];
 
   constructor(private router: Router) {}

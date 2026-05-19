@@ -54,8 +54,9 @@
   </div>
 
   <div class="submit-button-container" *ngIf="selectedProfessionalId">
-    <ion-button shape="round" class="submit-btn" (click)="confirmSelection()">
-      Aceptar
+    <ion-button shape="round" class="submit-btn" [disabled]="isSubmitting" (click)="confirmSelection()">
+      <span *ngIf="!isSubmitting">Aceptar</span>
+      <ion-spinner name="crescent" *ngIf="isSubmitting" style="--color: #04608c;"></ion-spinner>
     </ion-button>
   </div>
 </ion-content>

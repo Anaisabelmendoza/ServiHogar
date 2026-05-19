@@ -20,35 +20,58 @@
 }
 
 .review-container {
-  padding: 40px 24px;
+  padding: 24px 16px;
   display: flex;
   flex-direction: column;
   align-items: center;
+  gap: 20px;
   min-height: 100%;
 }
 
-// Título
 .page-title {
-  font-size: 1.7rem;
+  font-size: 1.6rem;
   font-weight: bold;
   color: #04608c;
   text-align: center;
-  margin: 0 0 40px 0;
+  margin: 10px 0;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
-// Avatar
+/* Tarjeta del cliente */
+.client-card {
+  width: 100%;
+  max-width: 450px;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: 0 8px 32px rgba(4, 96, 140, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.stars-label {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #5587a3;
+  margin: 12px 0 6px 0;
+}
+
+/* Avatar */
 .avatar-circle {
-  width: 120px;
-  height: 120px;
+  width: 90px;
+  height: 90px;
   border-radius: 50%;
   overflow: hidden;
   background: white;
-  border: 2px solid #ddd;
+  border: 3px solid #6fdcdb;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 
   .avatar-img {
     width: 100%;
@@ -65,30 +88,28 @@
     background: #f0f8ff;
 
     .avatar-icon {
-      font-size: 4.5rem;
+      font-size: 3.5rem;
       color: #b0cbe3;
     }
   }
 }
 
-// Nombre cliente
 .client-name {
-  font-size: 1.4rem;
+  font-size: 1.3rem;
   font-weight: bold;
   color: #04608c;
-  margin: 0 0 16px 0;
-  text-align: center;
+  margin: 0;
 }
 
-// Estrellas
+/* Estrellas */
 .stars-row {
   display: flex;
-  gap: 8px;
-  margin-bottom: 40px;
+  gap: 6px;
+  margin-bottom: 5px;
 
   .star-icon {
     font-size: 2.2rem;
-    color: #04608c; // Contorno y relleno azul según imagen
+    color: #ffd700; /* Gold color for standard high premium feel */
     cursor: pointer;
     transition: transform 0.15s ease;
 
@@ -98,57 +119,122 @@
   }
 }
 
-// Label del comentario
-.comment-label {
-  font-size: 1.3rem;
-  font-weight: bold;
-  color: #04608c;
-  text-align: center;
-  margin: 0 0 25px 0;
+/* Tarjetas de Sección */
+.section-card {
+  width: 100%;
+  max-width: 450px;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: 0 8px 32px rgba(4, 96, 140, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  display: flex;
+  flex-direction: column;
 }
 
-// Línea del comentario
-.comment-line {
-  width: 100%;
-  max-width: 320px;
-  border-bottom: 2px solid #04608c;
-  margin-bottom: 40px;
+.section-title {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #04608c;
+  margin: 0 0 4px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 
-  .comment-input {
-    width: 100%;
-    border: none;
-    background: transparent;
-    outline: none;
-    font-size: 1.1rem;
-    color: #04608c;
-    text-align: center;
-    padding: 8px 0;
-
-    &::placeholder {
-      color: #9cbacf;
-      opacity: 0.8;
-    }
+  ion-icon {
+    font-size: 1.3rem;
+    color: #30b6e1;
   }
 }
 
-// Botón de enviar
+.section-desc {
+  font-size: 0.85rem;
+  color: #668da3;
+  margin: 0 0 14px 0;
+}
+
+/* Campos de Formulario */
+.custom-textarea {
+  width: 100%;
+  border: 1.5px solid #d0e1ec;
+  border-radius: 12px;
+  padding: 12px;
+  font-size: 0.95rem;
+  color: #04608c;
+  background: #fafcff;
+  outline: none;
+  resize: none;
+  transition: border-color 0.2s;
+
+  &:focus {
+    border-color: #30b6e1;
+    background: white;
+  }
+
+  &::placeholder {
+    color: #a4c1d4;
+  }
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #04608c;
+  }
+}
+
+.custom-input {
+  width: 100%;
+  border: 1.5px solid #d0e1ec;
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-size: 0.95rem;
+  color: #04608c;
+  background: #fafcff;
+  outline: none;
+  transition: border-color 0.2s;
+
+  &:focus {
+    border-color: #30b6e1;
+    background: white;
+  }
+
+  &::placeholder {
+    color: #a4c1d4;
+  }
+}
+
+/* Botón de Enviar */
 .submit-btn-container {
   width: 100%;
+  max-width: 450px;
+  margin-top: 10px;
+  margin-bottom: 30px;
   display: flex;
   justify-content: center;
 
   .submit-btn {
-    --background: white;
-    --color: #04608c;
-    --background-activated: #f0f0f0;
+    width: 100%;
+    --background: linear-gradient(90deg, #6fdcdb 0%, #30b6e1 100%);
+    --color: white;
     font-weight: bold;
-    font-size: 1.1rem;
+    font-size: 1.05rem;
     text-transform: none;
-    --box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
-    --padding-start: 40px;
-    --padding-end: 40px;
-    --padding-top: 14px;
-    --padding-bottom: 14px;
+    --box-shadow: 0 6px 20px rgba(48, 182, 225, 0.3);
+    --border-radius: 16px;
+    --padding-top: 16px;
+    --padding-bottom: 16px;
     margin: 0;
   }
 }

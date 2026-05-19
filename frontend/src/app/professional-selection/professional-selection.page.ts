@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-professional-selection',
@@ -9,45 +11,62 @@ import { Router, ActivatedRoute } from '@angular/router';
 })
 export class ProfessionalSelectionPage implements OnInit {
   
-  // Dummy data para simular la base de datos de profesionales
-  professionals = [
-    {
-      id: 1,
-      name: 'Nombre trabajador 1',
-      rating: 0,
-      avatar: 'https://i.pravatar.cc/150?img=11',
-      phone: '600000011'
-    },
-    {
-      id: 2,
-      name: 'Nombre trabajador 2',
-      rating: 0,
-      avatar: 'https://i.pravatar.cc/150?img=12',
-      phone: '600000012'
-    },
-    {
-      id: 3,
-      name: 'Nombre trabajador 3',
-      rating: 0,
-      avatar: 'https://i.pravatar.cc/150?img=13',
-      phone: '600000013'
-    }
-  ];
-
+  professionals: any[] = [];
   selectedProfessionalId: number | null = null;
   appointmentType: string | null = null;
   appointmentDateTime: string | null = null;
+  serviceId: string | null = null;
+  description: string | null = null;
+  address: string | null = null;
+  isSubmitting = false;
+  isLoading = true;
 
-  constructor(private router: Router, private route: ActivatedRoute) { }
+  constructor(
+    private router: Router, 
+    private route: ActivatedRoute,
+    private http: HttpClient
+  ) { }
 
   ngOnInit() {
     // Recibir parámetros de la página anterior
     this.route.queryParams.subscribe(params => {
-      if (params['type']) {
-        this.appointmentType = params['type'];
-      }
-      if (params['datetime']) {
-        this.appointmentDateTime = params['datetime'];
+      this.appointmentType = params['type'] || null;
+      this.appointmentDateTime = params['datetime'] || null;
+      this.serviceId = params['service'] || null;
+      this.description = params['description'] || '';
+      this.address = params['address'] || null;
+      
+      this.loadProfessionals();
+    });
+  }
+
+  loadProfessionals() {
+    this.isLoading = true;
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+    
+    let url = `${environment.apiUrl}/api/workers`;
+    if (this.serviceId) {
+      url += `?profesion=${this.serviceId}`;
+    }
+
+    this.http.get(url, { headers }).subscribe({
+      next: (res: any) => {
+        if (res.status === 'success') {
+          this.professionals = res.data.map((w: any) => ({
+            id: w.id,
+            name: w.name + (w.apellidos ? ' ' + w.apellidos : ''),
+            rating: 5,
+            avatar: w.avatarUrl || `https://ui-avatars.com/api/?name=${w.name}&background=random`,
+            phone: w.telefono
+          }));
+        }
+        this.isLoading = false;
+      },
+      error: (err) => {
+        console.error('Error fetching professionals:', err);
+        this.isLoading = false;
+        // Optionally load dummy data for UI testing if backend fails
       }
     });
   }
@@ -73,20 +92,39 @@ export class ProfessionalSelectionPage implements OnInit {
   }
 
   confirmSelection() {
-    if (this.selectedProfessionalId) {
-      console.log('Professional selected:', this.selectedProfessionalId);
-      console.log('Finalizing request with type:', this.appointmentType, 'and date:', this.appointmentDateTime);
+    if (this.selectedProfessionalId && !this.isSubmitting) {
+      this.isSubmitting = true;
+      const token = localStorage.getItem('token');
+      const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
       
-      const selectedProf = this.professionals.find(p => p.id === this.selectedProfessionalId);
+      const payload = {
+        description: this.description || 'Sin descripción',
+        appointment_type: this.appointmentType || 'urgente',
+        appointment_date: this.appointmentDateTime,
+        trabajador_id: this.selectedProfessionalId,
+        address: this.address
+      };
       
-      // Navigate to tracking screen
-      this.router.navigate(['/service-tracking'], {
-        queryParams: {
-          profId: this.selectedProfessionalId,
-          profName: selectedProf?.name,
-          profAvatar: selectedProf?.avatar,
-          profRating: selectedProf?.rating,
-          profPhone: selectedProf?.phone
+      this.http.post(`${environment.apiUrl}/api/service-requests`, payload, { headers }).subscribe({
+        next: (res: any) => {
+          this.isSubmitting = false;
+          const selectedProf = this.professionals.find(p => p.id === this.selectedProfessionalId);
+          // Navigate to tracking screen
+          this.router.navigate(['/service-tracking'], {
+            queryParams: {
+              profId: this.selectedProfessionalId,
+              profName: selectedProf?.name,
+              profAvatar: selectedProf?.avatar,
+              profRating: selectedProf?.rating,
+              profPhone: selectedProf?.phone,
+              requestId: res.data.id
+            }
+          });
+        },
+        error: (err) => {
+          console.error('Error creating request:', err);
+          this.isSubmitting = false;
+          alert('Hubo un error al crear la solicitud.');
         }
       });
     }

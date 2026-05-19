@@ -20,22 +20,37 @@
       <div *ngIf="step === 1">
         <ion-item lines="none" class="custom-input">
           <ion-label position="stacked">Nombre y Apellidos</ion-label>
-          <ion-input type="text" placeholder=""></ion-input>
+          <ion-input type="text" placeholder="" [(ngModel)]="name"></ion-input>
         </ion-item>
 
         <ion-item lines="none" class="custom-input">
           <ion-label position="stacked">DNI</ion-label>
-          <ion-input type="text" placeholder=""></ion-input>
+          <ion-input type="text" placeholder="" [(ngModel)]="dni"></ion-input>
         </ion-item>
 
         <ion-item lines="none" class="custom-input">
-          <ion-label position="stacked">Domicilio</ion-label>
-          <ion-input type="text" placeholder=""></ion-input>
+          <ion-label position="stacked">Dirección de Domicilio</ion-label>
+          <ion-input type="text" placeholder="Ej: Calle Mayor 12" [(ngModel)]="domicilio"></ion-input>
+        </ion-item>
+
+        <ion-item lines="none" class="custom-input">
+          <ion-label position="stacked">Código Postal</ion-label>
+          <ion-input type="text" placeholder="Ej: 23400" [(ngModel)]="codigo_postal"></ion-input>
+        </ion-item>
+
+        <ion-item lines="none" class="custom-input">
+          <ion-label position="stacked">Pueblo o Ciudad</ion-label>
+          <ion-input type="text" placeholder="Ej: Úbeda" [(ngModel)]="ciudad"></ion-input>
+        </ion-item>
+
+        <ion-item lines="none" class="custom-input">
+          <ion-label position="stacked">Provincia</ion-label>
+          <ion-input type="text" placeholder="Ej: Jaén" [(ngModel)]="provincia"></ion-input>
         </ion-item>
 
         <ion-item lines="none" class="custom-input">
           <ion-label position="stacked">Teléfono</ion-label>
-          <ion-input type="tel" placeholder=""></ion-input>
+          <ion-input type="tel" placeholder="" [(ngModel)]="phone"></ion-input>
         </ion-item>
 
         <div class="button-container">
@@ -49,18 +64,30 @@
       <div *ngIf="step === 2">
         <ion-item lines="none" class="custom-input">
           <ion-label position="stacked">Email</ion-label>
-          <ion-input type="email" placeholder=""></ion-input>
+          <ion-input type="email" placeholder="" [(ngModel)]="email"></ion-input>
         </ion-item>
 
-        <ion-item lines="none" class="custom-input">
+        <ion-item lines="none" class="custom-input" style="margin-bottom: 5px;">
           <ion-label position="stacked">Contraseña</ion-label>
-          <ion-input type="password" placeholder=""></ion-input>
+          <div style="position: relative; width: 100%;">
+            <ion-input [type]="showPassword ? 'text' : 'password'" placeholder="" [(ngModel)]="password"></ion-input>
+            <ion-icon [name]="showPassword ? 'eye-off' : 'eye'" (click)="showPassword = !showPassword" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); z-index: 10; cursor: pointer; color: #1a5c96; font-size: 1.4rem;"></ion-icon>
+          </div>
         </ion-item>
-
-        <ion-item lines="none" class="custom-input">
+        <div *ngIf="password && !isPasswordValid(password)" style="color: #ff3b30; font-size: 0.85rem; padding-left: 5px; margin-bottom: 15px; font-weight: bold; text-shadow: 0 1px 1px rgba(255,255,255,0.8);">
+          La contraseña debe contener al menos una mayúscula, un número y un signo.
+        </div>
+ 
+        <ion-item lines="none" class="custom-input" style="margin-bottom: 5px;">
           <ion-label position="stacked">Confirmar Contraseña</ion-label>
-          <ion-input type="password" placeholder=""></ion-input>
+          <div style="position: relative; width: 100%;">
+            <ion-input [type]="showConfirmPassword ? 'text' : 'password'" placeholder="" [(ngModel)]="confirmPassword"></ion-input>
+            <ion-icon [name]="showConfirmPassword ? 'eye-off' : 'eye'" (click)="showConfirmPassword = !showConfirmPassword" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); z-index: 10; cursor: pointer; color: #1a5c96; font-size: 1.4rem;"></ion-icon>
+          </div>
         </ion-item>
+        <div *ngIf="confirmPassword && password !== confirmPassword" style="color: #ff3b30; font-size: 0.85rem; padding-left: 5px; margin-bottom: 15px; font-weight: bold; text-shadow: 0 1px 1px rgba(255,255,255,0.8);">
+          Las contraseñas no coinciden.
+        </div>
 
         <div class="privacy-container">
           <ion-checkbox labelPlacement="end" justify="start">
@@ -69,7 +96,7 @@
         </div>
 
         <div class="button-container">
-          <ion-button expand="block" shape="round" class="send-button">
+          <ion-button expand="block" shape="round" class="send-button" (click)="register()">
             Enviar
           </ion-button>
         </div>

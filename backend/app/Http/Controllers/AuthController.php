@@ -20,6 +20,10 @@ class AuthController extends Controller
             'apellidos' => 'nullable|string|max:255',
             'telefono' => 'nullable|string|max:20',
             'profesion' => 'nullable|string|max:255',
+            'domicilio' => 'nullable|string|max:255',
+            'codigo_postal' => 'nullable|string|max:10',
+            'ciudad' => 'nullable|string|max:255',
+            'provincia' => 'nullable|string|max:255',
         ]);
 
         if ($validator->fails()) {
@@ -39,6 +43,10 @@ class AuthController extends Controller
             'apellidos' => $request->apellidos,
             'telefono' => $request->telefono,
             'profesion' => $request->profesion,
+            'domicilio' => $request->domicilio,
+            'codigo_postal' => $request->codigo_postal,
+            'ciudad' => $request->ciudad,
+            'provincia' => $request->provincia,
         ]);
 
         // Generar token Sanctum
@@ -106,6 +114,10 @@ class AuthController extends Controller
             'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
             'profesion' => 'nullable|string|max:255',
             'avatarUrl' => 'nullable|string',
+            'domicilio' => 'nullable|string|max:255',
+            'codigo_postal' => 'nullable|string|max:10',
+            'ciudad' => 'nullable|string|max:255',
+            'provincia' => 'nullable|string|max:255',
         ]);
 
         if ($validator->fails()) {
@@ -123,12 +135,44 @@ class AuthController extends Controller
             'email' => $request->email,
             'profesion' => $request->profesion,
             'avatarUrl' => $request->avatarUrl,
+            'domicilio' => $request->domicilio,
+            'codigo_postal' => $request->codigo_postal,
+            'ciudad' => $request->ciudad,
+            'provincia' => $request->provincia,
         ]);
 
         return response()->json([
             'status' => 'success',
             'message' => 'Profile updated successfully',
             'user' => $user
+        ]);
+    }
+
+    public function updateLocation(Request $request)
+    {
+        $user = Auth::user();
+        if (!$user || $user->role !== 'worker') {
+            return response()->json(['status' => 'error', 'message' => 'Unauthorized'], 401);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'latitude' => 'required|numeric',
+            'longitude' => 'required|numeric',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['status' => 'error', 'errors' => $validator->errors()], 400);
+        }
+
+        $user->latitude = $request->latitude;
+        $user->longitude = $request->longitude;
+        $user->save();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Location updated successfully',
+            'latitude' => $user->latitude,
+            'longitude' => $user->longitude
         ]);
     }
 }

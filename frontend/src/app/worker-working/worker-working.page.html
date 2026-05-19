@@ -25,6 +25,23 @@
       {{ timerDisplay }}
     </div>
 
+    <!-- Navegación GPS -->
+    <div class="gps-card" (click)="openGPS()">
+      <div class="gps-header">
+        <ion-icon name="navigate" class="gps-icon"></ion-icon>
+        <h2>Navegación GPS</h2>
+      </div>
+      <p class="destination-text">Destino: <strong>{{ address || 'No especificado' }}</strong></p>
+      
+      <div class="map-visual">
+        <img src="assets/map.png" alt="Mapa">
+        <div class="overlay-button">
+          <ion-icon name="locate"></ion-icon>
+          <span>Iniciar Ruta</span>
+        </div>
+      </div>
+    </div>
+
     <!-- Botones de acción -->
     <div class="actions-container">
       <ion-button shape="round" class="action-btn" (click)="finishJob()">

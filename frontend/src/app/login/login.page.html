@@ -10,7 +10,10 @@
 
       <ion-item lines="none" class="custom-input">
         <ion-label position="stacked">Contraseña</ion-label>
-        <ion-input type="password" [(ngModel)]="password" placeholder=""></ion-input>
+        <div style="position: relative; width: 100%;">
+          <ion-input [type]="showPassword ? 'text' : 'password'" [(ngModel)]="password" placeholder="" style="width: 100%;"></ion-input>
+          <ion-icon [name]="showPassword ? 'eye-off' : 'eye'" (click)="showPassword = !showPassword" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); z-index: 10; cursor: pointer; color: #1a5c96; font-size: 1.4rem;"></ion-icon>
+        </div>
       </ion-item>
 
       <div class="button-container">

@@ -14,24 +14,38 @@
 <ion-content [fullscreen]="true" class="client-background">
   <div class="history-container">
 
-    <h1 class="page-title">Historial de citas</h1>
+    <h1 class="page-title">Historial de Trabajos</h1>
+    <p class="subtitle-text">Haz clic en cualquier trabajo para ver el informe detallado e imprimir la factura oficial.</p>
+
+    <!-- Cargando -->
+    <div *ngIf="isLoading" class="loading-state">
+      <ion-spinner name="crescent" color="primary"></ion-spinner>
+      <p>Cargando tu historial...</p>
+    </div>
 
     <!-- Sin citas -->
-    <div *ngIf="appointments.length === 0" class="empty-state">
+    <div *ngIf="!isLoading && appointments.length === 0" class="empty-state">
       <ion-icon name="calendar-outline" class="empty-icon"></ion-icon>
-      <p class="empty-text">No tienes citas programadas</p>
+      <p class="empty-text">No tienes trabajos registrados aún</p>
     </div>
 
     <!-- Lista de citas -->
-    <div class="appointments-list">
-      <div class="appointment-card" *ngFor="let apt of appointments">
-        <div class="card-icon">
-          <ion-icon name="calendar" class="cal-icon"></ion-icon>
+    <div class="appointments-list" *ngIf="!isLoading && appointments.length > 0">
+      <div class="appointment-card clickable-card" *ngFor="let apt of appointments" (click)="printInvoice(apt)">
+        <div class="card-left">
+          <img [src]="apt.avatar" class="worker-avatar" alt="Trabajador" 
+               (error)="apt.avatar = 'assets/avatar-placeholder.png'" />
+          <div class="card-info">
+            <span class="card-title">{{ apt.title }}</span>
+            <span class="card-worker">Profesional: {{ apt.workerName }}</span>
+            <span class="card-date">Fecha: {{ apt.date }}</span>
+          </div>
         </div>
-        <div class="card-info">
-          <span class="card-title">{{ apt.title }}</span>
-          <span class="card-date">Fecha: {{ apt.date }}</span>
-          <span class="card-time">Hora: {{ apt.time }}</span>
+        <div class="card-right">
+          <span class="price-tag">{{ apt.invoice_price.toFixed(2) }} €</span>
+          <ion-button fill="clear" class="btn-pdf">
+            <ion-icon name="document-text-outline" slot="icon-only"></ion-icon>
+          </ion-button>
         </div>
       </div>
     </div>

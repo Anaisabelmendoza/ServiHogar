@@ -15,7 +15,12 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
     'status',
     'rating',
     'comment',
-    'phone'
+    'phone',
+    'worker_rating',
+    'worker_report',
+    'invoice_price',
+    'invoice_materials',
+    'invoice_hours'
 ])]
 class ServiceRequest extends Model
 {

@@ -17,7 +17,7 @@
     </div>
 
     <div class="map-container">
-      <img src="assets/map.png" alt="Mapa de Ubicación" class="map-image">
+      <div id="map" style="height: 250px; width: 100%; z-index: 1;"></div>
     </div>
 
     <div class="professional-card">
@@ -48,6 +48,11 @@
     </div>
 
     <div class="action-buttons">
+      <ion-button shape="round" class="action-btn gmaps-route-btn" (click)="openGoogleMapsRoute()">
+        <ion-icon name="navigate" slot="start"></ion-icon>
+        Abrir Ruta en Google Maps
+      </ion-button>
+
       <ion-button shape="round" class="action-btn" (click)="finishJob()">
         Finalizado con éxito
       </ion-button>

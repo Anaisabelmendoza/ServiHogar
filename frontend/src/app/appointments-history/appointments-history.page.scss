@@ -18,18 +18,37 @@
 }
 
 .history-container {
-  padding: 25px 20px;
+  padding: 24px 16px;
   display: flex;
   flex-direction: column;
   align-items: center;
+  width: 100%;
 }
 
 .page-title {
-  font-size: 1.7rem;
+  font-size: 1.6rem;
   font-weight: bold;
   color: #04608c;
   text-align: center;
-  margin: 0 0 25px 0;
+  margin: 10px 0 4px 0;
+}
+
+.subtitle-text {
+  font-size: 0.9rem;
+  color: #5587a3;
+  text-align: center;
+  margin-bottom: 24px;
+  padding: 0 10px;
+}
+
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 50px;
+  gap: 12px;
+  color: #04608c;
+  font-weight: 500;
 }
 
 // Estado vacío
@@ -57,45 +76,92 @@
 // Lista de citas
 .appointments-list {
   width: 100%;
+  max-width: 480px;
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 12px;
 }
 
 .appointment-card {
   background: white;
-  border-radius: 12px;
-  padding: 18px 20px;
+  border-radius: 16px;
+  padding: 16px;
   display: flex;
-  align-items: flex-start;
-  gap: 15px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 4px 15px rgba(4, 96, 140, 0.08);
+  border: 1px solid rgba(0, 0, 0, 0.02);
+  transition: transform 0.2s, box-shadow 0.2s;
 
-  .card-icon {
-    padding-top: 2px;
+  &.clickable-card {
+    cursor: pointer;
 
-    .cal-icon {
-      font-size: 2rem;
-      color: #04608c;
+    &:hover, &:active {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(4, 96, 140, 0.14);
     }
+  }
+
+  .card-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+  }
+
+  .worker-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+    background: #e0f2fe;
+    border: 2px solid #30b6e1;
   }
 
   .card-info {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 3px;
 
     .card-title {
-      font-size: 1.1rem;
+      font-size: 1rem;
       font-weight: bold;
+      color: #222;
+      text-transform: capitalize;
+    }
+
+    .card-worker {
+      font-size: 0.85rem;
+      font-weight: 600;
       color: #04608c;
     }
 
-    .card-date,
-    .card-time {
-      font-size: 0.95rem;
-      font-weight: 600;
-      color: #04608c;
+    .card-date {
+      font-size: 0.8rem;
+      color: #777;
+    }
+  }
+
+  .card-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    .price-tag {
+      font-size: 1.05rem;
+      font-weight: bold;
+      color: #04c48c; /* Green color for clean paid invoice status */
+      background: #eefdf7;
+      padding: 6px 12px;
+      border-radius: 12px;
+    }
+
+    .btn-pdf {
+      --color: #04608c;
+      font-size: 1.3rem;
+      margin: 0;
+      --padding-start: 4px;
+      --padding-end: 4px;
     }
   }
 }

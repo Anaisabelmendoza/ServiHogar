@@ -14,6 +14,7 @@ export class WorkerWorkingPage implements OnInit, OnDestroy {
   workerName: string = 'Usuario';
   clientName: string = 'Nombre Cliente';
   requestId: number = 0;
+  address: string = '';
 
   // Cronómetro
   elapsedSeconds: number = 0;
@@ -27,6 +28,15 @@ export class WorkerWorkingPage implements OnInit, OnDestroy {
 
   // Modal de cancelación
   isCancelModalOpen: boolean = false;
+
+  // Simulación de ruta GPS para demostración
+  private startLat = 38.0170;
+  private startLng = -3.3650;
+  private destLat = 38.0116;
+  private destLng = -3.3705;
+  private currentStep = 0;
+  private totalSteps = 30;
+  private gpsUpdateInterval: any;
 
   constructor(
     private router: Router, 
@@ -44,16 +54,19 @@ export class WorkerWorkingPage implements OnInit, OnDestroy {
     this.route.queryParams.subscribe(params => {
       if (params['clientName']) this.clientName = params['clientName'];
       if (params['id']) this.requestId = parseInt(params['id'], 10);
+      if (params['address']) this.address = params['address'];
     });
 
     this.startTimer();
     this.animateProgress();
+    this.startGPSTracking();
   }
 
   ngOnDestroy() {
     // Limpiar los intervalos al salir de la página
     clearInterval(this.timerInterval);
     clearInterval(this.progressInterval);
+    clearInterval(this.gpsUpdateInterval);
   }
 
   // ── Cronómetro ──────────────────────────────────────────
@@ -82,6 +95,12 @@ export class WorkerWorkingPage implements OnInit, OnDestroy {
       if (this.progressPercent >= 88) this.progressDirection = -1;
       if (this.progressPercent <= 12) this.progressDirection = 1;
     }, 50);
+  }
+
+  // ── GPS ──────────────────────────────────────────────────
+  openGPS() {
+    const query = encodeURIComponent(this.address || 'Madrid, Spain');
+    window.open(`https://www.google.com/maps/search/?api=1&query=${query}`, '_system');
   }
 
   // ── Acciones ─────────────────────────────────────────────
@@ -139,5 +158,49 @@ export class WorkerWorkingPage implements OnInit, OnDestroy {
         requestId: this.requestId
       }
     });
+  }
+
+  // ── GPS Tracking & Simulation ──────────────────────────────
+  startGPSTracking() {
+    // Intentamos coger la ubicación real primero
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition((pos) => {
+        this.startLat = pos.coords.latitude;
+        this.startLng = pos.coords.longitude;
+        // Ajustamos destino ligeramente cerca del profesional
+        this.destLat = this.startLat - 0.003;
+        this.destLng = this.startLng - 0.003;
+      });
+    }
+
+    this.gpsUpdateInterval = setInterval(() => {
+      if (this.currentStep <= this.totalSteps) {
+        const ratio = this.currentStep / this.totalSteps;
+        const currentLat = this.startLat + (this.destLat - this.startLat) * ratio;
+        const currentLng = this.startLng + (this.destLng - this.startLng) * ratio;
+        
+        this.sendLocationToBackend(currentLat, currentLng);
+        this.currentStep++;
+      } else {
+        // Al terminar los pasos de simulación, reiniciar o mantener en destino
+        this.sendLocationToBackend(this.destLat, this.destLng);
+      }
+    }, 4000);
+  }
+
+  sendLocationToBackend(lat: number, lng: number) {
+    const token = localStorage.getItem('token');
+    if (token) {
+      const headers = new HttpHeaders({
+        'Authorization': `Bearer ${token}`
+      });
+      this.http.post(`${environment.apiUrl}/api/worker/location`, {
+        latitude: lat,
+        longitude: lng
+      }, { headers }).subscribe({
+        next: (res) => console.log('Ubicación enviada al servidor:', lat, lng),
+        error: (err) => console.error('Error al actualizar ubicación:', err)
+      });
+    }
   }
 }

@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-service-request',
@@ -13,10 +13,29 @@ export class ServiceRequestPage implements OnInit {
   isCalendarOpen: boolean = false;
   selectedDateTime: string | null = null;
   confirmedDateTime: string | null = null;
+  serviceId: string | null = null;
+  clientAddress: string = '';
 
-  constructor(private router: Router) { }
+  constructor(private router: Router, private route: ActivatedRoute) { }
 
   ngOnInit() {
+    this.serviceId = this.route.snapshot.queryParams['service'] || null;
+    
+    const userStr = localStorage.getItem('user');
+    if (userStr) {
+      try {
+        const user = JSON.parse(userStr);
+        const parts = [];
+        if (user.domicilio) parts.push(user.domicilio);
+        if (user.codigo_postal) parts.push(user.codigo_postal);
+        if (user.ciudad) parts.push(user.ciudad);
+        if (user.provincia) parts.push(user.provincia);
+        
+        this.clientAddress = parts.join(', ');
+      } catch (e) {
+        console.error(e);
+      }
+    }
   }
 
   logout() {
@@ -74,8 +93,10 @@ export class ServiceRequestPage implements OnInit {
     // Navigate to next screen
     this.router.navigate(['/service-description'], { 
       queryParams: { 
+        service: this.serviceId,
         type: this.appointmentType,
-        datetime: this.confirmedDateTime
+        datetime: this.confirmedDateTime,
+        address: this.clientAddress
       } 
     });
   }

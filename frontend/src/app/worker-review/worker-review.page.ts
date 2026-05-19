@@ -13,9 +13,14 @@ import { environment } from 'src/environments/environment';
 export class WorkerReviewPage implements OnInit {
   clientName: string = 'Nombre cliente';
   clientAvatar: string = '';
-  rating: number = 0;
-  comment: string = '';
+  rating: number = 5;
   requestId: number = 0;
+
+  // Nuevos campos de Factura e Informe
+  worker_report: string = '';
+  invoice_price: number | null = null;
+  invoice_hours: number | null = null;
+  invoice_materials: string = '';
 
   constructor(
     private route: ActivatedRoute,
@@ -28,7 +33,7 @@ export class WorkerReviewPage implements OnInit {
     this.route.queryParams.subscribe(params => {
       this.clientName = params['clientName'] || 'Nombre cliente';
       this.clientAvatar = params['avatar'] || '';
-      this.requestId = params['id'] || 0;
+      this.requestId = Number(params['id']) || 0;
     });
   }
 
@@ -37,10 +42,25 @@ export class WorkerReviewPage implements OnInit {
   }
 
   async submitReview() {
-    console.log('Enviando reseña para cliente a Aiven:', {
+    if (!this.invoice_price || !this.worker_report) {
+      const warningToast = await this.toastController.create({
+        message: 'Por favor, rellena el informe de trabajo y el importe.',
+        duration: 3000,
+        color: 'warning',
+        position: 'bottom'
+      });
+      await warningToast.present();
+      return;
+    }
+
+    console.log('Finalizando servicio y guardando factura en Aiven:', {
       requestId: this.requestId,
-      rating: this.rating,
-      comment: this.comment
+      status: 'finalizado',
+      worker_rating: this.rating,
+      worker_report: this.worker_report,
+      invoice_price: this.invoice_price,
+      invoice_hours: this.invoice_hours,
+      invoice_materials: this.invoice_materials
     });
 
     const token = localStorage.getItem('token');
@@ -49,46 +69,47 @@ export class WorkerReviewPage implements OnInit {
         'Authorization': `Bearer ${token}`
       });
 
-      // 1. Guardar la reseña en Aiven
-      this.http.post(`${environment.apiUrl}/api/worker/requests/${this.requestId}/review`, {
-        rating: this.rating,
-        comment: this.comment
-      }, { headers }).subscribe({
-        next: (res) => {
-          console.log('Reseña guardada con éxito en Aiven:', res);
-        },
-        error: (err) => {
-          console.error('Error al guardar reseña en Aiven:', err);
-        }
-      });
-
-      // 2. Finalizar el estado del trabajo en Aiven
-      this.http.post(`${environment.apiUrl}/api/worker/requests/${this.requestId}/status`, {
-        status: 'finalizado'
-      }, { headers }).subscribe({
-        next: (res) => {
-          console.log('Estado actualizado a finalizado en Aiven:', res);
-        },
-        error: (err) => {
-          console.error('Error al finalizar estado en Aiven:', err);
-        }
-      });
+      try {
+        // Enviar todos los datos de informe, factura y valoración en la misma petición
+        await this.http.post(`${environment.apiUrl}/api/worker/requests/${this.requestId}/status`, {
+          status: 'finalizado',
+          worker_rating: this.rating,
+          worker_report: this.worker_report,
+          invoice_price: this.invoice_price,
+          invoice_hours: this.invoice_hours,
+          invoice_materials: this.invoice_materials
+        }, { headers }).toPromise();
+        
+        console.log('Servicio finalizado y facturado con éxito en Aiven');
+      } catch (err) {
+        console.error('Error al actualizar el servicio en backend:', err);
+        const errToast = await this.toastController.create({
+          message: 'Error al enviar al servidor. Se guardará localmente.',
+          duration: 3000,
+          color: 'danger',
+          position: 'bottom'
+        });
+        await errToast.present();
+      }
     }
 
-    // Fallback de persistencia local por si acaso
+    // Persistencia local de respaldo
     const reviews = JSON.parse(localStorage.getItem('clientReviews') || '[]');
     reviews.push({
       requestId: this.requestId,
       clientName: this.clientName,
       rating: this.rating,
-      comment: this.comment,
+      worker_report: this.worker_report,
+      invoice_price: this.invoice_price,
+      invoice_hours: this.invoice_hours,
+      invoice_materials: this.invoice_materials,
       date: new Date().toLocaleDateString()
     });
     localStorage.setItem('clientReviews', JSON.stringify(reviews));
 
     const toast = await this.toastController.create({
-      message: '¡Valoración enviada con éxito!',
-      duration: 2000,
+      message: '¡Servicio finalizado e informe de factura generado!',
+      duration: 2500,
       color: 'success',
       position: 'bottom'
     });

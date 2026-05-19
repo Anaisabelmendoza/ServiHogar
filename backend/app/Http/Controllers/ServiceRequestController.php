@@ -11,6 +11,22 @@ use Illuminate\Support\Facades\Validator;
 
 class ServiceRequestController extends Controller
 {
+    // Listar trabajadores por profesión
+    public function getWorkersByProfession(Request $request)
+    {
+        $profesion = $request->query('profesion');
+        $query = User::where('role', 'worker')->where('is_active', true);
+        
+        if ($profesion) {
+            $query->where('profesion', 'LIKE', '%' . $profesion . '%');
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $query->get()
+        ]);
+    }
+
     // Crear solicitud (Cliente)
     public function store(Request $request)
     {
@@ -72,7 +88,7 @@ class ServiceRequestController extends Controller
                 $query->where('trabajador_id', $user->id)
                       ->orWhereNull('trabajador_id');
             })
-            ->where('status', 'pendiente')
+            ->whereIn('status', ['pendiente', 'en_progreso'])
             ->with('cliente')
             ->orderBy('created_at', 'desc')
             ->get();
@@ -95,7 +111,12 @@ class ServiceRequestController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-            'status' => 'required|string|in:pendiente,en_progreso,finalizado,cancelado'
+            'status' => 'required|string|in:pendiente,en_progreso,finalizado,cancelado',
+            'worker_rating' => 'nullable|integer|min:1|max:5',
+            'worker_report' => 'nullable|string',
+            'invoice_price' => 'nullable|numeric',
+            'invoice_materials' => 'nullable|string',
+            'invoice_hours' => 'nullable|numeric'
         ]);
 
         if ($validator->fails()) {
@@ -108,11 +129,60 @@ class ServiceRequestController extends Controller
         }
 
         $serviceRequest->status = $request->status;
+
+        // Guardar campos de informe/factura/valoración al finalizar
+        if ($request->has('worker_rating')) $serviceRequest->worker_rating = $request->worker_rating;
+        if ($request->has('worker_report')) $serviceRequest->worker_report = $request->worker_report;
+        if ($request->has('invoice_price')) $serviceRequest->invoice_price = $request->invoice_price;
+        if ($request->has('invoice_materials')) $serviceRequest->invoice_materials = $request->invoice_materials;
+        if ($request->has('invoice_hours')) $serviceRequest->invoice_hours = $request->invoice_hours;
+
         $serviceRequest->save();
 
         return response()->json([
             'status' => 'success',
             'message' => 'Estado actualizado a ' . $request->status,
+            'data' => $serviceRequest
+        ]);
+    }
+
+    // Actualizar/Editar factura e informe por el profesional
+    public function updateInvoice(Request $request, $id)
+    {
+        $user = Auth::user();
+        $serviceRequest = ServiceRequest::find($id);
+
+        if (!$serviceRequest) {
+            return response()->json(['status' => 'error', 'message' => 'Solicitud no encontrada'], 404);
+        }
+
+        if ($user->role !== 'worker' || $serviceRequest->trabajador_id !== $user->id) {
+            return response()->json(['status' => 'error', 'message' => 'No autorizado'], 403);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'worker_report' => 'nullable|string',
+            'invoice_price' => 'nullable|numeric',
+            'invoice_materials' => 'nullable|string',
+            'invoice_hours' => 'nullable|numeric',
+            'worker_rating' => 'nullable|integer|min:1|max:5'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['status' => 'error', 'errors' => $validator->errors()], 400);
+        }
+
+        if ($request->has('worker_report')) $serviceRequest->worker_report = $request->worker_report;
+        if ($request->has('invoice_price')) $serviceRequest->invoice_price = $request->invoice_price;
+        if ($request->has('invoice_materials')) $serviceRequest->invoice_materials = $request->invoice_materials;
+        if ($request->has('invoice_hours')) $serviceRequest->invoice_hours = $request->invoice_hours;
+        if ($request->has('worker_rating')) $serviceRequest->worker_rating = $request->worker_rating;
+
+        $serviceRequest->save();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Factura e informe actualizados correctamente',
             'data' => $serviceRequest
         ]);
     }
@@ -165,7 +235,7 @@ class ServiceRequestController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-            'rating' => 'required|integer|min:1|max:5',
+            'rating' => 'required|integer|min:0|max:5',
             'comment' => 'nullable|string'
         ]);
 
@@ -214,5 +284,52 @@ class ServiceRequestController extends Controller
             'message' => 'Incidente reportado correctamente',
             'data' => $incident
         ], 201);
+    }
+
+    public function getTrackingInfo($id)
+    {
+        $serviceRequest = ServiceRequest::with('trabajador')->find($id);
+
+        if (!$serviceRequest) {
+            return response()->json(['status' => 'error', 'message' => 'Request not found'], 404);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'data' => [
+                'id' => $serviceRequest->id,
+                'status' => $serviceRequest->status,
+                'address' => $serviceRequest->address,
+                'trabajador' => $serviceRequest->trabajador ? [
+                    'id' => $serviceRequest->trabajador->id,
+                    'name' => $serviceRequest->trabajador->name,
+                    'apellidos' => $serviceRequest->trabajador->apellidos,
+                    'telefono' => $serviceRequest->trabajador->telefono,
+                    'avatarUrl' => $serviceRequest->trabajador->avatarUrl,
+                    'latitude' => $serviceRequest->trabajador->latitude,
+                    'longitude' => $serviceRequest->trabajador->longitude,
+                ] : null
+            ]
+        ]);
+    }
+
+    // Historial del cliente
+    public function getClientHistory()
+    {
+        $user = Auth::user();
+        if (!$user) {
+            return response()->json(['status' => 'error', 'message' => 'Unauthorized'], 401);
+        }
+
+        $requests = ServiceRequest::where('cliente_id', $user->id)
+            ->where('status', 'finalizado')
+            ->with('trabajador')
+            ->orderBy('updated_at', 'desc')
+            ->get();
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $requests
+        ]);
     }
 }

@@ -16,9 +16,12 @@ export class RegisterWorkerPage implements OnInit {
   last_name: string = '';
   dni: string = '';
   email: string = '';
-  profession: string = 'electricista';
+  professions: string[] = ['electricista'];
   phone: string = '';
   password: string = '';
+  confirmPassword: string = '';
+  showPassword: boolean = false;
+  showConfirmPassword: boolean = false;
 
   constructor(
     private http: HttpClient,
@@ -30,9 +33,40 @@ export class RegisterWorkerPage implements OnInit {
   ngOnInit() {
   }
 
+  toggleProfession(prof: string) {
+    const index = this.professions.indexOf(prof);
+    if (index > -1) {
+      this.professions.splice(index, 1);
+    } else {
+      this.professions.push(prof);
+    }
+  }
+
+  hasProfession(prof: string): boolean {
+    return this.professions.includes(prof);
+  }
+
+  isPasswordValid(pass: string): boolean {
+    if (!pass) return true;
+    const hasUpper = /[A-Z]/.test(pass);
+    const hasNumber = /[0-9]/.test(pass);
+    const hasSign = /[!@#$%^&*(),.?":{}|<>\-_]/.test(pass);
+    return hasUpper && hasNumber && hasSign;
+  }
+
   async register() {
-    if (!this.name || !this.email || !this.profession || !this.phone || !this.password) {
-      this.showAlert('Error', 'Por favor, rellena todos los campos');
+    if (!this.name || !this.email || this.professions.length === 0 || !this.phone || !this.password) {
+      this.showAlert('Error', 'Por favor, rellena todos los campos y elige al menos una profesión');
+      return;
+    }
+
+    if (!this.isPasswordValid(this.password)) {
+      this.showAlert('Error', 'La contraseña no cumple con los requisitos de seguridad');
+      return;
+    }
+
+    if (this.password !== this.confirmPassword) {
+      this.showAlert('Error', 'Las contraseñas no coinciden');
       return;
     }
 
@@ -47,7 +81,7 @@ export class RegisterWorkerPage implements OnInit {
       role: 'worker',
       name: this.name,
       email: this.email,
-      profesion: this.profession,
+      profesion: this.professions.join(', '),
       telefono: this.phone,
       password: this.password,
       apellidos: this.last_name
