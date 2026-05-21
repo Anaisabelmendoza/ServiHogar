@@ -18,9 +18,17 @@ export class WorkerReviewPage implements OnInit {
 
   // Nuevos campos de Factura e Informe
   worker_report: string = '';
-  invoice_price: number | null = null;
+  invoice_base: number | null = null;
   invoice_hours: number | null = null;
   invoice_materials: string = '';
+
+  get ivaAmount(): number {
+    return this.invoice_base ? this.invoice_base * 0.21 : 0;
+  }
+
+  get invoice_total(): number {
+    return this.invoice_base ? this.invoice_base + this.ivaAmount : 0;
+  }
 
   constructor(
     private route: ActivatedRoute,
@@ -42,9 +50,9 @@ export class WorkerReviewPage implements OnInit {
   }
 
   async submitReview() {
-    if (!this.invoice_price || !this.worker_report) {
+    if (!this.invoice_base || !this.worker_report) {
       const warningToast = await this.toastController.create({
-        message: 'Por favor, rellena el informe de trabajo y el importe.',
+        message: 'Por favor, rellena el informe de trabajo y la base imponible.',
         duration: 3000,
         color: 'warning',
         position: 'bottom'
@@ -58,7 +66,7 @@ export class WorkerReviewPage implements OnInit {
       status: 'finalizado',
       worker_rating: this.rating,
       worker_report: this.worker_report,
-      invoice_price: this.invoice_price,
+      invoice_price: this.invoice_total,
       invoice_hours: this.invoice_hours,
       invoice_materials: this.invoice_materials
     });
@@ -75,7 +83,7 @@ export class WorkerReviewPage implements OnInit {
           status: 'finalizado',
           worker_rating: this.rating,
           worker_report: this.worker_report,
-          invoice_price: this.invoice_price,
+          invoice_price: this.invoice_total,
           invoice_hours: this.invoice_hours,
           invoice_materials: this.invoice_materials
         }, { headers }).toPromise();
@@ -98,9 +106,9 @@ export class WorkerReviewPage implements OnInit {
     reviews.push({
       requestId: this.requestId,
       clientName: this.clientName,
-      rating: this.rating,
+      status: 'finalizado',
       worker_report: this.worker_report,
-      invoice_price: this.invoice_price,
+      invoice_price: this.invoice_total,
       invoice_hours: this.invoice_hours,
       invoice_materials: this.invoice_materials,
       date: new Date().toLocaleDateString()

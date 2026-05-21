@@ -14,6 +14,7 @@ interface ServiceRequest {
   appointmentType?: string;
   appointmentDate?: string;
   address?: string;
+  imageUrl?: string;
 }
 
 interface JobHistory {
@@ -97,7 +98,8 @@ export class WorkerHomePage implements OnInit {
               description: req.description,
               appointmentType: req.appointment_type,
               appointmentDate: req.appointment_date,
-              address: req.address
+              address: req.address,
+              imageUrl: req.image_url
             }));
           } else {
             this.requests = [];
@@ -187,7 +189,8 @@ export class WorkerHomePage implements OnInit {
         description: req.description || '',
         type: req.appointmentType || 'urgente',
         date: req.appointmentDate || '',
-        address: req.address || 'Calle Mayor 12, Úbeda'
+        address: req.address || 'Calle Mayor 12, Úbeda',
+        imageUrl: req.imageUrl || ''
       }
     });
   }
@@ -338,7 +341,7 @@ export class WorkerHomePage implements OnInit {
                   <small>Mano de obra especializada a domicilio</small>
                 </td>
                 <td>${job.invoice_hours || 1} h</td>
-                <td style="text-align: right;">${job.invoice_price.toFixed(2)} €</td>
+                <td style="text-align: right;">${(job.invoice_price / 1.21).toFixed(2)} €</td>
               </tr>
               <tr>
                 <td>
@@ -348,9 +351,17 @@ export class WorkerHomePage implements OnInit {
                 <td>-</td>
                 <td style="text-align: right;">Incluidos</td>
               </tr>
+              <tr>
+                <td colspan="2" style="text-align: right; padding-top: 15px;"><strong>Base Imponible:</strong></td>
+                <td style="text-align: right; padding-top: 15px;">${(job.invoice_price / 1.21).toFixed(2)} €</td>
+              </tr>
+              <tr>
+                <td colspan="2" style="text-align: right;"><strong>IVA (21%):</strong></td>
+                <td style="text-align: right;">${(job.invoice_price - (job.invoice_price / 1.21)).toFixed(2)} €</td>
+              </tr>
               <tr class="total-row">
                 <td colspan="2">TOTAL FACTURA (I.V.A. Incluido)</td>
-                <td style="text-align: right;">${job.invoice_price.toFixed(2)} €</td>
+                <td style="text-align: right;">${Number(job.invoice_price).toFixed(2)} €</td>
               </tr>
             </tbody>
           </table>

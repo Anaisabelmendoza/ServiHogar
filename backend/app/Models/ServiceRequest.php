@@ -20,7 +20,8 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
     'worker_report',
     'invoice_price',
     'invoice_materials',
-    'invoice_hours'
+    'invoice_hours',
+    'image_url'
 ])]
 class ServiceRequest extends Model
 {

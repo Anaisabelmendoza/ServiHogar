@@ -101,17 +101,20 @@ export class ProfessionalSelectionPage implements OnInit {
       const token = localStorage.getItem('token');
       const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
       
+      const imageBase64 = localStorage.getItem('temp_request_image');
       const payload = {
         description: this.description || 'Sin descripción',
         appointment_type: this.appointmentType || 'urgente',
         appointment_date: this.appointmentDateTime,
         trabajador_id: this.selectedProfessionalId,
-        address: this.address
+        address: this.address,
+        image_base64: imageBase64
       };
       
       this.http.post(`${environment.apiUrl}/api/service-requests`, payload, { headers }).subscribe({
         next: (res: any) => {
           this.isSubmitting = false;
+          localStorage.removeItem('temp_request_image');
           const selectedProf = this.professionals.find(p => p.id === this.selectedProfessionalId);
           // Navigate to tracking screen
           this.router.navigate(['/service-tracking'], {

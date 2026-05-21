@@ -43,7 +43,10 @@
 
     <div class="professional-card">
       <div class="prof-avatar">
-        <img [src]="profAvatar || 'https://i.pravatar.cc/150?img=11'" alt="Avatar">
+        <img *ngIf="profAvatar" [src]="profAvatar" alt="Avatar" (error)="profAvatar = ''">
+        <div *ngIf="!profAvatar" class="avatar-placeholder" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background-color: #f0f0f0;">
+          <ion-icon name="person" style="font-size: 32px; color: #999;"></ion-icon>
+        </div>
       </div>
       
       <div class="prof-info">

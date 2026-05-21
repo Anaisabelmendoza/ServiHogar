@@ -120,7 +120,7 @@ export class WorkerWorkingPage implements OnInit, OnDestroy {
     this.router.navigate(['/worker-review'], {
       queryParams: {
         clientName: this.clientName,
-        avatar: 'https://i.pravatar.cc/150?img=12',
+        avatar: '',
         id: this.requestId
       }
     });

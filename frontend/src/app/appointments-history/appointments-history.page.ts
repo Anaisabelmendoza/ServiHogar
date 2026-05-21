@@ -147,7 +147,7 @@ export class AppointmentsHistoryPage implements OnInit {
                   <small>Mano de obra especializada a domicilio</small>
                 </td>
                 <td>${job.invoice_hours || 1} h</td>
-                <td style="text-align: right;">${job.invoice_price.toFixed(2)} €</td>
+                <td style="text-align: right;">${(job.invoice_price / 1.21).toFixed(2)} €</td>
               </tr>
               <tr>
                 <td>
@@ -157,9 +157,17 @@ export class AppointmentsHistoryPage implements OnInit {
                 <td>-</td>
                 <td style="text-align: right;">Incluidos</td>
               </tr>
+              <tr>
+                <td colspan="2" style="text-align: right; padding-top: 15px;"><strong>Base Imponible:</strong></td>
+                <td style="text-align: right; padding-top: 15px;">${(job.invoice_price / 1.21).toFixed(2)} €</td>
+              </tr>
+              <tr>
+                <td colspan="2" style="text-align: right;"><strong>IVA (21%):</strong></td>
+                <td style="text-align: right;">${(job.invoice_price - (job.invoice_price / 1.21)).toFixed(2)} €</td>
+              </tr>
               <tr class="total-row">
                 <td colspan="2">TOTAL FACTURA (I.V.A. Incluido)</td>
-                <td style="text-align: right;">${job.invoice_price.toFixed(2)} €</td>
+                <td style="text-align: right;">${Number(job.invoice_price).toFixed(2)} €</td>
               </tr>
             </tbody>
           </table>

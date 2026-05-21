@@ -50,6 +50,9 @@
       <div class="description-box">
         <p class="description-text" *ngIf="problemDescription">{{ problemDescription }}</p>
         <p class="description-placeholder" *ngIf="!problemDescription">Sin descripción proporcionada.</p>
+        <div *ngIf="imageUrl" style="margin-top: 15px; border-radius: 8px; overflow: hidden; display: flex; justify-content: center;">
+          <img [src]="imageUrl" alt="Foto del problema" style="max-width: 100%; max-height: 200px; border-radius: 8px;" />
+        </div>
       </div>
     </div>
 

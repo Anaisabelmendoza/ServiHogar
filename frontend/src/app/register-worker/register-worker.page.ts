@@ -88,7 +88,7 @@ export class RegisterWorkerPage implements OnInit {
     }).subscribe({
       next: (res: any) => {
         loading.dismiss();
-        this.showAlert('¡Bienvenido!', 'Tu cuenta de profesional ha sido creada correctamente.', () => {
+        this.showAlert('¡Bienvenid@!', 'Tu cuenta de profesional ha sido creada correctamente.', () => {
           this.router.navigate(['/login']);
         });
       },

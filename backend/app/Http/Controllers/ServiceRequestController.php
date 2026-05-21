@@ -58,6 +58,24 @@ class ServiceRequestController extends Controller
             ]));
         }
 
+        $imageUrl = null;
+        if ($request->has('image_base64') && $request->image_base64) {
+            $image_parts = explode(";base64,", $request->image_base64);
+            if (count($image_parts) == 2) {
+                $image_type_aux = explode("image/", $image_parts[0]);
+                $image_type = $image_type_aux[1] ?? 'jpeg';
+                $image_base64 = base64_decode($image_parts[1]);
+                $fileName = uniqid() . '.'.$image_type;
+                
+                if (!\Illuminate\Support\Facades\Storage::disk('public')->exists('requests')) {
+                    \Illuminate\Support\Facades\Storage::disk('public')->makeDirectory('requests');
+                }
+                
+                \Illuminate\Support\Facades\Storage::disk('public')->put('requests/' . $fileName, $image_base64);
+                $imageUrl = url('storage/requests/' . $fileName);
+            }
+        }
+
         $serviceRequest = ServiceRequest::create([
             'cliente_id' => $user->id,
             'trabajador_id' => $request->trabajador_id,
@@ -66,7 +84,8 @@ class ServiceRequestController extends Controller
             'appointment_date' => $request->appointment_date,
             'address' => $address,
             'phone' => $request->phone ?: $user->telefono,
-            'status' => 'pendiente'
+            'status' => 'pendiente',
+            'image_url' => $imageUrl
         ]);
 
         return response()->json([

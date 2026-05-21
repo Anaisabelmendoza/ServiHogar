@@ -19,6 +19,7 @@ export class WorkerJobDetailPage implements OnInit {
   appointmentType: string = 'urgente'; // 'urgente' | 'programar'
   appointmentDate: string = '';
   requestId: number = 0;
+  imageUrl: string = '';
 
   constructor(
     private route: ActivatedRoute,
@@ -34,6 +35,7 @@ export class WorkerJobDetailPage implements OnInit {
       this.appointmentType   = params['type']         || 'urgente';
       this.appointmentDate   = params['date']         || '';
       this.requestId         = params['id']           || 0;
+      this.imageUrl          = params['imageUrl']     || '';
     });
   }
 

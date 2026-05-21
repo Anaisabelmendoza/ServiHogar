@@ -56,13 +56,20 @@ export class ServiceDescriptionPage implements OnInit {
     if (files && files.length > 0) {
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
-        // Create a fake URL for preview
-        const url = URL.createObjectURL(file);
-        this.attachedFiles.push({
-          name: file.name,
-          url: url,
-          type: file.type.startsWith('video') ? 'video' : 'image'
-        });
+        
+        const reader = new FileReader();
+        reader.onload = (e: any) => {
+          const base64Image = e.target.result;
+          this.attachedFiles.push({
+            name: file.name,
+            url: base64Image, // Use base64 string as URL for preview
+            type: file.type.startsWith('video') ? 'video' : 'image'
+          });
+          
+          // Guardar imagen en localStorage temporalmente para enviarla luego
+          localStorage.setItem('temp_request_image', base64Image);
+        };
+        reader.readAsDataURL(file);
       }
     }
     // Reset input
@@ -71,13 +78,11 @@ export class ServiceDescriptionPage implements OnInit {
   
   removeFile(index: number) {
     this.attachedFiles.splice(index, 1);
+    localStorage.removeItem('temp_request_image');
   }
 
   submitRequest() {
     console.log('Service requested with description:', this.description);
-    console.log('Appointment Type:', this.appointmentType);
-    console.log('Appointment DateTime:', this.appointmentDateTime);
-    console.log('Attached Files:', this.attachedFiles);
     
     // Navigate to professional selection
     this.router.navigate(['/professional-selection'], {

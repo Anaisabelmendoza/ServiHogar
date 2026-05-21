@@ -156,7 +156,10 @@ export class ServiceTrackingPage implements OnInit, OnDestroy {
       const workerIcon = L.divIcon({
         html: `
           <div style="background-color: white; border: 3px solid #04608c; border-radius: 50%; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">
-            <img src="${this.profAvatar || 'https://i.pravatar.cc/150?img=11'}" style="width: 100%; height: 100%; object-fit: cover;">
+            ${this.profAvatar 
+              ? `<img src="${this.profAvatar}" style="width: 100%; height: 100%; object-fit: cover;">` 
+              : `<div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background-color: #f0f0f0; color: #999; font-size: 24px;">👤</div>`
+            }
           </div>
         `,
         className: '',

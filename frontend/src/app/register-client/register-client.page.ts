@@ -79,7 +79,7 @@ export class RegisterClientPage implements OnInit {
     }).subscribe({
       next: (res: any) => {
         loading.dismiss();
-        this.showAlert('¡Bienvenido!', 'Tu cuenta de cliente ha sido creada correctamente.', () => {
+        this.showAlert('¡Bienvenid@!', 'Tu cuenta de cliente ha sido creada correctamente.', () => {
           this.router.navigate(['/login']);
         });
       },
