@@ -47,13 +47,15 @@ ion-content {
 }
 
 .custom-input {
-  --background: transparent;
   margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
 
-  ion-label {
+  label {
     color: #1a5c96;
     font-weight: bold;
-    margin-bottom: 8px !important;
+    margin-bottom: 8px;
     font-size: 1.1rem;
     text-shadow: 0 1px 1px rgba(255,255,255,0.5);
   }
