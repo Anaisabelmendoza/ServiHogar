@@ -48,13 +48,23 @@ class ServiceRequestController extends Controller
             return response()->json(['status' => 'error', 'errors' => $validator->errors()], 400);
         }
 
+        $address = $request->address;
+        if (empty($address)) {
+            $address = implode(', ', array_filter([
+                $user->domicilio,
+                $user->codigo_postal,
+                $user->ciudad,
+                $user->provincia
+            ]));
+        }
+
         $serviceRequest = ServiceRequest::create([
             'cliente_id' => $user->id,
             'trabajador_id' => $request->trabajador_id,
             'description' => $request->description,
             'appointment_type' => $request->appointment_type,
             'appointment_date' => $request->appointment_date,
-            'address' => $request->address,
+            'address' => $address,
             'phone' => $request->phone ?: $user->telefono,
             'status' => 'pendiente'
         ]);
@@ -288,10 +298,20 @@ class ServiceRequestController extends Controller
 
     public function getTrackingInfo($id)
     {
-        $serviceRequest = ServiceRequest::with('trabajador')->find($id);
+        $serviceRequest = ServiceRequest::with(['trabajador', 'cliente'])->find($id);
 
         if (!$serviceRequest) {
             return response()->json(['status' => 'error', 'message' => 'Request not found'], 404);
+        }
+
+        $address = $serviceRequest->address;
+        if (empty($address) && $serviceRequest->cliente) {
+            $address = implode(', ', array_filter([
+                $serviceRequest->cliente->domicilio,
+                $serviceRequest->cliente->codigo_postal,
+                $serviceRequest->cliente->ciudad,
+                $serviceRequest->cliente->provincia
+            ]));
         }
 
         return response()->json([
@@ -299,7 +319,11 @@ class ServiceRequestController extends Controller
             'data' => [
                 'id' => $serviceRequest->id,
                 'status' => $serviceRequest->status,
-                'address' => $serviceRequest->address,
+                'address' => $address,
+                'cliente' => $serviceRequest->cliente ? [
+                    'latitude' => $serviceRequest->cliente->latitude,
+                    'longitude' => $serviceRequest->cliente->longitude,
+                ] : null,
                 'trabajador' => $serviceRequest->trabajador ? [
                     'id' => $serviceRequest->trabajador->id,
                     'name' => $serviceRequest->trabajador->name,

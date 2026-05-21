@@ -18,6 +18,10 @@ export class ServiceTrackingPage implements OnInit, OnDestroy {
   profRating: number = 0;
   profPhone: string = '';
   requestId: number | null = null;
+  clientAddress: string = '';
+  workerAddress: string = '';
+  private lastGeocodedLat: number | null = null;
+  private lastGeocodedLng: number | null = null;
 
   // Propiedades de Mapa y GPS
   private map: any;
@@ -194,36 +198,98 @@ export class ServiceTrackingPage implements OnInit, OnDestroy {
   startTrackingPoll() {
     if (!this.requestId) return;
 
-    this.trackingInterval = setInterval(() => {
-      const token = localStorage.getItem('token');
-      const headers = new HttpHeaders({
-        'Authorization': `Bearer ${token}`
-      });
+    // Fetch immediately
+    this.fetchTrackingData();
 
-      this.http.get(`${environment.apiUrl}/api/service-requests/${this.requestId}/tracking`, { headers }).subscribe({
-        next: (res: any) => {
-          if (res.status === 'success' && res.data.trabajador) {
+    // Poll every 4 seconds
+    this.trackingInterval = setInterval(() => {
+      this.fetchTrackingData();
+    }, 4000);
+  }
+
+  fetchTrackingData() {
+    if (!this.requestId) return;
+
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+
+    this.http.get(`${environment.apiUrl}/api/service-requests/${this.requestId}/tracking`, { headers }).subscribe({
+      next: (res: any) => {
+        if (res.status === 'success' && res.data) {
+          if (res.data.address) {
+            this.clientAddress = res.data.address;
+          }
+
+          if (res.data.cliente) {
+            const c = res.data.cliente;
+            if (c.latitude && c.longitude) {
+              this.clientLat = parseFloat(c.latitude);
+              this.clientLng = parseFloat(c.longitude);
+
+              if (this.clientMarker) {
+                this.clientMarker.setLatLng([this.clientLat, this.clientLng]);
+              }
+            }
+          }
+
+          if (res.data.trabajador) {
             const t = res.data.trabajador;
             if (t.latitude && t.longitude) {
-              this.workerLat = parseFloat(t.latitude);
-              this.workerLng = parseFloat(t.longitude);
+              const newLat = parseFloat(t.latitude);
+              const newLng = parseFloat(t.longitude);
+
+              if (this.workerLat !== newLat || this.workerLng !== newLng || !this.workerAddress) {
+                this.workerLat = newLat;
+                this.workerLng = newLng;
+
+                // Solo llamar a la API si cambió la coordenada o si aún no tenemos la dirección
+                if (this.lastGeocodedLat !== newLat || this.lastGeocodedLng !== newLng) {
+                  this.lastGeocodedLat = newLat;
+                  this.lastGeocodedLng = newLng;
+
+                  this.http.get(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${newLat}&lon=${newLng}&zoom=18&addressdetails=1`).subscribe({
+                    next: (geodata: any) => {
+                      if (geodata && geodata.display_name) {
+                        const parts = geodata.display_name.split(', ');
+                        // Tomamos una dirección simplificada (ej: calle y número)
+                        this.workerAddress = parts.slice(0, 2).join(', ');
+                      } else {
+                        this.workerAddress = 'Ubicación encontrada en el mapa';
+                      }
+                    },
+                    error: () => {
+                      this.workerAddress = 'Ubicación rastreada en el mapa';
+                    }
+                  });
+                }
+              }
 
               if (this.workerMarker) {
                 this.workerMarker.setLatLng([this.workerLat, this.workerLng]);
               }
-
-              if (this.routeLine) {
-                this.routeLine.setLatLngs([
-                  [this.workerLat, this.workerLng],
-                  [this.clientLat, this.clientLng]
-                ]);
-              }
             }
           }
-        },
-        error: (err) => console.error('Error al recibir ubicación en tiempo real:', err)
-      });
-    }, 4000);
+
+          // Update route line and bounds dynamically with new worker and client coordinates
+          if (this.routeLine) {
+            this.routeLine.setLatLngs([
+              [this.workerLat, this.workerLng],
+              [this.clientLat, this.clientLng]
+            ]);
+          }
+
+          if (this.map) {
+            this.map.fitBounds(L.latLngBounds([
+              [this.workerLat, this.workerLng],
+              [this.clientLat, this.clientLng]
+            ]), { padding: [40, 40] });
+          }
+        }
+      },
+      error: (err) => console.error('Error al recibir ubicación en tiempo real:', err)
+    });
   }
 
   openGoogleMapsRoute() {

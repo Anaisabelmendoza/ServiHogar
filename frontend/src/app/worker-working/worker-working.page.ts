@@ -29,14 +29,10 @@ export class WorkerWorkingPage implements OnInit, OnDestroy {
   // Modal de cancelación
   isCancelModalOpen: boolean = false;
 
-  // Simulación de ruta GPS para demostración
-  private startLat = 38.0170;
-  private startLng = -3.3650;
-  private destLat = 38.0116;
-  private destLng = -3.3705;
-  private currentStep = 0;
-  private totalSteps = 30;
+  private startLat: number | null = null;
+  private startLng: number | null = null;
   private gpsUpdateInterval: any;
+  private gpsWatchId: any;
 
   constructor(
     private router: Router, 
@@ -67,6 +63,9 @@ export class WorkerWorkingPage implements OnInit, OnDestroy {
     clearInterval(this.timerInterval);
     clearInterval(this.progressInterval);
     clearInterval(this.gpsUpdateInterval);
+    if (this.gpsWatchId && navigator.geolocation) {
+      navigator.geolocation.clearWatch(this.gpsWatchId);
+    }
   }
 
   // ── Cronómetro ──────────────────────────────────────────
@@ -99,8 +98,18 @@ export class WorkerWorkingPage implements OnInit, OnDestroy {
 
   // ── GPS ──────────────────────────────────────────────────
   openGPS() {
-    const query = encodeURIComponent(this.address || 'Madrid, Spain');
-    window.open(`https://www.google.com/maps/search/?api=1&query=${query}`, '_system');
+    const dest = encodeURIComponent(this.address || 'Madrid, Spain');
+    
+    // Si tenemos la ubicación del profesional, trazamos la ruta de origen a destino
+    if (this.startLat && this.startLng) {
+      const url = `https://www.google.com/maps/dir/?api=1&origin=${this.startLat},${this.startLng}&destination=${dest}&travelmode=driving`;
+      window.open(url, '_system');
+    } else {
+      // Fallback: Si no tenemos el GPS capturado, abrimos la ruta igualmente 
+      // y dejamos que Google Maps use la ubicación actual del teléfono como origen.
+      const url = `https://www.google.com/maps/dir/?api=1&destination=${dest}&travelmode=driving`;
+      window.open(url, '_system');
+    }
   }
 
   // ── Acciones ─────────────────────────────────────────────
@@ -160,32 +169,30 @@ export class WorkerWorkingPage implements OnInit, OnDestroy {
     });
   }
 
-  // ── GPS Tracking & Simulation ──────────────────────────────
+  // ── GPS Tracking Real ──────────────────────────────
   startGPSTracking() {
-    // Intentamos coger la ubicación real primero
     if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition((pos) => {
-        this.startLat = pos.coords.latitude;
-        this.startLng = pos.coords.longitude;
-        // Ajustamos destino ligeramente cerca del profesional
-        this.destLat = this.startLat - 0.003;
-        this.destLng = this.startLng - 0.003;
-      });
-    }
+      // 1. Iniciar observador de GPS real (requiere permisos y HTTPS/localhost)
+      this.gpsWatchId = navigator.geolocation.watchPosition(
+        (pos) => {
+          this.startLat = pos.coords.latitude;
+          this.startLng = pos.coords.longitude;
+        },
+        (err) => {
+          console.error("Error obteniendo GPS (asegúrate de dar permisos y usar HTTPS/localhost):", err);
+        },
+        { enableHighAccuracy: true, maximumAge: 0 }
+      );
 
-    this.gpsUpdateInterval = setInterval(() => {
-      if (this.currentStep <= this.totalSteps) {
-        const ratio = this.currentStep / this.totalSteps;
-        const currentLat = this.startLat + (this.destLat - this.startLat) * ratio;
-        const currentLng = this.startLng + (this.destLng - this.startLng) * ratio;
-        
-        this.sendLocationToBackend(currentLat, currentLng);
-        this.currentStep++;
-      } else {
-        // Al terminar los pasos de simulación, reiniciar o mantener en destino
-        this.sendLocationToBackend(this.destLat, this.destLng);
-      }
-    }, 4000);
+      // 2. Enviar la ubicación real al backend cada 4 segundos
+      this.gpsUpdateInterval = setInterval(() => {
+        if (this.startLat !== null && this.startLng !== null) {
+          this.sendLocationToBackend(this.startLat, this.startLng);
+        }
+      }, 4000);
+    } else {
+      console.error("Geolocalización no soportada por este navegador");
+    }
   }
 
   sendLocationToBackend(lat: number, lng: number) {

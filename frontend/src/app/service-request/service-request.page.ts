@@ -43,6 +43,10 @@ export class ServiceRequestPage implements OnInit {
     this.router.navigate(['/login']);
   }
 
+  goToAppointments() {
+    this.router.navigate(['/appointments-history']);
+  }
+
   setAppointmentType(type: 'programar' | 'urgente') {
     this.appointmentType = type;
     if (type === 'programar') {

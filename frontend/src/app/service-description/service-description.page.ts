@@ -39,6 +39,10 @@ export class ServiceDescriptionPage implements OnInit {
     localStorage.clear();
     this.router.navigate(['/login']);
   }
+
+  goToAppointments() {
+    this.router.navigate(['/appointments-history']);
+  }
   
   triggerFileInput(inputId: string) {
     const input = document.getElementById(inputId) as HTMLInputElement;

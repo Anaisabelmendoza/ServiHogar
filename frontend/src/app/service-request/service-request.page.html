@@ -4,8 +4,8 @@
       <ion-back-button class="back-btn" defaultHref="/home" text="" icon="chevron-back"></ion-back-button>
     </ion-buttons>
     <ion-buttons slot="end">
-      <ion-button class="action-btn calendar-btn">
-        <ion-icon name="calculator" slot="icon-only"></ion-icon>
+      <ion-button class="action-btn calendar-btn" (click)="goToAppointments()">
+        <ion-icon name="calendar-outline" slot="icon-only"></ion-icon>
       </ion-button>
       <ion-button class="action-btn profile-btn" (click)="logout()">
         <ion-icon name="person-circle" slot="icon-only"></ion-icon>
@@ -41,7 +41,7 @@
     <!-- Tipo de Cita Card -->
     <div class="info-card appointment-card">
       <div class="card-title-center">
-        <ion-icon name="calculator" class="title-icon"></ion-icon>
+        <ion-icon name="calendar-outline" class="title-icon"></ion-icon>
         <h2>Tipo de cita</h2>
       </div>
       

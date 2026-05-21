@@ -76,6 +76,10 @@ export class ProfessionalSelectionPage implements OnInit {
     this.router.navigate(['/login']);
   }
 
+  goToAppointments() {
+    this.router.navigate(['/appointments-history']);
+  }
+
   selectProfessional(id: number) {
     this.selectedProfessionalId = id;
   }

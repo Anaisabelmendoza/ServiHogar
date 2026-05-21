@@ -20,6 +20,27 @@
       <div id="map" style="height: 250px; width: 100%; z-index: 1;"></div>
     </div>
 
+    <!-- Tarjeta de Detalles de Ruta -->
+    <div class="route-details-card">
+      <div class="route-step">
+        <ion-icon name="pin" class="origin-icon"></ion-icon>
+        <div class="step-info">
+          <span class="step-label">Profesional (Origen)</span>
+          <p class="step-text">{{ workerAddress || profName + ' está en camino...' }}</p>
+        </div>
+      </div>
+      
+      <div class="route-line-divider"></div>
+      
+      <div class="route-step">
+        <ion-icon name="location" class="destination-icon"></ion-icon>
+        <div class="step-info">
+          <span class="step-label">Destino (Tu Dirección)</span>
+          <p class="step-text">{{ clientAddress || 'Buscando dirección de destino...' }}</p>
+        </div>
+      </div>
+    </div>
+
     <div class="professional-card">
       <div class="prof-avatar">
         <img [src]="profAvatar || 'https://i.pravatar.cc/150?img=11'" alt="Avatar">
