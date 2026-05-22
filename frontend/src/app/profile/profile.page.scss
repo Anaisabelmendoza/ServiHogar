@@ -153,6 +153,16 @@
       padding: 4px 0;
       background: transparent;
     }
+
+    .professions-select {
+      width: 100%;
+      border-bottom: 2px solid #04608c;
+      font-size: 0.95rem;
+      color: #333;
+      padding: 4px 0;
+      background: transparent;
+      --placeholder-color: #777;
+    }
   }
 
   .save-btn-container {

@@ -65,9 +65,22 @@
 
       <!-- Profesión (solo visible para el profesional) -->
       <div class="data-field no-border" *ngIf="isWorker">
-        <span class="field-label">Profesión:</span>
-        <input *ngIf="isEditing" [(ngModel)]="profesion" class="field-input" type="text" />
-        <span *ngIf="!isEditing" class="field-value">{{ profesion || 'Xxx-xxx-xx' }}</span>
+        <span class="field-label">Profesiones:</span>
+        
+        <ion-select *ngIf="isEditing" 
+                    [(ngModel)]="selectedProfessions" 
+                    multiple="true" 
+                    okText="Aceptar" 
+                    cancelText="Cancelar"
+                    class="professions-select">
+          <ion-select-option *ngFor="let prof of availableProfessions" [value]="prof.value">
+            {{ prof.label }}
+          </ion-select-option>
+        </ion-select>
+
+        <span *ngIf="!isEditing" class="field-value" style="text-transform: capitalize;">
+          {{ profesion || 'Ninguna seleccionada' }}
+        </span>
       </div>
 
       <!-- Botón guardar (solo al editar) -->

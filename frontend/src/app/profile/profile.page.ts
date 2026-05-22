@@ -21,6 +21,16 @@ export class ProfilePage implements OnInit {
   isEditing: boolean = false;
   isWorker: boolean = false;
 
+  selectedProfessions: string[] = [];
+  availableProfessions = [
+    { value: 'electricista', label: 'Electricista' },
+    { value: 'carpintero', label: 'Carpintero' },
+    { value: 'pintor', label: 'Pintor' },
+    { value: 'fontanero', label: 'Fontanero' },
+    { value: 'obrero', label: 'Obrero' },
+    { value: 'cerrajero', label: 'Cerrajero' }
+  ];
+
   constructor(
     private router: Router,
     private http: HttpClient,
@@ -40,15 +50,25 @@ export class ProfilePage implements OnInit {
       this.apellidos = user.apellidos || '';
       this.telefono = user.telefono || '600-000-000';
       this.email = user.email || '';
-      this.profesion = user.profesion || 'Fontanero';
+      this.profesion = user.profesion || 'fontanero';
       this.avatarUrl = user.avatarUrl || null;
+
+      // Convertir de string a array para el selector multiselección
+      if (this.profesion) {
+        this.selectedProfessions = this.profesion.split(',')
+          .map(p => p.trim().toLowerCase())
+          .filter(p => p.length > 0);
+      } else {
+        this.selectedProfessions = ['fontanero'];
+      }
     } else {
       // Valores por defecto
       this.nombre = 'Usuario';
       this.apellidos = 'ServiHogar';
       this.telefono = '600-000-000';
       this.email = 'usuario@servihogar.com';
-      this.profesion = 'Fontanero';
+      this.profesion = 'fontanero';
+      this.selectedProfessions = ['fontanero'];
     }
   }
 
@@ -93,6 +113,11 @@ export class ProfilePage implements OnInit {
     });
     await loading.present();
 
+    // Actualizar string de profesiones a partir de lo seleccionado
+    if (this.isWorker) {
+      this.profesion = this.selectedProfessions.join(', ');
+    }
+
     const url = `${environment.apiUrl}/api/user/profile`;
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${token}`
@@ -114,6 +139,13 @@ export class ProfilePage implements OnInit {
         localStorage.setItem('user', JSON.stringify(res.user));
         this.userName = res.user.name || 'Usuario';
         this.showAlert('Éxito', 'Perfil actualizado correctamente en la base de datos.');
+
+        if (this.isWorker && res.user.profesion) {
+          this.profesion = res.user.profesion;
+          this.selectedProfessions = this.profesion.split(',')
+            .map(p => p.trim().toLowerCase())
+            .filter(p => p.length > 0);
+        }
       },
       error: (err) => {
         loading.dismiss();
@@ -130,6 +162,12 @@ export class ProfilePage implements OnInit {
           this.email = user.email || '';
           this.profesion = user.profesion || '';
           this.avatarUrl = user.avatarUrl || null;
+          
+          if (this.isWorker && this.profesion) {
+            this.selectedProfessions = this.profesion.split(',')
+              .map(p => p.trim().toLowerCase())
+              .filter(p => p.length > 0);
+          }
         }
       }
     });
