@@ -35,7 +35,7 @@ export class ForgotPasswordPage implements OnInit {
     });
     await loading.present();
 
-    const url = `${environment.apiUrl}/forgot-password.php`;
+    const url = `${environment.apiUrl}/api/forgot-password`;
 
     this.http.post(url, {
       email: this.email
@@ -48,9 +48,8 @@ export class ForgotPasswordPage implements OnInit {
       },
       error: (err) => {
         loading.dismiss();
-        // Even if there's an error, for security, it's often better to show a generic success message
-        // but here we show an error if the connection fails
-        this.showAlert('Error', 'No se pudo procesar la solicitud en este momento.');
+        const errMsg = err.error?.message || 'No se pudo procesar la solicitud en este momento.';
+        this.showAlert('Error', errMsg);
       }
     });
   }

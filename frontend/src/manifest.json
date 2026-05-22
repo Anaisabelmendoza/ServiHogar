@@ -1,0 +1,16 @@
+{
+  "name": "ServiHogar",
+  "short_name": "ServiHogar",
+  "start_url": ".",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#ffffff",
+  "theme_color": "#30b6e1",
+  "icons": [
+    {
+      "src": "assets/icon/favicon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

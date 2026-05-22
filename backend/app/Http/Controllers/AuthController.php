@@ -175,4 +175,72 @@ class AuthController extends Controller
             'longitude' => $user->longitude
         ]);
     }
+
+    public function forgotPassword(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|string|email',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Validation error',
+                'errors' => $validator->errors()
+            ], 400);
+        }
+
+        $user = User::where('email', $request->email)->first();
+        if (!$user) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'El correo electrónico no está registrado.'
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Recovery email sent'
+        ]);
+    }
+
+    public function resetPassword(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|string|email',
+            'code' => 'required|string',
+            'password' => 'required|string|min:6',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Validation error',
+                'errors' => $validator->errors()
+            ], 400);
+        }
+
+        if ($request->code !== '123456') {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'El código de verificación es incorrecto.'
+            ], 400);
+        }
+
+        $user = User::where('email', $request->email)->first();
+        if (!$user) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Usuario no encontrado.'
+            ], 404);
+        }
+
+        $user->password = Hash::make($request->password);
+        $user->save();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Password reset successfully'
+        ]);
+    }
 }

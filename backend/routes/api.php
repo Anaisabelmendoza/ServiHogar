@@ -8,6 +8,8 @@ use App\Http\Controllers\ServiceRequestController;
 // Rutas públicas
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
+Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
+Route::post('/reset-password', [AuthController::class, 'resetPassword']);
 
 // Rutas protegidas (Sanctum)
 Route::middleware('auth:sanctum')->group(function () {
@@ -28,6 +30,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/worker/history', [ServiceRequestController::class, 'getHistory']);
     Route::get('/client/history', [ServiceRequestController::class, 'getClientHistory']);
     Route::post('/service-requests/{id}/invoice', [ServiceRequestController::class, 'updateInvoice']);
+    Route::post('/service-requests/{id}/review', [ServiceRequestController::class, 'submitReview']);
     Route::post('/worker/toggle-active', [ServiceRequestController::class, 'toggleActive']);
     Route::post('/worker/location', [AuthController::class, 'updateLocation']);
     Route::get('/service-requests/{id}/tracking', [ServiceRequestController::class, 'getTrackingInfo']);

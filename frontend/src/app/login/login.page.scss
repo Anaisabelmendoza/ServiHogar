@@ -10,11 +10,11 @@ ion-content {
   flex-direction: column;
   align-items: center;
   padding-bottom: 50px;
-  
+
   @media (min-width: 768px) {
     max-width: 450px;
     margin: 0 auto;
-    box-shadow: 0 0 40px rgba(0,0,0,0.1);
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.1);
   }
 }
 
@@ -37,11 +37,12 @@ ion-content {
   width: 100%;
 
   label {
-    color: #1a5c96; /* Estimated blue from mockup */
+    color: #1a5c96;
+    /* Estimated blue from mockup */
     font-weight: bold;
     margin-bottom: 10px;
     font-size: 1.1rem;
-    text-shadow: 0 1px 2px rgba(255,255,255,0.8);
+    text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
   }
 
   ion-input {
@@ -50,7 +51,7 @@ ion-content {
     --padding-start: 15px;
     height: 45px;
     width: 100%;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     --color: #000000 !important;
     color: #000000 !important;
   }
@@ -65,7 +66,7 @@ ion-content {
 .send-button {
   --background: white;
   --color: #1a5c96;
-  --box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   font-weight: bold;
   width: 200px;
   height: 50px;
@@ -85,7 +86,7 @@ ion-content {
     text-decoration: none;
     font-weight: bold;
     font-size: 1rem;
-    
+
     &:hover {
       text-decoration: underline;
     }

@@ -46,7 +46,7 @@ export class ResetPasswordPage implements OnInit {
     });
     await loading.present();
 
-    const url = `${environment.apiUrl}/reset-password.php`;
+    const url = `${environment.apiUrl}/api/reset-password`;
 
     this.http.post(url, {
       email: this.email,
@@ -61,7 +61,8 @@ export class ResetPasswordPage implements OnInit {
       },
       error: (err) => {
         loading.dismiss();
-        this.showAlert('Error', 'El código de verificación es incorrecto o ha expirado.');
+        const errMsg = err.error?.message || 'El código de verificación es incorrecto o ha expirado.';
+        this.showAlert('Error', errMsg);
       }
     });
   }

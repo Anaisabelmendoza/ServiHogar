@@ -77,7 +77,8 @@ export class ServiceTrackingPage implements OnInit, OnDestroy {
     this.router.navigate(['/review'], {
       queryParams: {
         profName: this.profName,
-        profAvatar: this.profAvatar
+        profAvatar: this.profAvatar,
+        requestId: this.requestId
       }
     });
   }
@@ -239,6 +240,9 @@ export class ServiceTrackingPage implements OnInit, OnDestroy {
 
           if (res.data.trabajador) {
             const t = res.data.trabajador;
+            if (t.average_rating !== undefined) {
+              this.profRating = parseFloat(t.average_rating);
+            }
             if (t.latitude && t.longitude) {
               const newLat = parseFloat(t.latitude);
               const newLng = parseFloat(t.longitude);

@@ -36,18 +36,46 @@ export class ProfessionalSelectionPage implements OnInit {
       this.description = params['description'] || '';
       this.address = params['address'] || null;
       
-      this.loadProfessionals();
+      this.getUserLocationAndLoad();
     });
   }
 
-  loadProfessionals() {
+  getUserLocationAndLoad() {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const lat = pos.coords.latitude;
+          const lng = pos.coords.longitude;
+          this.loadProfessionals(lat, lng);
+        },
+        (err) => {
+          console.warn('Geolocation failed, loading without coordinates:', err);
+          this.loadProfessionals();
+        },
+        { timeout: 5000 }
+      );
+    } else {
+      this.loadProfessionals();
+    }
+  }
+
+  loadProfessionals(lat?: number, lng?: number) {
     this.isLoading = true;
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
     
     let url = `${environment.apiUrl}/api/workers`;
+    const params: string[] = [];
     if (this.serviceId) {
-      url += `?profesion=${this.serviceId}`;
+      params.push(`profesion=${this.serviceId}`);
+    }
+    if (lat && lng) {
+      params.push(`latitude=${lat}`);
+      params.push(`longitude=${lng}`);
+    }
+
+    if (params.length > 0) {
+      url += `?${params.join('&')}`;
     }
 
     this.http.get(url, { headers }).subscribe({
@@ -56,9 +84,10 @@ export class ProfessionalSelectionPage implements OnInit {
           this.professionals = res.data.map((w: any) => ({
             id: w.id,
             name: w.name + (w.apellidos ? ' ' + w.apellidos : ''),
-            rating: 5,
+            rating: w.average_rating !== undefined ? w.average_rating : 5,
             avatar: w.avatarUrl || `https://ui-avatars.com/api/?name=${w.name}&background=random`,
-            phone: w.telefono
+            phone: w.telefono,
+            distance: w.distance !== undefined ? w.distance : null
           }));
         }
         this.isLoading = false;
@@ -66,7 +95,6 @@ export class ProfessionalSelectionPage implements OnInit {
       error: (err) => {
         console.error('Error fetching professionals:', err);
         this.isLoading = false;
-        // Optionally load dummy data for UI testing if backend fails
       }
     });
   }

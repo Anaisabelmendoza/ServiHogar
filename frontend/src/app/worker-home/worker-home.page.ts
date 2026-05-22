@@ -93,7 +93,7 @@ export class WorkerHomePage implements OnInit {
               id: req.id,
               clientName: req.cliente ? req.cliente.name : 'Cliente',
               avatar: req.cliente?.avatarUrl || `https://ui-avatars.com/api/?name=${req.cliente?.name || 'C'}&background=random`,
-              rating: req.rating || 0,
+              rating: req.cliente?.average_rating !== undefined ? req.cliente.average_rating : 5,
               phone: req.phone || (req.cliente ? req.cliente.telefono : '600000001'),
               description: req.description,
               appointmentType: req.appointment_type,

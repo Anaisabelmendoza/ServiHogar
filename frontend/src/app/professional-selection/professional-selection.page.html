@@ -32,6 +32,12 @@
       
       <div class="prof-info">
         <h3 class="prof-name">{{ prof.name }}</h3>
+        
+        <div class="prof-distance" *ngIf="prof.distance !== null">
+          <ion-icon name="location-outline"></ion-icon>
+          <span>A {{ prof.distance }} km de ti</span>
+        </div>
+
         <div class="prof-rating">
           <span class="rating-text">Puntuación media</span>
           <div class="stars">

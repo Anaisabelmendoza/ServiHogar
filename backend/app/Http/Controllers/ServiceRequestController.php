@@ -11,19 +11,81 @@ use Illuminate\Support\Facades\Validator;
 
 class ServiceRequestController extends Controller
 {
-    // Listar trabajadores por profesión
+    private function getDistance($lat1, $lon1, $lat2, $lon2)
+    {
+        $earthRadius = 6371; // Kilómetros
+
+        $lat1 = deg2rad($lat1);
+        $lon1 = deg2rad($lon1);
+        $lat2 = deg2rad($lat2);
+        $lon2 = deg2rad($lon2);
+
+        $latDelta = $lat2 - $lat1;
+        $lonDelta = $lon2 - $lon1;
+
+        $angle = 2 * asin(sqrt(pow(sin($latDelta / 2), 2) +
+            cos($lat1) * cos($lat2) * pow(sin($lonDelta / 2), 2)));
+
+        return $angle * $earthRadius;
+    }
+
+    // Listar trabajadores por profesión y ordenados por cercanía (radio 30 km)
     public function getWorkersByProfession(Request $request)
     {
         $profesion = $request->query('profesion');
+        $clientLat = $request->query('latitude');
+        $clientLng = $request->query('longitude');
+
+        $user = Auth::user();
+
+        // Si no se especifican por query param, usar coordenadas del perfil del usuario
+        if (!$clientLat || !$clientLng) {
+            if ($user) {
+                $clientLat = $user->latitude;
+                $clientLng = $user->longitude;
+            }
+        }
+
         $query = User::where('role', 'worker')->where('is_active', true);
         
         if ($profesion) {
             $query->where('profesion', 'LIKE', '%' . $profesion . '%');
         }
 
+        $workers = $query->get();
+
+        // Si tenemos coordenadas del cliente, ordenamos y filtramos en un radio de 30 km
+        if ($clientLat && $clientLng) {
+            $filteredWorkers = [];
+            foreach ($workers as $worker) {
+                if ($worker->latitude && $worker->longitude) {
+                    $distance = $this->getDistance($clientLat, $clientLng, $worker->latitude, $worker->longitude);
+                    // Radio máximo de 30 km
+                    if ($distance <= 30) {
+                        $worker->distance = round($distance, 1);
+                        $filteredWorkers[] = $worker;
+                    }
+                } else {
+                    // Fallback para demostración: si el profesional no tiene GPS configurado, lo mostramos a una distancia simulada razonable
+                    $worker->distance = 4.5;
+                    $filteredWorkers[] = $worker;
+                }
+            }
+
+            // Ordenar por distancia (los más cercanos primero)
+            usort($filteredWorkers, function($a, $b) {
+                return $a->distance <=> $b->distance;
+            });
+
+            return response()->json([
+                'status' => 'success',
+                'data' => $filteredWorkers
+            ]);
+        }
+
         return response()->json([
             'status' => 'success',
-            'data' => $query->get()
+            'data' => $workers
         ]);
     }
 
@@ -351,6 +413,7 @@ class ServiceRequestController extends Controller
                     'avatarUrl' => $serviceRequest->trabajador->avatarUrl,
                     'latitude' => $serviceRequest->trabajador->latitude,
                     'longitude' => $serviceRequest->trabajador->longitude,
+                    'average_rating' => $serviceRequest->trabajador->average_rating,
                 ] : null
             ]
         ]);

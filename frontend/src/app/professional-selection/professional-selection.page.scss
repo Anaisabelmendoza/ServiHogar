@@ -87,6 +87,21 @@
         margin: 0 0 5px 0;
       }
 
+      .prof-distance {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        color: #30b6e1;
+        font-size: 0.85rem;
+        font-weight: 500;
+        margin: 2px 0 6px 0;
+
+        ion-icon {
+          font-size: 0.95rem;
+          color: #30b6e1;
+        }
+      }
+
       .prof-rating {
         display: flex;
         align-items: center;
