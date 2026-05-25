@@ -36,3 +36,19 @@
 /* @import "@ionic/angular/css/palettes/dark.class.css"; */
 /* @import "@ionic/angular/css/palettes/dark.system.css"; */
 
+
+/* Estilo global para hacer que todas las flechas de volver atrás sean de color azul de marca */
+.transparent-toolbar, ion-toolbar {
+  ion-buttons[slot="start"] {
+    ion-back-button, ion-button {
+      --color: #1a5c96 !important;
+      color: #1a5c96 !important;
+    }
+  }
+}
+
+ion-back-button {
+  --color: #1a5c96 !important;
+  color: #1a5c96 !important;
+}
+

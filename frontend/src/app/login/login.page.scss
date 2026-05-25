@@ -3,13 +3,13 @@ ion-content {
 }
 
 .login-container {
-  background: url('../../assets/Login.png') no-repeat center top / cover;
+  background: #154b79 url('../../assets/Login.png') no-repeat center -40px / cover;
   min-height: 100vh;
   width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding-bottom: 50px;
+  padding-bottom: 25px;
 
   @media (min-width: 768px) {
     max-width: 450px;
@@ -20,7 +20,9 @@ ion-content {
 
 
 .logo-space {
-  height: 550px;
+  height: 53vh;
+  min-height: 310px;
+  max-height: 500px;
   width: 100%;
 }
 
@@ -31,7 +33,7 @@ ion-content {
 }
 
 .custom-input {
-  margin-bottom: 20px;
+  margin-bottom: 12px;
   display: flex;
   flex-direction: column;
   width: 100%;
@@ -40,8 +42,8 @@ ion-content {
     color: #1a5c96;
     /* Estimated blue from mockup */
     font-weight: bold;
-    margin-bottom: 10px;
-    font-size: 1.1rem;
+    margin-bottom: 4px;
+    font-size: 0.95rem;
     text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
   }
 
@@ -49,7 +51,7 @@ ion-content {
     background: white;
     border-radius: 10px;
     --padding-start: 15px;
-    height: 45px;
+    height: 44px;
     width: 100%;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     --color: #000000 !important;
@@ -58,7 +60,7 @@ ion-content {
 }
 
 .button-container {
-  margin-top: 30px;
+  margin-top: 18px;
   display: flex;
   justify-content: center;
 }
@@ -69,23 +71,23 @@ ion-content {
   --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   font-weight: bold;
   width: 200px;
-  height: 50px;
-  font-size: 1.2rem;
+  height: 46px;
+  font-size: 1.1rem;
   text-transform: none;
 }
 
 .links-container {
-  margin-top: 40px;
+  margin-top: 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 15px;
+  gap: 10px;
 
   .link {
     color: #1a5c96;
     text-decoration: none;
     font-weight: bold;
-    font-size: 1rem;
+    font-size: 0.9rem;
 
     &:hover {
       text-decoration: underline;

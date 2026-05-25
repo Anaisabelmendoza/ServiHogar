@@ -1,58 +1,132 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 🏠 ServiHogar - API Backend
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Este repositorio contiene el backend de **ServiHogar**, una plataforma móvil de servicios para el hogar. El backend está construido utilizando **Laravel 11** y sirve como una API REST robusta para alimentar la aplicación móvil (desarrollada en Angular/Ionic).
 
-## About Laravel
+La base de datos del entorno de producción está gestionada en la nube mediante **Aiven (PostgreSQL)**, y el hosting se realiza en **Render**, lo que permite una infraestructura escalable, segura y siempre disponible.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## 🚀 Tecnologías Principales
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+* **Framework:** [Laravel 11.x](https://laravel.com) (PHP 8.2+)
+* **Base de Datos:** PostgreSQL / SQLite (según el entorno)
+* **Autenticación:** Laravel Sanctum (Tokens seguros)
+* **Despliegue y Cloud:** 
+  * **Backend Hosting:** Render
+  * **Base de Datos Gestionada:** Aiven (PostgreSQL Cloud)
+  * **Acceso Seguro Externo:** Ngrok / túneles HTTP
 
-## Learning Laravel
+---
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## 🛠️ Requisitos del Sistema
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+Antes de iniciar la instalación, asegúrate de tener instalado:
+* **PHP:** Versión `8.2` o superior.
+* **Composer:** Gestor de dependencias de PHP.
+* **Base de Datos:** SQLite localmente o credenciales para PostgreSQL.
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+---
 
-## Agentic Development
+## 📦 Instalación y Configuración Local
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+Sigue estos pasos para levantar el entorno de desarrollo localmente:
 
+### 1. Clonar e Instalar Dependencias
+Accede al directorio del backend y ejecuta el instalador de dependencias:
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+composer install
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+### 2. Configurar el Archivo de Entorno
+Copia el archivo `.env.example` para crear tu configuración local `.env`:
+```bash
+cp .env.example .env
+```
 
-## Contributing
+Abre el archivo `.env` recién creado y ajusta los valores de base de datos según tu preferencia local (por defecto usa `sqlite` para simplificar):
+```env
+DB_CONNECTION=sqlite
+# Si deseas usar PostgreSQL local o la nube de Aiven, configúralo de este modo:
+# DB_CONNECTION=pgsql
+# DB_HOST=tu-host-de-aiven.aivencloud.com
+# DB_PORT=25244
+# DB_DATABASE=servihogar
+# DB_USERNAME=avnadmin
+# DB_PASSWORD=tu_contraseña_aiven
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### 3. Generar la Clave de Aplicación
+Crea la clave única de encriptación de Laravel:
+```bash
+php artisan key:generate
+```
 
-## Code of Conduct
+### 4. Ejecutar las Migraciones y Seeders
+Crea la estructura de tablas inicial:
+```bash
+php artisan migrate
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Si deseas cargar datos de prueba para realizar simulaciones:
+```bash
+php artisan db:seed
+```
 
-## Security Vulnerabilities
+### 5. Iniciar el Servidor de Desarrollo
+Levanta el servidor local de Laravel:
+```bash
+php artisan serve
+```
+El backend estará disponible localmente en `http://127.0.0.1:8000`.
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+---
 
-## License
+## 📡 Documentación de Rutas de la API
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Todas las llamadas a la API deben usar el prefijo `/api` (ej. `http://127.0.0.1:8000/api/login`).
+
+### 🔓 Rutas Públicas (Autenticación y Registro)
+
+| Método | Ruta | Descripción |
+| :--- | :--- | :--- |
+| `POST` | `/api/register` | Registro de nuevos usuarios (Clientes / Profesionales) |
+| `POST` | `/api/login` | Inicio de sesión (Retorna el token Sanctum de acceso) |
+| `POST` | `/api/forgot-password` | Envío de correo electrónico para recuperación de contraseña |
+| `POST` | `/api/reset-password` | Restablecimiento de contraseña utilizando el token de verificación |
+
+### 🔒 Rutas Protegidas (Requieren encabezado `Authorization: Bearer <token>`)
+
+#### 👤 Gestión de Usuario y Perfil
+* `GET /api/user` — Obtiene los datos del usuario autenticado.
+* `POST /api/user/profile` — Actualiza la información del perfil del usuario.
+
+#### 💼 Rutas de Citas y Servicios (Clientes y Trabajadores)
+* `GET /api/workers` — Busca y filtra trabajadores por profesión seleccionada.
+* `POST /api/service-requests` — Crea una nueva solicitud de servicio (Cita).
+* `GET /api/worker/requests` — Obtiene las solicitudes activas de un profesional.
+* `POST /api/worker/requests/{id}/status` — Actualiza el estado de una solicitud (Ej. aceptada, en camino, finalizada).
+* `GET /api/worker/history` — Historial de citas realizadas por el profesional.
+* `GET /api/client/history` — Historial de citas solicitadas por el cliente.
+* `POST /api/service-requests/{id}/invoice` — Carga y actualiza los datos de la factura/presupuesto del servicio.
+* `POST /api/service-requests/{id}/review` — Envía una valoración/reseña para el servicio finalizado.
+* `POST /api/worker/toggle-active` — Cambia el estado de disponibilidad del profesional (Activo/Inactivo).
+* `POST /api/worker/location` — Actualiza las coordenadas geográficas de ubicación en tiempo real del profesional.
+* `GET /api/service-requests/{id}/tracking` — Retorna los datos de rastreo geográfico para un servicio en curso.
+
+#### ⚠️ Gestión de Incidentes
+* `POST /api/incidents` — Reporta un problema o incidente relacionado con un servicio específico.
+
+---
+
+## 🐳 Despliegue en Render y Docker
+
+El proyecto incluye un `Dockerfile` optimizado para entornos de producción. Al desplegar en **Render**:
+1. Conecta este repositorio.
+2. Render detectará automáticamente el archivo de configuración `Dockerfile` y compilará la imagen.
+3. Asegúrate de añadir las variables de entorno en Render (`DATABASE_URL`, `APP_KEY`, etc.).
+
+---
+
+## 📄 Licencia
+
+Este software es propiedad privada para el proyecto **ServiHogar** y está bajo licencia propietaria. Todos los derechos reservados.

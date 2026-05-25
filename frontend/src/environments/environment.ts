@@ -4,7 +4,7 @@
 
 export const environment = {
   production: false,
-  apiUrl: 'https://wildland-upstream-reconvene.ngrok-free.dev' // Using local PHP server port 8000
+  apiUrl: 'http://192.168.15.80:8000' // Conexión directa a la API local en tu Mac sobre Wi-Fi
 };
 
 /*

@@ -22,11 +22,11 @@ ion-back-button {
 
 .title {
   color: #1a5c96;
-  font-size: 2.5rem;
+  font-size: 2.3rem;
   font-weight: bold;
   text-align: center;
-  margin-top: 50px;
-  margin-bottom: 150px;
+  margin-top: 8vh;
+  margin-bottom: 10vh;
 }
 
 .buttons-container {
@@ -34,7 +34,7 @@ ion-back-button {
   max-width: 300px;
   display: flex;
   flex-direction: column;
-  gap: 60px;
+  gap: 30px;
 }
 
 .selection-button {
