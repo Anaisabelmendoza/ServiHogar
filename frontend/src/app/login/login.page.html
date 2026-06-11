@@ -2,22 +2,22 @@
   <div class="login-container">
     <div class="logo-space"></div>
 
-    <div class="form-container">
+    <form class="form-container" (submit)="login(); $event.preventDefault()">
       <div class="custom-input">
         <label>Correo electrónico</label>
-        <ion-input type="email" [(ngModel)]="email" placeholder=""></ion-input>
+        <ion-input type="email" name="email" [(ngModel)]="email" placeholder="" autocapitalize="none" autocorrect="off" spellcheck="false"></ion-input>
       </div>
 
       <div class="custom-input">
         <label>Contraseña</label>
         <div style="position: relative; width: 100%;">
-          <ion-input [type]="showPassword ? 'text' : 'password'" [(ngModel)]="password" placeholder="" style="width: 100%;"></ion-input>
+          <ion-input [type]="showPassword ? 'text' : 'password'" name="password" [(ngModel)]="password" placeholder="" style="width: 100%;"></ion-input>
           <ion-icon [name]="showPassword ? 'eye-off' : 'eye'" (click)="showPassword = !showPassword" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); z-index: 10; cursor: pointer; color: #1a5c96; font-size: 1.4rem;"></ion-icon>
         </div>
       </div>
 
       <div class="button-container">
-        <ion-button expand="block" shape="round" class="send-button" (click)="login()">
+        <ion-button type="submit" expand="block" shape="round" class="send-button">
           Enviar
         </ion-button>
       </div>
@@ -26,6 +26,6 @@
         <a routerLink="/register-selection" class="link">Registrarme</a>
         <a routerLink="/forgot-password" class="link">¿Olvidaste tu contraseña?</a>
       </div>
-    </div>
+    </form>
   </div>
 </ion-content>

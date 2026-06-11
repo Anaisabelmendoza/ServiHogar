@@ -91,7 +91,28 @@ export class ServiceTrackingPage implements OnInit, OnDestroy {
 
   confirmCancelJob() {
     this.isCancelModalOpen = false;
-    this.router.navigate(['/home']);
+    
+    if (this.requestId) {
+      const token = localStorage.getItem('token');
+      const headers = new HttpHeaders({
+        'Authorization': `Bearer ${token}`
+      });
+
+      this.http.post(`${environment.apiUrl}/api/worker/requests/${this.requestId}/status`, {
+        status: 'cancelado'
+      }, { headers }).subscribe({
+        next: (res: any) => {
+          console.log('Servicio cancelado exitosamente en base de datos:', res);
+          this.router.navigate(['/home']);
+        },
+        error: (err) => {
+          console.error('Error al cancelar el servicio en base de datos:', err);
+          this.router.navigate(['/home']);
+        }
+      });
+    } else {
+      this.router.navigate(['/home']);
+    }
   }
 
   dismissCancelModal() {

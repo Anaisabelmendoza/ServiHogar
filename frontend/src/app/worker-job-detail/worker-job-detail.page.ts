@@ -20,6 +20,7 @@ export class WorkerJobDetailPage implements OnInit {
   appointmentDate: string = '';
   requestId: number = 0;
   imageUrl: string = '';
+  clientStatus: string = 'pendiente'; // 'pendiente' | 'aceptado' | 'en_progreso'
 
   constructor(
     private route: ActivatedRoute,
@@ -36,36 +37,53 @@ export class WorkerJobDetailPage implements OnInit {
       this.appointmentDate   = params['date']         || '';
       this.requestId         = params['id']           || 0;
       this.imageUrl          = params['imageUrl']     || '';
+      this.clientStatus      = params['status']       || 'pendiente';
     });
   }
 
   startJob() {
-    console.log('Starting job for request:', this.requestId);
+    console.log('Action triggered for request:', this.requestId);
 
     const token = localStorage.getItem('token');
-    if (token && this.requestId) {
-      const headers = new HttpHeaders({
-        'Authorization': `Bearer ${token}`
+    if (!token || !this.requestId) return;
+
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+
+    if (this.appointmentType === 'programar' && this.clientStatus === 'pendiente') {
+      // Aceptar la cita programada
+      this.http.post(`${environment.apiUrl}/api/worker/requests/${this.requestId}/status`, {
+        status: 'aceptado'
+      }, { headers }).subscribe({
+        next: (res) => {
+          console.log('Cita aceptada en Aiven:', res);
+          this.router.navigate(['/worker-home'], { queryParams: { tab: 'historial' } });
+        },
+        error: (err) => {
+          console.error('Error al aceptar la cita:', err);
+        }
       });
-      // Actualizar estado a 'en_progreso' en la base de datos de Aiven
+    } else {
+      // Iniciar trabajo
       this.http.post(`${environment.apiUrl}/api/worker/requests/${this.requestId}/status`, {
         status: 'en_progreso'
       }, { headers }).subscribe({
         next: (res) => {
-          console.log('Estado actualizado a en_progreso en Aiven:', res);
+          console.log('Trabajo iniciado en Aiven:', res);
         },
         error: (err) => {
-          console.error('Error al actualizar estado en Aiven:', err);
+          console.error('Error al iniciar el trabajo:', err);
+        }
+      });
+
+      this.router.navigate(['/worker-working'], {
+        queryParams: {
+          clientName: this.clientName,
+          id: this.requestId,
+          address: this.clientAddress
         }
       });
     }
-
-    this.router.navigate(['/worker-working'], {
-      queryParams: {
-        clientName: this.clientName,
-        id: this.requestId,
-        address: this.clientAddress
-      }
-    });
   }
 }

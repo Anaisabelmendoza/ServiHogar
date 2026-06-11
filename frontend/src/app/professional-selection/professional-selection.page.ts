@@ -69,6 +69,9 @@ export class ProfessionalSelectionPage implements OnInit {
     if (this.serviceId) {
       params.push(`profesion=${this.serviceId}`);
     }
+    if (this.appointmentType) {
+      params.push(`type=${this.appointmentType}`);
+    }
     if (lat && lng) {
       params.push(`latitude=${lat}`);
       params.push(`longitude=${lng}`);
@@ -143,18 +146,23 @@ export class ProfessionalSelectionPage implements OnInit {
         next: (res: any) => {
           this.isSubmitting = false;
           localStorage.removeItem('temp_request_image');
-          const selectedProf = this.professionals.find(p => p.id === this.selectedProfessionalId);
-          // Navigate to tracking screen
-          this.router.navigate(['/service-tracking'], {
-            queryParams: {
-              profId: this.selectedProfessionalId,
-              profName: selectedProf?.name,
-              profAvatar: selectedProf?.avatar,
-              profRating: selectedProf?.rating,
-              profPhone: selectedProf?.phone,
-              requestId: res.data.id
-            }
-          });
+          
+          if (this.appointmentType === 'programar') {
+            this.router.navigate(['/home']);
+          } else {
+            const selectedProf = this.professionals.find(p => p.id === this.selectedProfessionalId);
+            // Navigate to tracking screen
+            this.router.navigate(['/service-tracking'], {
+              queryParams: {
+                profId: this.selectedProfessionalId,
+                profName: selectedProf?.name,
+                profAvatar: selectedProf?.avatar,
+                profRating: selectedProf?.rating,
+                profPhone: selectedProf?.phone,
+                requestId: res.data.id
+              }
+            });
+          }
         },
         error: (err) => {
           console.error('Error creating request:', err);

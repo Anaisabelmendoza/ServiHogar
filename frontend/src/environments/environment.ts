@@ -4,7 +4,7 @@
 
 export const environment = {
   production: false,
-  apiUrl: 'http://192.168.15.80:8000' // Conexión directa a la API local en tu Mac sobre Wi-Fi
+  apiUrl: 'http://192.168.15.99:8000' // Conexión directa a la API local en tu Mac sobre Wi-Fi
 };
 
 /*

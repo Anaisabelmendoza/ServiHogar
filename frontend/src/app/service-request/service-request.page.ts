@@ -50,6 +50,7 @@ export class ServiceRequestPage implements OnInit {
   setAppointmentType(type: 'programar' | 'urgente') {
     this.appointmentType = type;
     if (type === 'programar') {
+      this.selectedDateTime = this.confirmedDateTime || new Date().toISOString();
       this.isCalendarOpen = true;
     } else {
       this.isCalendarOpen = false;

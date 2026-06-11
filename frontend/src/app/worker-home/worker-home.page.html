@@ -16,6 +16,21 @@
       <h1 class="welcome-title">Bienvenid@ {{ workerName }}</h1>
     </div>
 
+    <!-- Banner de Recordatorios -->
+    <div class="reminders-container" *ngIf="pendingReminders.length > 0">
+      <div class="reminder-card" *ngFor="let rem of pendingReminders" (click)="openUpcomingJobDetail(rem)">
+        <div class="reminder-icon-box">
+          <ion-icon name="notifications" class="reminder-icon"></ion-icon>
+        </div>
+        <div class="reminder-content">
+          <span class="reminder-header">Recordatorio de Cita</span>
+          <span class="reminder-body">
+            Tienes una cita programada con <strong>{{ rem.clientName }}</strong> {{ formatReminderDate(rem.appointmentDate) }}. Pulsa para ver detalles.
+          </span>
+        </div>
+      </div>
+    </div>
+
     <!-- Toggle Activo -->
     <div class="active-row">
       <span class="active-label">Activo:</span>
@@ -81,32 +96,64 @@
 
     <!-- ===== TAB: HISTORIAL ===== -->
     <div *ngIf="activeTab === 'historial'">
+      
+      <!-- Sección: Próximas Citas Aceptadas -->
       <div class="historial-header">
-        <p class="section-label">Historial:</p>
+        <p class="section-label">Próximas Citas Aceptadas:</p>
+        <ion-icon name="calendar-outline" class="briefcase-icon"></ion-icon>
+      </div>
+
+      <div *ngIf="upcomingAppointments.length === 0" class="empty-state" style="margin-top: 15px; margin-bottom: 25px;">
+        <p class="empty-text">No tienes próximas citas programadas</p>
+      </div>
+
+      <div class="upcoming-list" *ngIf="upcomingAppointments.length > 0" style="margin-bottom: 25px; display: flex; flex-direction: column; gap: 12px; width: 100%;">
+        <div class="history-card clickable-card upcoming-card" *ngFor="let job of upcomingAppointments" (click)="openUpcomingJobDetail(job)">
+          <div class="card-left">
+            <img [src]="job.avatar" class="client-avatar" alt="Avatar cliente"
+                 (error)="job.avatar = 'assets/avatar-placeholder.png'" />
+            <div class="client-info">
+              <span class="client-name">{{ job.clientName }}</span>
+              <span class="job-date">{{ job.date }}</span>
+              <span class="job-service">{{ job.service }}</span>
+            </div>
+          </div>
+          <div class="job-status" style="display: flex; align-items: center; padding-right: 10px;">
+            <span class="status-badge aceptada">Aceptada</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sección: Trabajos Completados -->
+      <div class="historial-header" style="margin-top: 30px;">
+        <p class="section-label">Trabajos Completados:</p>
         <ion-icon name="briefcase-outline" class="briefcase-icon"></ion-icon>
       </div>
 
-      <div *ngIf="history.length === 0" class="empty-state">
-        <p class="empty-text">No tienes trabajos registrados aún</p>
+      <div *ngIf="completedJobs.length === 0" class="empty-state" style="margin-top: 15px;">
+        <p class="empty-text">No tienes trabajos finalizados aún</p>
       </div>
 
-      <div class="history-card clickable-card" *ngFor="let job of history" (click)="openHistoryDetail(job)">
-        <div class="card-left">
-          <img [src]="job.avatar" class="client-avatar" alt="Avatar cliente"
-               (error)="job.avatar = 'assets/avatar-placeholder.png'" />
-          <div class="client-info">
-            <span class="client-name">{{ job.clientName }}</span>
-            <span class="job-date">{{ job.date }}</span>
-            <span class="job-service">{{ job.service }}</span>
+      <div class="history-list" *ngIf="completedJobs.length > 0" style="display: flex; flex-direction: column; gap: 12px; width: 100%;">
+        <div class="history-card clickable-card" *ngFor="let job of completedJobs" (click)="openHistoryDetail(job)">
+          <div class="card-left">
+            <img [src]="job.avatar" class="client-avatar" alt="Avatar cliente"
+                 (error)="job.avatar = 'assets/avatar-placeholder.png'" />
+            <div class="client-info">
+              <span class="client-name">{{ job.clientName }}</span>
+              <span class="job-date">{{ job.date }}</span>
+              <span class="job-service">{{ job.service }}</span>
+            </div>
           </div>
-        </div>
-        <div class="job-rating">
-          <div class="stars">
-            <ion-icon *ngFor="let s of getStars(job.rating); let i = index"
-                      [name]="s" class="star-icon"></ion-icon>
+          <div class="job-rating">
+            <div class="stars">
+              <ion-icon *ngFor="let s of getStars(job.rating); let i = index"
+                        [name]="s" class="star-icon"></ion-icon>
+            </div>
           </div>
         </div>
       </div>
+
     </div>
 
   </div>

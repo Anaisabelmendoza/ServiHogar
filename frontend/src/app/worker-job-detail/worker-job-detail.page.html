@@ -74,10 +74,10 @@
       </div>
     </div>
 
-    <!-- Botón Empezar -->
+    <!-- Botón Empezar / Aceptar -->
     <div class="start-btn-container">
       <ion-button shape="round" class="start-btn" (click)="startJob()">
-        Empezar
+        {{ (appointmentType === 'programar' && clientStatus === 'pendiente') ? 'Aceptar Cita' : 'Empezar' }}
       </ion-button>
     </div>
 

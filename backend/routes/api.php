@@ -31,6 +31,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/client/history', [ServiceRequestController::class, 'getClientHistory']);
     Route::post('/service-requests/{id}/invoice', [ServiceRequestController::class, 'updateInvoice']);
     Route::post('/service-requests/{id}/review', [ServiceRequestController::class, 'submitReview']);
+    Route::post('/service-requests/{id}/update-date', [ServiceRequestController::class, 'updateDate']);
     Route::post('/worker/toggle-active', [ServiceRequestController::class, 'toggleActive']);
     Route::post('/worker/location', [AuthController::class, 'updateLocation']);
     Route::get('/service-requests/{id}/tracking', [ServiceRequestController::class, 'getTrackingInfo']);

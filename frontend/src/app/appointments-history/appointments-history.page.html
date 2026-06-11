@@ -4,6 +4,9 @@
       <ion-back-button class="back-btn" defaultHref="/home" text="" icon="chevron-back"></ion-back-button>
     </ion-buttons>
     <ion-buttons slot="end">
+      <ion-button class="home-btn" routerLink="/home" style="--color: white; font-size: 1.8rem; margin-right: 8px;">
+        <ion-icon name="home-outline" slot="icon-only"></ion-icon>
+      </ion-button>
       <ion-button class="profile-btn" routerLink="/profile">
         <ion-icon name="person-circle" slot="icon-only"></ion-icon>
       </ion-button>
@@ -14,41 +17,126 @@
 <ion-content [fullscreen]="true" class="client-background">
   <div class="history-container">
 
-    <h1 class="page-title">Historial de Trabajos</h1>
-    <p class="subtitle-text">Haz clic en cualquier trabajo para ver el informe detallado e imprimir la factura oficial.</p>
+    <h1 class="page-title">Mis Servicios</h1>
+    <p class="subtitle-text">Administra tus citas en curso o consulta tu historial de facturas e informes de servicio.</p>
+
+    <!-- Tabs Citas / Historial -->
+    <div class="tabs-row">
+      <button class="tab-btn" [class.tab-selected]="activeTab === 'citas'" (click)="setTab('citas')">
+        Citas Programadas
+      </button>
+      <button class="tab-btn" [class.tab-selected]="activeTab === 'historial'" (click)="setTab('historial')">
+        Historial de Servicios
+      </button>
+    </div>
 
     <!-- Cargando -->
     <div *ngIf="isLoading" class="loading-state">
       <ion-spinner name="crescent" color="primary"></ion-spinner>
-      <p>Cargando tu historial...</p>
+      <p>Cargando información...</p>
     </div>
 
-    <!-- Sin citas -->
-    <div *ngIf="!isLoading && appointments.length === 0" class="empty-state">
-      <ion-icon name="calendar-outline" class="empty-icon"></ion-icon>
-      <p class="empty-text">No tienes trabajos registrados aún</p>
-    </div>
+    <!-- ===== TAB: CITAS PROGRAMADAS ===== -->
+    <div *ngIf="!isLoading && activeTab === 'citas'">
+      <!-- Sin citas -->
+      <div *ngIf="activeAppointments.length === 0" class="empty-state">
+        <ion-icon name="calendar-outline" class="empty-icon"></ion-icon>
+        <p class="empty-text">No tienes citas programadas o activas en este momento</p>
+      </div>
 
-    <!-- Lista de citas -->
-    <div class="appointments-list" *ngIf="!isLoading && appointments.length > 0">
-      <div class="appointment-card clickable-card" *ngFor="let apt of appointments" (click)="printInvoice(apt)">
-        <div class="card-left">
-          <img [src]="apt.avatar" class="worker-avatar" alt="Trabajador" 
-               (error)="apt.avatar = 'assets/avatar-placeholder.png'" />
-          <div class="card-info">
-            <span class="card-title">{{ apt.title }}</span>
-            <span class="card-worker">Profesional: {{ apt.workerName }}</span>
-            <span class="card-date">Fecha: {{ apt.date }}</span>
+      <!-- Lista de citas activas -->
+      <div class="appointments-list" *ngIf="activeAppointments.length > 0">
+        <div class="appointment-card" *ngFor="let apt of activeAppointments">
+          <div class="card-left">
+            <img [src]="apt.avatar" class="worker-avatar" alt="Trabajador" 
+                 (error)="apt.avatar = 'assets/avatar-placeholder.png'" />
+            <div class="card-info">
+              <span class="card-title">{{ apt.title }}</span>
+              <span class="card-worker">Profesional: {{ apt.workerName }}</span>
+              <span class="card-date">Fecha: {{ apt.date }}</span>
+              <div class="status-row">
+                <span class="status-badge" [ngClass]="apt.status">
+                  {{ apt.status === 'pendiente' ? 'Esperando Aceptación' : (apt.status === 'aceptado' ? 'Aceptada' : 'En Curso') }}
+                </span>
+              </div>
+            </div>
+          </div>
+          <div class="card-right">
+            <ion-button *ngIf="apt.status === 'en_progreso' && apt.workerId" fill="solid" class="btn-track" shape="round" (click)="goToTracking(apt)">
+              <ion-icon name="map-outline" slot="start"></ion-icon>
+              Rastrear
+            </ion-button>
+            <div *ngIf="apt.status === 'pendiente'" class="pending-actions">
+              <span class="pending-lbl">Programada</span>
+              <ion-button fill="clear" class="btn-edit-pending" (click)="openEditCalendar(apt)">
+                <ion-icon name="create-outline" slot="icon-only"></ion-icon>
+              </ion-button>
+              <ion-button fill="clear" class="btn-cancel-pending" (click)="cancelPendingRequest(apt)">
+                <ion-icon name="close-circle-outline" slot="icon-only"></ion-icon>
+              </ion-button>
+            </div>
+            <span *ngIf="apt.status === 'aceptado'" class="pending-lbl">Aceptada</span>
           </div>
         </div>
-        <div class="card-right">
-          <span class="price-tag">{{ apt.invoice_price.toFixed(2) }} €</span>
-          <ion-button fill="clear" class="btn-pdf">
-            <ion-icon name="document-text-outline" slot="icon-only"></ion-icon>
-          </ion-button>
+      </div>
+    </div>
+
+    <!-- ===== TAB: HISTORIAL DE SERVICIOS ===== -->
+    <div *ngIf="!isLoading && activeTab === 'historial'">
+      <!-- Sin historial -->
+      <div *ngIf="historyAppointments.length === 0" class="empty-state">
+        <ion-icon name="time-outline" class="empty-icon"></ion-icon>
+        <p class="empty-text">No tienes servicios finalizados en tu historial</p>
+      </div>
+
+      <!-- Lista de historial -->
+      <div class="appointments-list" *ngIf="historyAppointments.length > 0">
+        <div class="appointment-card clickable-card" *ngFor="let apt of historyAppointments" (click)="apt.status === 'finalizado' ? printInvoice(apt) : null">
+          <div class="card-left">
+            <img [src]="apt.avatar" class="worker-avatar" alt="Trabajador" 
+                 (error)="apt.avatar = 'assets/avatar-placeholder.png'" />
+            <div class="card-info">
+              <span class="card-title">{{ apt.title }}</span>
+              <span class="card-worker">Profesional: {{ apt.workerName }}</span>
+              <span class="card-date">Fecha: {{ apt.date }}</span>
+              <div class="status-row">
+                <span class="status-badge" [ngClass]="apt.status">
+                  {{ apt.status === 'finalizado' ? 'Finalizado' : 'Cancelado' }}
+                </span>
+              </div>
+            </div>
+          </div>
+          <div class="card-right">
+            <span *ngIf="apt.status === 'finalizado'" class="price-tag">{{ apt.invoice_price.toFixed(2) }} €</span>
+            <span *ngIf="apt.status === 'cancelado'" class="price-tag-cancelled">Cancelado</span>
+            <ion-button *ngIf="apt.status === 'finalizado'" fill="clear" class="btn-pdf">
+              <ion-icon name="document-text-outline" slot="icon-only"></ion-icon>
+            </ion-button>
+          </div>
         </div>
       </div>
     </div>
 
   </div>
+  <!-- Modal de Edición de Calendario -->
+  <ion-modal [isOpen]="isEditCalendarOpen" (didDismiss)="closeEditCalendar()" class="calendar-modal">
+    <ng-template>
+      <div class="modal-content">
+        <div class="modal-header">
+          <ion-icon name="calendar"></ion-icon>
+          <h2>MODIFICAR FECHA</h2>
+        </div>
+        <div class="calendar-wrapper">
+          <ion-datetime 
+            presentation="date-time" 
+            [(ngModel)]="selectedDateTime"
+            [showDefaultButtons]="false">
+          </ion-datetime>
+        </div>
+        <ion-button expand="block" class="accept-btn" shape="round" (click)="confirmDateChange()">
+          Confirmar Nueva Fecha
+        </ion-button>
+      </div>
+    </ng-template>
+  </ion-modal>
 </ion-content>

@@ -165,3 +165,198 @@
     }
   }
 }
+
+// Tabs
+.tabs-row {
+  display: flex;
+  width: 100%;
+  max-width: 480px;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.tab-btn {
+  flex: 1;
+  padding: 12px 0;
+  border-radius: 30px;
+  border: 2px solid #04608c;
+  background: white;
+  font-size: 0.95rem;
+  font-weight: bold;
+  color: #04608c;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &.tab-selected {
+    background: white;
+    border-color: #04608c;
+    box-shadow: 0 0 0 2px #04608c;
+  }
+
+  &:not(.tab-selected) {
+    border-color: #ccc;
+    color: #555;
+    box-shadow: none;
+  }
+}
+
+// Estados y Badges
+.status-row {
+  margin-top: 4px;
+  display: flex;
+}
+
+.status-badge {
+  font-size: 0.7rem;
+  font-weight: bold;
+  padding: 3px 8px;
+  border-radius: 8px;
+  text-transform: uppercase;
+  display: inline-block;
+
+  &.pendiente {
+    background: #fff3cd;
+    color: #856404;
+  }
+
+  &.en_progreso {
+    background: #cce5ff;
+    color: #004085;
+  }
+
+  &.finalizado {
+    background: #d4edda;
+    color: #155724;
+  }
+
+  &.cancelado {
+    background: #f8d7da;
+    color: #721c24;
+  }
+
+  &.aceptado {
+    background: #e0f2fe;
+    color: #0369a1;
+  }
+}
+
+// Botones de acción en Citas
+.btn-track {
+  --background: linear-gradient(90deg, #6fdcdb 0%, #30b6e1 100%);
+  --color: white;
+  font-weight: bold;
+  font-size: 0.8rem;
+  margin: 0;
+  height: 34px;
+  --border-radius: 10px;
+  --box-shadow: 0 4px 10px rgba(48, 182, 225, 0.2);
+}
+
+.pending-lbl {
+  font-size: 0.85rem;
+  color: #888;
+  font-weight: 500;
+}
+
+.price-tag-cancelled {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #721c24;
+  background: #f8d7da;
+  padding: 6px 12px;
+  border-radius: 12px;
+}
+
+.pending-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-cancel-pending {
+  --color: #e53e3e;
+  font-size: 1.4rem;
+  margin: 0;
+  --padding-start: 2px;
+  --padding-end: 2px;
+  
+  &:hover {
+    --color: #c53030;
+  }
+}
+
+.btn-edit-pending {
+  --color: #04608c;
+  font-size: 1.4rem;
+  margin: 0;
+  --padding-start: 2px;
+  --padding-end: 2px;
+  
+  &:hover {
+    --color: #034667;
+  }
+}
+
+ion-modal.calendar-modal {
+  --width: 90%;
+  --max-width: 400px;
+  --height: fit-content;
+  --border-radius: 15px;
+  
+  .modal-content {
+    background: white;
+    padding: 25px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+      
+      ion-icon {
+        font-size: 1.8rem;
+        color: #04608c;
+      }
+      
+      h2 {
+        color: #04608c;
+        font-weight: bold;
+        font-size: 1.3rem;
+        margin: 0;
+      }
+    }
+
+    .calendar-wrapper {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      margin-bottom: 25px;
+      
+      ion-datetime {
+        --background: white;
+        color: #333333;
+        --title-color: #333333;
+        --ion-text-color: #333333;
+        --wheel-item-color: #333333;
+        --ion-color-step-300: #666666;
+        --ion-color-step-350: #666666;
+        --ion-color-step-400: #666666;
+        --ion-color-step-600: #333333;
+      }
+    }
+
+    .accept-btn {
+      --background: #04608c;
+      --color: white;
+      margin: 0 auto;
+      width: 80%;
+      font-weight: bold;
+      text-transform: none;
+      font-size: 1.2rem;
+    }
+  }
+}
+

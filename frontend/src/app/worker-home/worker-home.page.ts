@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { NavigationEnd, Router } from '@angular/router';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { ToastController } from '@ionic/angular';
 import { environment } from 'src/environments/environment';
+import { filter } from 'rxjs/operators';
 
 interface ServiceRequest {
   id: number;
@@ -15,6 +16,7 @@ interface ServiceRequest {
   appointmentDate?: string;
   address?: string;
   imageUrl?: string;
+  status: string;
 }
 
 interface JobHistory {
@@ -30,6 +32,9 @@ interface JobHistory {
   invoice_hours: number;
   client_phone?: string;
   client_address?: string;
+  status: string;
+  appointmentType?: string;
+  appointmentDate?: string;
 }
 
 @Component({
@@ -54,7 +59,23 @@ export class WorkerHomePage implements OnInit {
     private router: Router, 
     private http: HttpClient,
     private toastController: ToastController
-  ) {}
+  ) {
+    // Escuchar cambios de ruta para recargar datos cuando volvemos a worker-home
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe((event: any) => {
+      const urlPart = event.urlAfterRedirects.split('?');
+      if (urlPart[0] === '/worker-home') {
+        const urlTree = this.router.parseUrl(event.urlAfterRedirects);
+        if (urlTree.queryParams['tab'] === 'historial') {
+          this.activeTab = 'historial';
+        } else if (urlTree.queryParams['tab'] === 'solicitudes') {
+          this.activeTab = 'solicitudes';
+        }
+        this.loadData();
+      }
+    });
+  }
 
   ngOnInit() {
     this.loadData();
@@ -65,6 +86,13 @@ export class WorkerHomePage implements OnInit {
   }
 
   loadData() {
+    const urlTree = this.router.parseUrl(this.router.url);
+    if (urlTree.queryParams['tab'] === 'historial') {
+      this.activeTab = 'historial';
+    } else if (urlTree.queryParams['tab'] === 'solicitudes') {
+      this.activeTab = 'solicitudes';
+    }
+
     const userStr = localStorage.getItem('user');
     if (userStr) {
       const user = JSON.parse(userStr);
@@ -84,7 +112,7 @@ export class WorkerHomePage implements OnInit {
     });
 
     // Cargar Solicitudes activas de Aiven
-    this.http.get(`${environment.apiUrl}/api/worker/requests`, { headers }).subscribe({
+    this.http.get(`${environment.apiUrl}/api/worker/requests?t=${Date.now()}`, { headers }).subscribe({
       next: (res: any) => {
         if (res.status === 'success') {
           this.isActive = res.is_active;
@@ -99,7 +127,8 @@ export class WorkerHomePage implements OnInit {
               appointmentType: req.appointment_type,
               appointmentDate: req.appointment_date,
               address: req.address,
-              imageUrl: req.image_url
+              imageUrl: req.image_url,
+              status: req.status || 'pendiente'
             }));
           } else {
             this.requests = [];
@@ -113,14 +142,16 @@ export class WorkerHomePage implements OnInit {
     });
 
     // Cargar Historial de Aiven con TODOS los campos de factura e informe
-    this.http.get(`${environment.apiUrl}/api/worker/history`, { headers }).subscribe({
+    this.http.get(`${environment.apiUrl}/api/worker/history?t=${Date.now()}`, { headers }).subscribe({
       next: (res: any) => {
         if (res.status === 'success' && res.data && res.data.length > 0) {
           this.history = res.data.map((h: any) => ({
             id: h.id,
             clientName: h.cliente ? h.cliente.name : 'Cliente',
             avatar: h.cliente?.avatarUrl || `https://ui-avatars.com/api/?name=${h.cliente?.name || 'C'}&background=random`,
-            date: new Date(h.updated_at).toLocaleDateString(),
+            date: h.appointment_type === 'programar' && h.appointment_date
+              ? this.formatDateTime(h.appointment_date)
+              : new Date(h.updated_at).toLocaleDateString(),
             service: h.description || 'Servicio de Reparación',
             rating: h.worker_rating || 0,
             worker_report: h.worker_report || '',
@@ -128,7 +159,10 @@ export class WorkerHomePage implements OnInit {
             invoice_materials: h.invoice_materials || '',
             invoice_hours: Number(h.invoice_hours) || 0,
             client_phone: h.phone || (h.cliente ? h.cliente.telefono : ''),
-            client_address: h.address || ''
+            client_address: h.address || '',
+            status: h.status || 'finalizado',
+            appointmentType: h.appointment_type,
+            appointmentDate: h.appointment_date
           }));
         } else {
           this.history = [];
@@ -181,6 +215,80 @@ export class WorkerHomePage implements OnInit {
     return stars;
   }
 
+  formatDateTime(isoString: string): string {
+    if (!isoString) return '';
+    try {
+      const date = new Date(isoString);
+      if (isNaN(date.getTime())) return isoString;
+      return date.toLocaleString('es-ES', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    } catch (e) {
+      return isoString;
+    }
+  }
+
+  get upcomingAppointments(): JobHistory[] {
+    return this.history.filter(h => h.status === 'aceptado');
+  }
+
+  get completedJobs(): JobHistory[] {
+    return this.history.filter(h => h.status === 'finalizado');
+  }
+
+  get pendingReminders(): JobHistory[] {
+    const today = new Date();
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    return this.history.filter(h => {
+      if (h.status === 'aceptado' && h.appointmentDate) {
+        const appDate = new Date(h.appointmentDate);
+        const isToday = appDate.getDate() === today.getDate() &&
+                        appDate.getMonth() === today.getMonth() &&
+                        appDate.getFullYear() === today.getFullYear();
+        const isTomorrow = appDate.getDate() === tomorrow.getDate() &&
+                           appDate.getMonth() === tomorrow.getMonth() &&
+                           appDate.getFullYear() === tomorrow.getFullYear();
+        return isToday || isTomorrow;
+      }
+      return false;
+    });
+  }
+
+  formatReminderDate(isoString: string | undefined): string {
+    if (!isoString) return '';
+    try {
+      const date = new Date(isoString);
+      const today = new Date();
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+
+      const isToday = date.getDate() === today.getDate() &&
+                      date.getMonth() === today.getMonth() &&
+                      date.getFullYear() === today.getFullYear();
+      const isTomorrow = date.getDate() === tomorrow.getDate() &&
+                         date.getMonth() === tomorrow.getMonth() &&
+                         date.getFullYear() === tomorrow.getFullYear();
+
+      const timeStr = date.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+
+      if (isToday) {
+        return `hoy a las ${timeStr}`;
+      } else if (isTomorrow) {
+        return `mañana a las ${timeStr}`;
+      } else {
+        return `${date.toLocaleDateString('es-ES')} a las ${timeStr}`;
+      }
+    } catch (e) {
+      return isoString;
+    }
+  }
+
   openJobDetail(req: ServiceRequest) {
     this.router.navigate(['/worker-job-detail'], {
       queryParams: {
@@ -190,7 +298,23 @@ export class WorkerHomePage implements OnInit {
         type: req.appointmentType || 'urgente',
         date: req.appointmentDate || '',
         address: req.address || 'Calle Mayor 12, Úbeda',
-        imageUrl: req.imageUrl || ''
+        imageUrl: req.imageUrl || '',
+        status: req.status || 'pendiente'
+      }
+    });
+  }
+
+  openUpcomingJobDetail(job: JobHistory) {
+    this.router.navigate(['/worker-job-detail'], {
+      queryParams: {
+        id: job.id,
+        clientName: job.clientName,
+        description: job.service || '',
+        type: job.appointmentType || 'programar',
+        date: job.appointmentDate || '',
+        address: job.client_address || 'Calle Mayor 12, Úbeda',
+        imageUrl: '',
+        status: job.status || 'aceptado'
       }
     });
   }

@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
+import { AlertController } from '@ionic/angular';
 
 interface Appointment {
   id: number;
@@ -13,6 +15,11 @@ interface Appointment {
   invoice_materials: string;
   invoice_hours: number;
   worker_phone?: string;
+  status: string;
+  workerId?: number;
+  workerRating?: number;
+  appointmentType?: string;
+  appointmentDate?: string;
 }
 
 @Component({
@@ -24,11 +31,52 @@ interface Appointment {
 export class AppointmentsHistoryPage implements OnInit {
   appointments: Appointment[] = [];
   isLoading: boolean = true;
+  activeTab: string = 'citas';
+  
+  // Modal de Calendario
+  isEditCalendarOpen: boolean = false;
+  selectedDateTime: string | null = null;
+  selectedAppointment: Appointment | null = null;
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    private router: Router,
+    private alertController: AlertController
+  ) {}
 
   ngOnInit() {
     this.loadHistory();
+  }
+
+  setTab(tab: string) {
+    this.activeTab = tab;
+  }
+
+  get activeAppointments(): Appointment[] {
+    return this.appointments.filter(apt => apt.status === 'pendiente' || apt.status === 'en_progreso' || apt.status === 'aceptado');
+  }
+
+  get historyAppointments(): Appointment[] {
+    return this.appointments.filter(apt => apt.status === 'finalizado' || apt.status === 'cancelado');
+  }
+
+  formatDateTime(isoString: string): string {
+    if (!isoString) return '';
+    try {
+      const date = new Date(isoString);
+      if (isNaN(date.getTime())) {
+        return isoString;
+      }
+      return date.toLocaleString('es-ES', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    } catch (e) {
+      return isoString;
+    }
   }
 
   loadHistory() {
@@ -50,14 +98,21 @@ export class AppointmentsHistoryPage implements OnInit {
           this.appointments = res.data.map((h: any) => ({
             id: h.id,
             title: h.description || 'Servicio Técnico',
-            date: new Date(h.updated_at).toLocaleDateString(),
-            workerName: h.trabajador ? h.trabajador.name + (h.trabajador.apellidos ? ' ' + h.trabajador.apellidos : '') : 'Profesional ServiHogar',
+            date: h.appointment_type === 'programar' && h.appointment_date 
+              ? this.formatDateTime(h.appointment_date) 
+              : new Date(h.created_at).toLocaleDateString(),
+            workerName: h.trabajador ? h.trabajador.name + (h.trabajador.apellidos ? ' ' + h.trabajador.apellidos : '') : 'Pendiente de asignación',
             avatar: h.trabajador?.avatarUrl || `https://ui-avatars.com/api/?name=${h.trabajador?.name || 'P'}&background=random`,
             worker_report: h.worker_report || '',
             invoice_price: Number(h.invoice_price) || 0,
             invoice_materials: h.invoice_materials || '',
             invoice_hours: Number(h.invoice_hours) || 0,
-            worker_phone: h.trabajador?.telefono || ''
+            worker_phone: h.trabajador?.telefono || '',
+            status: h.status || 'pendiente',
+            workerId: h.trabajador_id || null,
+            workerRating: h.trabajador ? (h.trabajador.average_rating !== undefined ? h.trabajador.average_rating : 5) : 5,
+            appointmentType: h.appointment_type,
+            appointmentDate: h.appointment_date
           }));
         } else {
           this.appointments = [];
@@ -68,6 +123,101 @@ export class AppointmentsHistoryPage implements OnInit {
         console.error('Error al cargar historial del cliente:', err);
         this.appointments = [];
         this.isLoading = false;
+      }
+    });
+  }
+
+  goToTracking(apt: Appointment) {
+    if (!apt.workerId) return;
+    this.router.navigate(['/service-tracking'], {
+      queryParams: {
+        profId: apt.workerId,
+        profName: apt.workerName,
+        profAvatar: apt.avatar,
+        profRating: apt.workerRating || 5,
+        profPhone: apt.worker_phone,
+        requestId: apt.id
+      }
+    });
+  }
+
+  async cancelPendingRequest(apt: Appointment) {
+    const alert = await this.alertController.create({
+      header: 'Confirmar cancelación',
+      message: '¿Estás seguro de que deseas cancelar esta cita programada? Podrás elegir a otro profesional.',
+      buttons: [
+        {
+          text: 'No',
+          role: 'cancel'
+        },
+        {
+          text: 'Sí, cancelar',
+          handler: () => {
+            this.executeCancellation(apt);
+          }
+        }
+      ]
+    });
+
+    await alert.present();
+  }
+
+  private executeCancellation(apt: Appointment) {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+
+    this.http.post(`${environment.apiUrl}/api/worker/requests/${apt.id}/status`, { status: 'cancelado' }, { headers }).subscribe({
+      next: (res: any) => {
+        if (res.status === 'success') {
+          // Recargar el historial
+          this.loadHistory();
+        }
+      },
+      error: (err) => {
+        console.error('Error al cancelar la cita:', err);
+      }
+    });
+  }
+
+  openEditCalendar(apt: Appointment) {
+    this.selectedAppointment = apt;
+    this.selectedDateTime = apt.appointmentDate || new Date().toISOString();
+    this.isEditCalendarOpen = true;
+  }
+
+  closeEditCalendar() {
+    this.isEditCalendarOpen = false;
+    this.selectedAppointment = null;
+    this.selectedDateTime = null;
+  }
+
+  confirmDateChange() {
+    if (!this.selectedAppointment || !this.selectedDateTime) return;
+    
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+
+    const payload = {
+      appointment_date: this.selectedDateTime
+    };
+
+    this.http.post(`${environment.apiUrl}/api/service-requests/${this.selectedAppointment.id}/update-date`, payload, { headers }).subscribe({
+      next: (res: any) => {
+        if (res.status === 'success') {
+          this.closeEditCalendar();
+          this.loadHistory();
+        }
+      },
+      error: (err) => {
+        console.error('Error al actualizar la fecha de la cita:', err);
       }
     });
   }

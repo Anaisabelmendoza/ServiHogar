@@ -29,12 +29,13 @@ class ServiceRequestController extends Controller
         return $angle * $earthRadius;
     }
 
-    // Listar trabajadores por profesión y ordenados por cercanía (radio 30 km)
+    // Listar trabajadores por profesión y ordenados por cercanía (radio 30 km para urgente, sin límite para programar)
     public function getWorkersByProfession(Request $request)
     {
         $profesion = $request->query('profesion');
         $clientLat = $request->query('latitude');
         $clientLng = $request->query('longitude');
+        $isUrgent = $request->query('type') === 'urgente';
 
         $user = Auth::user();
 
@@ -46,7 +47,12 @@ class ServiceRequestController extends Controller
             }
         }
 
-        $query = User::where('role', 'worker')->where('is_active', true);
+        $query = User::where('role', 'worker');
+        
+        // Si es urgente, solo mostrar los que estén activos/conectados
+        if ($isUrgent) {
+            $query->where('is_active', true);
+        }
         
         if ($profesion) {
             $query->where('profesion', 'LIKE', '%' . $profesion . '%');
@@ -54,14 +60,14 @@ class ServiceRequestController extends Controller
 
         $workers = $query->get();
 
-        // Si tenemos coordenadas del cliente, ordenamos y filtramos en un radio de 30 km
+        // Si tenemos coordenadas del cliente, ordenamos y filtramos
         if ($clientLat && $clientLng) {
             $filteredWorkers = [];
             foreach ($workers as $worker) {
                 if ($worker->latitude && $worker->longitude) {
                     $distance = $this->getDistance($clientLat, $clientLng, $worker->latitude, $worker->longitude);
-                    // Radio máximo de 30 km
-                    if ($distance <= 30) {
+                    // Si es urgente, aplicar radio máximo de 30 km. Si es programar, no hay límite.
+                    if (!$isUrgent || $distance <= 30) {
                         $worker->distance = round($distance, 1);
                         $filteredWorkers[] = $worker;
                     }
@@ -125,8 +131,28 @@ class ServiceRequestController extends Controller
             $image_parts = explode(";base64,", $request->image_base64);
             if (count($image_parts) == 2) {
                 $image_type_aux = explode("image/", $image_parts[0]);
-                $image_type = $image_type_aux[1] ?? 'jpeg';
+                $image_type = isset($image_type_aux[1]) ? strtolower(trim($image_type_aux[1])) : 'jpeg';
+                
+                // Whitelist allowed image extensions
+                $allowed_extensions = ['jpeg', 'jpg', 'png', 'gif', 'webp'];
+                if (!in_array($image_type, $allowed_extensions)) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'El formato de imagen no es válido. Solo se permiten jpeg, jpg, png, gif o webp.'
+                    ], 400);
+                }
+
                 $image_base64 = base64_decode($image_parts[1]);
+                
+                // Validate that base64 decoding succeeded and the content is actually a valid image binary
+                $imageInfo = @getimagesizefromstring($image_base64);
+                if (!$imageInfo) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'El archivo no es una imagen válida.'
+                    ], 400);
+                }
+
                 $fileName = uniqid() . '.'.$image_type;
                 
                 if (!\Illuminate\Support\Facades\Storage::disk('public')->exists('requests')) {
@@ -165,28 +191,25 @@ class ServiceRequestController extends Controller
             return response()->json(['status' => 'error', 'message' => 'Solo profesionales autorizados'], 403);
         }
 
-        // Si el profesional está inactivo, no debe recibir solicitudes
-        if (!$user->is_active) {
-            return response()->json([
-                'status' => 'success',
-                'is_active' => false,
-                'data' => []
-            ]);
-        }
-
-        // Obtener solicitudes asignadas o genéricas que estén pendientes
-        $requests = ServiceRequest::where(function($query) use ($user) {
+        // Obtener solicitudes asignadas o genéricas que estén pendientes o en progreso
+        $query = ServiceRequest::where(function($query) use ($user) {
                 $query->where('trabajador_id', $user->id)
                       ->orWhereNull('trabajador_id');
             })
-            ->whereIn('status', ['pendiente', 'en_progreso'])
-            ->with('cliente')
+            ->whereIn('status', ['pendiente', 'en_progreso']);
+
+        // Si el profesional está inactivo, NO debe recibir solicitudes urgentes, pero SÍ puede recibir solicitudes programadas
+        if (!$user->is_active) {
+            $query->where('appointment_type', 'programar');
+        }
+
+        $requests = $query->with('cliente')
             ->orderBy('created_at', 'desc')
             ->get();
 
         return response()->json([
             'status' => 'success',
-            'is_active' => true,
+            'is_active' => $user->is_active,
             'data' => $requests
         ]);
     }
@@ -202,7 +225,7 @@ class ServiceRequestController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-            'status' => 'required|string|in:pendiente,en_progreso,finalizado,cancelado',
+            'status' => 'required|string|in:pendiente,aceptado,en_progreso,finalizado,cancelado',
             'worker_rating' => 'nullable|integer|min:1|max:5',
             'worker_report' => 'nullable|string',
             'invoice_price' => 'nullable|numeric',
@@ -214,9 +237,29 @@ class ServiceRequestController extends Controller
             return response()->json(['status' => 'error', 'errors' => $validator->errors()], 400);
         }
 
-        // Si no tenía trabajador asignado, asignarle el actual al aceptarse
-        if (!$serviceRequest->trabajador_id && $user->role === 'worker') {
-            $serviceRequest->trabajador_id = $user->id;
+        // 1. Si el usuario es cliente, solo puede cancelar su propia solicitud
+        if ($user->role === 'cliente') {
+            if ($serviceRequest->cliente_id !== $user->id) {
+                return response()->json(['status' => 'error', 'message' => 'No autorizado para modificar esta solicitud'], 403);
+            }
+            if ($request->status !== 'cancelado') {
+                return response()->json(['status' => 'error', 'message' => 'Los clientes solo pueden cancelar solicitudes'], 403);
+            }
+        }
+
+        // 2. Si el usuario es trabajador:
+        if ($user->role === 'worker') {
+            // Si la solicitud ya tiene un trabajador asignado y no es este trabajador
+            if ($serviceRequest->trabajador_id && $serviceRequest->trabajador_id !== $user->id) {
+                return response()->json(['status' => 'error', 'message' => 'Esta solicitud ya está asignada a otro profesional'], 403);
+            }
+            // Si no tiene trabajador asignado
+            if (!$serviceRequest->trabajador_id) {
+                if ($request->status !== 'en_progreso' && $request->status !== 'pendiente' && $request->status !== 'aceptado') {
+                    return response()->json(['status' => 'error', 'message' => 'Debe aceptar la solicitud primero'], 403);
+                }
+                $serviceRequest->trabajador_id = $user->id;
+            }
         }
 
         $serviceRequest->status = $request->status;
@@ -287,7 +330,7 @@ class ServiceRequestController extends Controller
         }
 
         $requests = ServiceRequest::where('trabajador_id', $user->id)
-            ->where('status', 'finalizado')
+            ->whereIn('status', ['finalizado', 'aceptado'])
             ->with('cliente')
             ->orderBy('updated_at', 'desc')
             ->get();
@@ -319,10 +362,15 @@ class ServiceRequestController extends Controller
     // Guardar reseña y valoración
     public function submitReview(Request $request, $id)
     {
+        $user = Auth::user();
         $serviceRequest = ServiceRequest::find($id);
 
         if (!$serviceRequest) {
             return response()->json(['status' => 'error', 'message' => 'Solicitud no encontrada'], 404);
+        }
+
+        if ($serviceRequest->cliente_id !== $user->id) {
+            return response()->json(['status' => 'error', 'message' => 'No autorizado para valorar esta solicitud'], 403);
         }
 
         $validator = Validator::make($request->all(), [
@@ -379,10 +427,15 @@ class ServiceRequestController extends Controller
 
     public function getTrackingInfo($id)
     {
+        $user = Auth::user();
         $serviceRequest = ServiceRequest::with(['trabajador', 'cliente'])->find($id);
 
         if (!$serviceRequest) {
             return response()->json(['status' => 'error', 'message' => 'Request not found'], 404);
+        }
+
+        if ($serviceRequest->cliente_id !== $user->id && $serviceRequest->trabajador_id !== $user->id) {
+            return response()->json(['status' => 'error', 'message' => 'No autorizado para ver el seguimiento de esta solicitud'], 403);
         }
 
         $address = $serviceRequest->address;
@@ -419,7 +472,7 @@ class ServiceRequestController extends Controller
         ]);
     }
 
-    // Historial del cliente
+    // Historial y citas del cliente
     public function getClientHistory()
     {
         $user = Auth::user();
@@ -428,14 +481,54 @@ class ServiceRequestController extends Controller
         }
 
         $requests = ServiceRequest::where('cliente_id', $user->id)
-            ->where('status', 'finalizado')
             ->with('trabajador')
-            ->orderBy('updated_at', 'desc')
+            ->orderBy('created_at', 'desc')
             ->get();
 
         return response()->json([
             'status' => 'success',
             'data' => $requests
+        ]);
+    }
+
+    // Actualizar fecha de cita (Cliente)
+    public function updateDate(Request $request, $id)
+    {
+        $user = Auth::user();
+        if (!$user) {
+            return response()->json(['status' => 'error', 'message' => 'Unauthorized'], 401);
+        }
+
+        $serviceRequest = ServiceRequest::find($id);
+        if (!$serviceRequest) {
+            return response()->json(['status' => 'error', 'message' => 'Solicitud no encontrada'], 404);
+        }
+
+        // Solo el cliente propietario de la solicitud puede editarla
+        if ($serviceRequest->cliente_id !== $user->id) {
+            return response()->json(['status' => 'error', 'message' => 'No autorizado para modificar esta solicitud'], 403);
+        }
+
+        // Solo se pueden editar citas que estén pendientes
+        if ($serviceRequest->status !== 'pendiente') {
+            return response()->json(['status' => 'error', 'message' => 'Solo se pueden editar citas pendientes de aceptación'], 400);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'appointment_date' => 'required|string'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['status' => 'error', 'errors' => $validator->errors()], 400);
+        }
+
+        $serviceRequest->appointment_date = $request->appointment_date;
+        $serviceRequest->save();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Fecha de cita actualizada correctamente',
+            'data' => $serviceRequest
         ]);
     }
 }

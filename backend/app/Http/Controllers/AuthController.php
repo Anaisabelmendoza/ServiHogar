@@ -12,6 +12,10 @@ class AuthController extends Controller
 {
     public function register(Request $request)
     {
+        if ($request->has('email')) {
+            $request->merge(['email' => strtolower(trim($request->email))]);
+        }
+
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
@@ -62,6 +66,10 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
+        if ($request->has('email')) {
+            $request->merge(['email' => strtolower(trim($request->email))]);
+        }
+
         $credentials = $request->only('email', 'password');
 
         $validator = Validator::make($credentials, [
@@ -178,6 +186,10 @@ class AuthController extends Controller
 
     public function forgotPassword(Request $request)
     {
+        if ($request->has('email')) {
+            $request->merge(['email' => strtolower(trim($request->email))]);
+        }
+
         $validator = Validator::make($request->all(), [
             'email' => 'required|string|email',
         ]);
@@ -198,6 +210,18 @@ class AuthController extends Controller
             ], 404);
         }
 
+        $code = strval(rand(100000, 999999));
+
+        \Illuminate\Support\Facades\DB::table('password_reset_tokens')->updateOrInsert(
+            ['email' => $request->email],
+            [
+                'token' => Hash::make($code),
+                'created_at' => now()
+            ]
+        );
+
+        \Illuminate\Support\Facades\Log::info("Password reset code for {$request->email}: {$code}");
+
         return response()->json([
             'status' => 'success',
             'message' => 'Recovery email sent'
@@ -206,6 +230,10 @@ class AuthController extends Controller
 
     public function resetPassword(Request $request)
     {
+        if ($request->has('email')) {
+            $request->merge(['email' => strtolower(trim($request->email))]);
+        }
+
         $validator = Validator::make($request->all(), [
             'email' => 'required|string|email',
             'code' => 'required|string',
@@ -220,10 +248,22 @@ class AuthController extends Controller
             ], 400);
         }
 
-        if ($request->code !== '123456') {
+        $reset = \Illuminate\Support\Facades\DB::table('password_reset_tokens')
+            ->where('email', $request->email)
+            ->first();
+
+        if (!$reset || !Hash::check($request->code, $reset->token)) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'El código de verificación es incorrecto.'
+            ], 400);
+        }
+
+        if (\Carbon\Carbon::parse($reset->created_at)->addMinutes(15)->isPast()) {
+            \Illuminate\Support\Facades\DB::table('password_reset_tokens')->where('email', $request->email)->delete();
+            return response()->json([
+                'status' => 'error',
+                'message' => 'El código de verificación ha expirado.'
             ], 400);
         }
 
@@ -237,6 +277,8 @@ class AuthController extends Controller
 
         $user->password = Hash::make($request->password);
         $user->save();
+
+        \Illuminate\Support\Facades\DB::table('password_reset_tokens')->where('email', $request->email)->delete();
 
         return response()->json([
             'status' => 'success',
