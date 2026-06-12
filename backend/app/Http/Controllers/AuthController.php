@@ -6,7 +6,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 use App\Models\User;
+use App\Mail\PasswordResetCode;
 
 class AuthController extends Controller
 {
@@ -222,6 +224,15 @@ class AuthController extends Controller
 
         \Illuminate\Support\Facades\Log::info("Password reset code for {$request->email}: {$code}");
 
+        // Enviar el código por email
+        try {
+            Mail::to($user->email)->send(new PasswordResetCode($code, $user->name));
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Error sending password reset email: ' . $e->getMessage());
+            // Aunque falle el email, continuamos (el código ya está guardado en BD)
+            // En producción podrías devolver un error aquí si quieres ser estricto
+        }
+
         return response()->json([
             'status' => 'success',
             'message' => 'Recovery email sent'
@@ -285,4 +296,29 @@ class AuthController extends Controller
             'message' => 'Password reset successfully'
         ]);
     }
+
+    public function updateFcmToken(Request $request)
+    {
+        $user = Auth::user();
+        if (!$user) {
+            return response()->json(['status' => 'error', 'message' => 'Unauthorized'], 401);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'fcm_token' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['status' => 'error', 'errors' => $validator->errors()], 400);
+        }
+
+        $user->fcm_token = $request->fcm_token;
+        $user->save();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'FCM token updated successfully'
+        ]);
+    }
 }
+

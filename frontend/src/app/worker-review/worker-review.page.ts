@@ -21,6 +21,7 @@ export class WorkerReviewPage implements OnInit {
   invoice_base: number | null = null;
   invoice_hours: number | null = null;
   invoice_materials: string = '';
+  invoice_materials_price: number | null = null;
 
   get ivaAmount(): number {
     return this.invoice_base ? this.invoice_base * 0.21 : 0;
@@ -61,6 +62,15 @@ export class WorkerReviewPage implements OnInit {
       return;
     }
 
+    let formattedMaterials = this.invoice_materials;
+    if (formattedMaterials && formattedMaterials.trim() !== '') {
+      if (this.invoice_materials_price !== null && this.invoice_materials_price > 0) {
+        formattedMaterials += ` (Precio: ${this.invoice_materials_price} €)`;
+      } else {
+        formattedMaterials += ` (Precio: Incluidos en el precio / No especificado)`;
+      }
+    }
+
     console.log('Finalizando servicio y guardando factura en Aiven:', {
       requestId: this.requestId,
       status: 'finalizado',
@@ -68,7 +78,7 @@ export class WorkerReviewPage implements OnInit {
       worker_report: this.worker_report,
       invoice_price: this.invoice_total,
       invoice_hours: this.invoice_hours,
-      invoice_materials: this.invoice_materials
+      invoice_materials: formattedMaterials
     });
 
     const token = localStorage.getItem('token');
@@ -85,7 +95,7 @@ export class WorkerReviewPage implements OnInit {
           worker_report: this.worker_report,
           invoice_price: this.invoice_total,
           invoice_hours: this.invoice_hours,
-          invoice_materials: this.invoice_materials
+          invoice_materials: formattedMaterials
         }, { headers }).toPromise();
         
         console.log('Servicio finalizado y facturado con éxito en Aiven');
@@ -110,7 +120,7 @@ export class WorkerReviewPage implements OnInit {
       worker_report: this.worker_report,
       invoice_price: this.invoice_total,
       invoice_hours: this.invoice_hours,
-      invoice_materials: this.invoice_materials,
+      invoice_materials: formattedMaterials,
       date: new Date().toLocaleDateString()
     });
     localStorage.setItem('clientReviews', JSON.stringify(reviews));

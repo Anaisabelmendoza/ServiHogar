@@ -15,6 +15,8 @@ export class ResetPasswordPage implements OnInit {
   code: string = '';
   newPassword: string = '';
   confirmPassword: string = '';
+  showPassword = false;
+  showConfirmPassword = false;
 
   constructor(
     private http: HttpClient,

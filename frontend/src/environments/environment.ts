@@ -2,9 +2,16 @@
 // `ng build` replaces `environment.ts` with `environment.prod.ts`.
 // The list of file replacements can be found in `angular.json`.
 
+// Detecta automáticamente la URL del backend según la red actual
+// En desarrollo: usa el mismo host donde corre ionic serve, en el puerto 8000
+// Para funcionar siempre, usa window.location.hostname
+const backendHost = typeof window !== 'undefined'
+  ? window.location.hostname
+  : '127.0.0.1';
+
 export const environment = {
   production: false,
-  apiUrl: 'http://192.168.15.99:8000' // Conexión directa a la API local en tu Mac sobre Wi-Fi
+  apiUrl: `http://${backendHost}:8000`
 };
 
 /*

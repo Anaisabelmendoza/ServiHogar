@@ -262,7 +262,34 @@ class ServiceRequestController extends Controller
             }
         }
 
-        $serviceRequest->status = $request->status;
+        // 3. Validar transiciones de estado (máquina de estados)
+        $validTransitions = [
+            'pendiente'   => ['aceptado', 'en_progreso', 'cancelado'],
+            'aceptado'    => ['en_progreso', 'cancelado'],
+            'en_progreso' => ['finalizado', 'cancelado'],
+            'finalizado'  => [], // Estado terminal
+            'cancelado'   => [], // Estado terminal
+        ];
+
+        $currentStatus = $serviceRequest->status;
+        $newStatus = $request->status;
+
+        if (!isset($validTransitions[$currentStatus])) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Estado actual de la solicitud no reconocido'
+            ], 422);
+        }
+
+        // Solo bloquear si no es el mismo estado (para idempotencia)
+        if ($currentStatus !== $newStatus && !in_array($newStatus, $validTransitions[$currentStatus])) {
+            return response()->json([
+                'status' => 'error',
+                'message' => "No se puede cambiar el estado de '{$currentStatus}' a '{$newStatus}'. Transición no permitida."
+            ], 422);
+        }
+
+        $serviceRequest->status = $newStatus;
 
         // Guardar campos de informe/factura/valoración al finalizar
         if ($request->has('worker_rating')) $serviceRequest->worker_rating = $request->worker_rating;

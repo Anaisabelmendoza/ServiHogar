@@ -19,6 +19,7 @@ Route::middleware('auth:sanctum')->group(function () {
     
     // Perfil
     Route::post('/user/profile', [AuthController::class, 'updateProfile']);
+    Route::post('/user/fcm-token', [AuthController::class, 'updateFcmToken']);
     
     // Trabajadores (Profesionales)
     Route::get('/workers', [ServiceRequestController::class, 'getWorkersByProfession']);
