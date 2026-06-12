@@ -14,7 +14,27 @@
 <ion-content [fullscreen]="true" class="client-background">
   <div class="tracking-container">
     
-    <h1 class="main-title">{{ profName || '(Nombre trabajador)' }} en camino</h1>
+    <!-- VISTA PENDIENTE -->
+    <div *ngIf="requestStatus === 'pendiente'" class="pending-view" style="display: flex; flex-direction: column; align-items: center; text-align: center; margin-top: 50px; padding: 20px;">
+      <ion-spinner name="crescent" style="width: 60px; height: 60px; color: #04608c;"></ion-spinner>
+      <h2 style="margin-top: 20px; color: #04608c; font-weight: bold;">Esperando confirmación...</h2>
+      <p style="color: #666;">El profesional <strong>{{ profName || 'seleccionado' }}</strong> está revisando tu solicitud urgente.</p>
+    </div>
+
+    <!-- VISTA RECHAZADA -->
+    <div *ngIf="requestStatus === 'rechazado'" class="rejected-view" style="display: flex; flex-direction: column; align-items: center; text-align: center; margin-top: 50px; padding: 20px;">
+      <ion-icon name="close-circle" style="font-size: 80px; color: #ff3b30;"></ion-icon>
+      <h2 style="margin-top: 20px; color: #ff3b30; font-weight: bold;">Profesional Ocupado</h2>
+      <p style="color: #666;">El profesional <strong>{{ profName || 'seleccionado' }}</strong> no puede atender tu urgencia en este momento.</p>
+      <ion-button fill="solid" shape="round" color="primary" style="margin-top: 30px;" (click)="rebookProfessional()">
+        <ion-icon name="search-outline" slot="start"></ion-icon>
+        Elegir otro profesional
+      </ion-button>
+    </div>
+
+    <!-- VISTA ACEPTADO / EN PROGRESO (MAPA) -->
+    <div *ngIf="requestStatus === 'aceptado' || requestStatus === 'en_progreso'" class="map-view">
+      <h1 class="main-title">{{ profName || '(Nombre trabajador)' }} en camino</h1>
     
     <div class="location-title">
       <ion-icon name="location"></ion-icon>
@@ -98,6 +118,7 @@
         Programar otra cita
       </ion-button>
     </div>
+    </div> <!-- FIN VISTA MAPA -->
 
   </div>
 

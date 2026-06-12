@@ -15,6 +15,8 @@ export class WorkerReviewPage implements OnInit {
   clientAvatar: string = '';
   rating: number = 5;
   requestId: number = 0;
+  appointmentType: string = 'urgente';
+  urgencyPrice: number = 10;
 
   // Nuevos campos de Factura e Informe
   worker_report: string = '';
@@ -23,12 +25,20 @@ export class WorkerReviewPage implements OnInit {
   invoice_materials: string = '';
   invoice_materials_price: number | null = null;
 
+  get urgencyFee(): number {
+    return this.appointmentType === 'urgente' ? this.urgencyPrice : 0;
+  }
+
+  get totalBase(): number {
+    return (this.invoice_base || 0) + this.urgencyFee;
+  }
+
   get ivaAmount(): number {
-    return this.invoice_base ? this.invoice_base * 0.21 : 0;
+    return this.totalBase * 0.21;
   }
 
   get invoice_total(): number {
-    return this.invoice_base ? this.invoice_base + this.ivaAmount : 0;
+    return this.totalBase + this.ivaAmount;
   }
 
   constructor(
@@ -43,7 +53,14 @@ export class WorkerReviewPage implements OnInit {
       this.clientName = params['clientName'] || 'Nombre cliente';
       this.clientAvatar = params['avatar'] || '';
       this.requestId = Number(params['id']) || 0;
+      if (params['type']) this.appointmentType = params['type'];
     });
+
+    const userStr = localStorage.getItem('user');
+    if (userStr) {
+      const user = JSON.parse(userStr);
+      this.urgencyPrice = user.urgency_price !== undefined ? parseFloat(user.urgency_price) : 10;
+    }
   }
 
   setRating(val: number) {

@@ -20,6 +20,7 @@ interface Appointment {
   workerRating?: number;
   appointmentType?: string;
   appointmentDate?: string;
+  worker_profession?: string;
 }
 
 @Component({
@@ -53,7 +54,7 @@ export class AppointmentsHistoryPage implements OnInit {
   }
 
   get activeAppointments(): Appointment[] {
-    return this.appointments.filter(apt => apt.status === 'pendiente' || apt.status === 'en_progreso' || apt.status === 'aceptado');
+    return this.appointments.filter(apt => apt.status === 'pendiente' || apt.status === 'en_progreso' || apt.status === 'aceptado' || apt.status === 'rechazado');
   }
 
   get historyAppointments(): Appointment[] {
@@ -112,7 +113,8 @@ export class AppointmentsHistoryPage implements OnInit {
             workerId: h.trabajador_id || null,
             workerRating: h.trabajador ? (h.trabajador.average_rating !== undefined ? h.trabajador.average_rating : 5) : 5,
             appointmentType: h.appointment_type,
-            appointmentDate: h.appointment_date
+            appointmentDate: h.appointment_date,
+            worker_profession: h.trabajador?.profesion || ''
           }));
         } else {
           this.appointments = [];
@@ -137,6 +139,30 @@ export class AppointmentsHistoryPage implements OnInit {
         profRating: apt.workerRating || 5,
         profPhone: apt.worker_phone,
         requestId: apt.id
+      }
+    });
+  }
+
+  rebookProfessional(apt: Appointment) {
+    let serviceId = '';
+    // Intentar deducir el service id a partir de worker_profession (ej: 'electricista')
+    if (apt.worker_profession) {
+      const profs = apt.worker_profession.toLowerCase().split(',');
+      if (profs.length > 0) {
+        serviceId = profs[0].trim();
+      }
+    }
+    
+    // Navegamos al flujo original, pasando todos los detalles conocidos
+    this.router.navigate(['/professional-selection'], {
+      queryParams: {
+        service: serviceId,
+        description: apt.title,
+        type: apt.appointmentType,
+        datetime: apt.appointmentDate,
+        // Suponemos que en request original la dirección guardada está en el cliente 
+        // o si guardamos la dirección en la cita, deberíamos recuperarla.
+        // Pero intentamos enviarlo a professional-selection para elegir de nuevo.
       }
     });
   }

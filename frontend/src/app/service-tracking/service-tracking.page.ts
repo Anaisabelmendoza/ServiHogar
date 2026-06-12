@@ -23,6 +23,13 @@ export class ServiceTrackingPage implements OnInit, OnDestroy {
   private lastGeocodedLat: number | null = null;
   private lastGeocodedLng: number | null = null;
 
+  // Seguimiento del estado
+  requestStatus: string = 'pendiente';
+  description: string = '';
+  appointmentType: string = 'urgente';
+  appointmentDate: string = '';
+  serviceId: string = '';
+
   // Propiedades de Mapa y GPS
   private map: any;
   private workerMarker: any;
@@ -50,9 +57,14 @@ export class ServiceTrackingPage implements OnInit, OnDestroy {
       if (params['profRating']) this.profRating = parseInt(params['profRating'], 10);
       if (params['profPhone']) this.profPhone = params['profPhone'];
       if (params['requestId']) this.requestId = parseInt(params['requestId'], 10);
+      
+      if (params['description']) this.description = params['description'];
+      if (params['type']) this.appointmentType = params['type'];
+      if (params['datetime']) this.appointmentDate = params['datetime'];
+      if (params['service']) this.serviceId = params['service'];
     });
 
-    this.loadLeaflet();
+    this.startTrackingPoll();
   }
 
   ngOnDestroy() {
@@ -134,6 +146,17 @@ export class ServiceTrackingPage implements OnInit, OnDestroy {
     this.router.navigate(['/home']);
   }
 
+  rebookProfessional() {
+    this.router.navigate(['/professional-selection'], {
+      queryParams: {
+        service: this.serviceId,
+        description: this.description,
+        type: this.appointmentType,
+        datetime: this.appointmentDate
+      }
+    });
+  }
+
   // ── Leaflet & GPS Real-Time tracking ───────────────────────
   loadLeaflet() {
     if (document.getElementById('leaflet-css')) {
@@ -160,7 +183,13 @@ export class ServiceTrackingPage implements OnInit, OnDestroy {
   initMap() {
     try {
       const container = document.getElementById('map');
-      if (!container) return;
+      if (!container) {
+        // Retry shortly if container is not rendered yet
+        setTimeout(() => this.initMap(), 500);
+        return;
+      }
+
+      if (this.map) return; // Already initialized
 
       this.map = L.map('map').setView([this.clientLat, this.clientLng], 14);
 
@@ -213,8 +242,6 @@ export class ServiceTrackingPage implements OnInit, OnDestroy {
         [this.clientLat, this.clientLng]
       ]), { padding: [40, 40] });
 
-      this.startTrackingPoll();
-
     } catch (e) {
       console.error('Error al inicializar Leaflet:', e);
     }
@@ -243,6 +270,13 @@ export class ServiceTrackingPage implements OnInit, OnDestroy {
     this.http.get(`${environment.apiUrl}/api/service-requests/${this.requestId}/tracking`, { headers }).subscribe({
       next: (res: any) => {
         if (res.status === 'success' && res.data) {
+          const prevStatus = this.requestStatus;
+          this.requestStatus = res.data.status;
+          
+          if ((this.requestStatus === 'aceptado' || this.requestStatus === 'en_progreso') && !this.map) {
+             this.loadLeaflet();
+          }
+
           if (res.data.address) {
             this.clientAddress = res.data.address;
           }

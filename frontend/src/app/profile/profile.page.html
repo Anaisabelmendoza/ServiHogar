@@ -69,7 +69,7 @@
       </div>
 
       <!-- Profesión (solo visible para el profesional) -->
-      <div class="data-field no-border" *ngIf="isWorker">
+      <div class="data-field" *ngIf="isWorker">
         <span class="field-label">Profesiones:</span>
         
         <ion-select *ngIf="isEditing" 
@@ -86,6 +86,13 @@
         <span *ngIf="!isEditing" class="field-value" style="text-transform: capitalize;">
           {{ profesion || 'Ninguna seleccionada' }}
         </span>
+      </div>
+
+      <!-- Tarifa de Urgencia (solo visible para el profesional) -->
+      <div class="data-field no-border" *ngIf="isWorker">
+        <span class="field-label">Tarifa de Urgencia (€)</span>
+        <input *ngIf="isEditing" [(ngModel)]="urgencyPrice" class="field-input" type="number" step="0.01" />
+        <span *ngIf="!isEditing" class="field-value">{{ urgencyPrice | number:'1.2-2' }} €</span>
       </div>
 
       <!-- Botón guardar (solo al editar) -->

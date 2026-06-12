@@ -15,6 +15,7 @@ export class WorkerWorkingPage implements OnInit, OnDestroy {
   clientName: string = 'Nombre Cliente';
   requestId: number = 0;
   address: string = '';
+  appointmentType: string = 'urgente';
 
   // Cronómetro
   elapsedSeconds: number = 0;
@@ -51,6 +52,7 @@ export class WorkerWorkingPage implements OnInit, OnDestroy {
       if (params['clientName']) this.clientName = params['clientName'];
       if (params['id']) this.requestId = parseInt(params['id'], 10);
       if (params['address']) this.address = params['address'];
+      if (params['type']) this.appointmentType = params['type'];
     });
 
     this.startTimer();
@@ -121,7 +123,8 @@ export class WorkerWorkingPage implements OnInit, OnDestroy {
       queryParams: {
         clientName: this.clientName,
         avatar: '',
-        id: this.requestId
+        id: this.requestId,
+        type: this.appointmentType
       }
     });
   }

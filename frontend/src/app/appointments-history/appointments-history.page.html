@@ -56,7 +56,7 @@
               <span class="card-date">Fecha: {{ apt.date }}</span>
               <div class="status-row">
                 <span class="status-badge" [ngClass]="apt.status">
-                  {{ apt.status === 'pendiente' ? 'Esperando Aceptación' : (apt.status === 'aceptado' ? 'Aceptada' : 'En Curso') }}
+                  {{ apt.status === 'pendiente' ? 'Esperando Aceptación' : (apt.status === 'aceptado' ? 'Aceptada' : (apt.status === 'rechazado' ? 'Rechazada' : 'En Curso')) }}
                 </span>
               </div>
             </div>
@@ -76,6 +76,13 @@
               </ion-button>
             </div>
             <span *ngIf="apt.status === 'aceptado'" class="pending-lbl">Aceptada</span>
+            <div *ngIf="apt.status === 'rechazado'" style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
+              <span class="price-tag-cancelled" style="color: #ff3b30; border-color: #ff3b30; font-size: 0.8rem; margin-bottom: 5px;">Profesional Ocupado</span>
+              <ion-button fill="solid" shape="round" color="primary" size="small" style="font-size: 0.75rem; text-transform: none; --padding-start: 8px; --padding-end: 8px;" (click)="rebookProfessional(apt); $event.stopPropagation()">
+                <ion-icon name="search-outline" slot="start"></ion-icon>
+                Elegir otro
+              </ion-button>
+            </div>
           </div>
         </div>
       </div>

@@ -225,7 +225,7 @@ class ServiceRequestController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-            'status' => 'required|string|in:pendiente,aceptado,en_progreso,finalizado,cancelado',
+            'status' => 'required|string|in:pendiente,aceptado,en_progreso,finalizado,cancelado,rechazado',
             'worker_rating' => 'nullable|integer|min:1|max:5',
             'worker_report' => 'nullable|string',
             'invoice_price' => 'nullable|numeric',
@@ -264,11 +264,12 @@ class ServiceRequestController extends Controller
 
         // 3. Validar transiciones de estado (máquina de estados)
         $validTransitions = [
-            'pendiente'   => ['aceptado', 'en_progreso', 'cancelado'],
-            'aceptado'    => ['en_progreso', 'cancelado'],
+            'pendiente'   => ['aceptado', 'en_progreso', 'cancelado', 'rechazado'],
+            'aceptado'    => ['en_progreso', 'cancelado', 'rechazado'],
             'en_progreso' => ['finalizado', 'cancelado'],
             'finalizado'  => [], // Estado terminal
             'cancelado'   => [], // Estado terminal
+            'rechazado'   => [], // Estado terminal
         ];
 
         $currentStatus = $serviceRequest->status;

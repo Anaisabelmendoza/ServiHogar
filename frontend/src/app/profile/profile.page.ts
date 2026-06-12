@@ -18,6 +18,7 @@ export class ProfilePage implements OnInit {
   email: string = '';
   profesion: string = '';
   avatarUrl: string | null = null;
+  urgencyPrice: number = 10;
   isEditing: boolean = false;
   isWorker: boolean = false;
 
@@ -52,6 +53,7 @@ export class ProfilePage implements OnInit {
       this.email = user.email || '';
       this.profesion = user.profesion || 'fontanero';
       this.avatarUrl = user.avatarUrl || null;
+      this.urgencyPrice = user.urgency_price !== undefined ? parseFloat(user.urgency_price) : 10;
 
       // Convertir de string a array para el selector multiselección
       if (this.profesion) {
@@ -68,6 +70,7 @@ export class ProfilePage implements OnInit {
       this.telefono = '600-000-000';
       this.email = 'usuario@servihogar.com';
       this.profesion = 'fontanero';
+      this.urgencyPrice = 10;
       this.selectedProfessions = ['fontanero'];
     }
   }
@@ -129,7 +132,8 @@ export class ProfilePage implements OnInit {
       telefono: this.telefono,
       email: this.email,
       profesion: this.profesion,
-      avatarUrl: this.avatarUrl
+      avatarUrl: this.avatarUrl,
+      urgency_price: this.urgencyPrice
     }, { headers }).subscribe({
       next: (res: any) => {
         loading.dismiss();
@@ -162,6 +166,7 @@ export class ProfilePage implements OnInit {
           this.email = user.email || '';
           this.profesion = user.profesion || '';
           this.avatarUrl = user.avatarUrl || null;
+          this.urgencyPrice = user.urgency_price !== undefined ? parseFloat(user.urgency_price) : 10;
           
           if (this.isWorker && this.profesion) {
             this.selectedProfessions = this.profesion.split(',')

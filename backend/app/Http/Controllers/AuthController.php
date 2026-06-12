@@ -128,6 +128,7 @@ class AuthController extends Controller
             'codigo_postal' => 'nullable|string|max:10',
             'ciudad' => 'nullable|string|max:255',
             'provincia' => 'nullable|string|max:255',
+            'urgency_price' => 'nullable|numeric|min:0',
         ]);
 
         if ($validator->fails()) {
@@ -149,6 +150,7 @@ class AuthController extends Controller
             'codigo_postal' => $request->codigo_postal,
             'ciudad' => $request->ciudad,
             'provincia' => $request->provincia,
+            'urgency_price' => $request->has('urgency_price') ? $request->urgency_price : $user->urgency_price,
         ]);
 
         return response()->json([

@@ -81,9 +81,33 @@ export class WorkerJobDetailPage implements OnInit {
         queryParams: {
           clientName: this.clientName,
           id: this.requestId,
-          address: this.clientAddress
+          address: this.clientAddress,
+          type: this.appointmentType
         }
       });
     }
+  }
+
+  rejectJob() {
+    console.log('Rejecting request:', this.requestId);
+
+    const token = localStorage.getItem('token');
+    if (!token || !this.requestId) return;
+
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+
+    this.http.post(`${environment.apiUrl}/api/worker/requests/${this.requestId}/status`, {
+      status: 'rechazado'
+    }, { headers }).subscribe({
+      next: (res) => {
+        console.log('Cita rechazada en Aiven:', res);
+        this.router.navigate(['/worker-home'], { queryParams: { tab: 'solicitudes' } });
+      },
+      error: (err) => {
+        console.error('Error al rechazar la cita:', err);
+      }
+    });
   }
 }

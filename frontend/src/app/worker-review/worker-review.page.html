@@ -66,14 +66,21 @@
           <input [(ngModel)]="invoice_base" type="number" step="0.01" class="custom-input" placeholder="0.00" />
         </div>
 
-        <div class="form-group" *ngIf="invoice_base">
+        <div class="form-group" *ngIf="appointmentType === 'urgente'">
+          <label>Suplemento Urgencia</label>
+          <div class="readonly-value" style="padding: 12px; background: rgba(255,165,0,0.1); border-radius: 8px; color: orange;">
+            + {{ urgencyPrice | number:'1.2-2' }} €
+          </div>
+        </div>
+
+        <div class="form-group" *ngIf="invoice_base || appointmentType === 'urgente'">
           <label>IVA (21%)</label>
           <div class="readonly-value" style="padding: 12px; background: rgba(255,255,255,0.1); border-radius: 8px; color: #a4d4a4;">
             + {{ ivaAmount | number:'1.2-2' }} €
           </div>
         </div>
 
-        <div class="form-group" *ngIf="invoice_base" style="grid-column: span 2;">
+        <div class="form-group" *ngIf="invoice_base || appointmentType === 'urgente'" style="grid-column: span 2;">
           <label>TOTAL FACTURA (€)</label>
           <div class="readonly-value" style="padding: 12px; background: rgba(0, 150, 136, 0.2); border-radius: 8px; font-weight: bold; font-size: 1.2em; color: white; text-align: center;">
             {{ invoice_total | number:'1.2-2' }} €

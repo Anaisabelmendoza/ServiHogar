@@ -74,10 +74,14 @@
       </div>
     </div>
 
-    <!-- Botón Empezar / Aceptar -->
-    <div class="start-btn-container">
+    <!-- Botones de Acción -->
+    <div class="start-btn-container" style="display: flex; flex-direction: column; gap: 10px;">
       <ion-button shape="round" class="start-btn" (click)="startJob()">
         {{ (appointmentType === 'programar' && clientStatus === 'pendiente') ? 'Aceptar Cita' : 'Empezar' }}
+      </ion-button>
+      <ion-button *ngIf="clientStatus === 'pendiente'" fill="outline" shape="round" color="danger" (click)="rejectJob()" style="margin: 0 20px;">
+        <ion-icon name="close-circle-outline" slot="start"></ion-icon>
+        Rechazar Cita
       </ion-button>
     </div>
 

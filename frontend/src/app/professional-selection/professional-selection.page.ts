@@ -159,7 +159,11 @@ export class ProfessionalSelectionPage implements OnInit {
                 profAvatar: selectedProf?.avatar,
                 profRating: selectedProf?.rating,
                 profPhone: selectedProf?.phone,
-                requestId: res.data.id
+                requestId: res.data.id,
+                description: this.description,
+                type: this.appointmentType,
+                datetime: this.appointmentDateTime,
+                service: this.serviceId
               }
             });
           }
