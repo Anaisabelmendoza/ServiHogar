@@ -97,17 +97,15 @@
     <!-- ===== TAB: HISTORIAL ===== -->
     <div *ngIf="activeTab === 'historial'">
       
-      <!-- Sección: Próximas Citas Aceptadas -->
-      <div class="historial-header">
-        <p class="section-label">Próximas Citas Aceptadas:</p>
-        <ion-icon name="calendar-outline" class="briefcase-icon"></ion-icon>
+      <!-- Citas Aceptadas -->
+      <h2 class="section-title">
+        <ion-icon name="calendar-outline"></ion-icon>
+        Próximas Citas Aceptadas
+      </h2>
+      <div *ngIf="isLoadingHistory" style="display: flex; justify-content: center; padding: 20px;">
+        <ion-spinner name="crescent" style="--color: #1a5c96;"></ion-spinner>
       </div>
-
-      <div *ngIf="upcomingAppointments.length === 0" class="empty-state" style="margin-top: 15px; margin-bottom: 25px;">
-        <p class="empty-text">No tienes próximas citas programadas</p>
-      </div>
-
-      <div class="upcoming-list" *ngIf="upcomingAppointments.length > 0" style="margin-bottom: 25px; display: flex; flex-direction: column; gap: 12px; width: 100%;">
+      <div class="upcoming-list" *ngIf="!isLoadingHistory && upcomingAppointments.length > 0" style="margin-bottom: 25px; display: flex; flex-direction: column; gap: 12px; width: 100%;">
         <div class="history-card clickable-card upcoming-card" *ngFor="let job of upcomingAppointments" (click)="openUpcomingJobDetail(job)">
           <div class="card-left">
             <img [src]="job.avatar" class="client-avatar" alt="Avatar cliente"
@@ -124,17 +122,19 @@
         </div>
       </div>
 
-      <!-- Sección: Trabajos Completados -->
-      <div class="historial-header" style="margin-top: 30px;">
-        <p class="section-label">Trabajos Completados:</p>
-        <ion-icon name="briefcase-outline" class="briefcase-icon"></ion-icon>
+      <div *ngIf="!isLoadingHistory && upcomingAppointments.length === 0" class="no-data-msg" style="margin-bottom: 25px;">
+        No tienes citas programadas pendientes.
       </div>
 
-      <div *ngIf="completedJobs.length === 0" class="empty-state" style="margin-top: 15px;">
-        <p class="empty-text">No tienes trabajos finalizados aún</p>
+      <!-- Trabajos Finalizados -->
+      <h2 class="section-title">
+        <ion-icon name="checkmark-circle-outline"></ion-icon>
+        Trabajos Finalizados
+      </h2>
+      <div *ngIf="isLoadingHistory" style="display: flex; justify-content: center; padding: 20px;">
+        <ion-spinner name="crescent" style="--color: #1a5c96;"></ion-spinner>
       </div>
-
-      <div class="history-list" *ngIf="completedJobs.length > 0" style="display: flex; flex-direction: column; gap: 12px; width: 100%;">
+      <div class="history-list" *ngIf="!isLoadingHistory && completedJobs.length > 0" style="display: flex; flex-direction: column; gap: 12px; width: 100%;">
         <div class="history-card clickable-card" *ngFor="let job of completedJobs" (click)="openHistoryDetail(job)">
           <div class="card-left">
             <img [src]="job.avatar" class="client-avatar" alt="Avatar cliente"

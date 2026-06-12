@@ -35,6 +35,7 @@ interface JobHistory {
   status: string;
   appointmentType?: string;
   appointmentDate?: string;
+  imageUrl?: string;
 }
 
 @Component({
@@ -54,6 +55,9 @@ export class WorkerHomePage implements OnInit {
   // Modal de Detalles del Historial y Factura
   isHistoryModalOpen: boolean = false;
   selectedJob: any = null;
+  isLoadingHistory: boolean = false;
+
+  private pollInterval: any;
 
   constructor(
     private router: Router, 
@@ -79,10 +83,65 @@ export class WorkerHomePage implements OnInit {
 
   ngOnInit() {
     this.loadData();
+    this.startPolling();
   }
 
   ionViewWillEnter() {
     this.loadData();
+  }
+
+  ionViewWillLeave() {
+    this.stopPolling();
+  }
+
+  startPolling() {
+    this.pollInterval = setInterval(() => {
+      this.loadRequestsOnly();
+    }, 5000);
+  }
+
+  stopPolling() {
+    if (this.pollInterval) {
+      clearInterval(this.pollInterval);
+      this.pollInterval = null;
+    }
+  }
+
+  loadRequestsOnly() {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+
+    this.http.get(`${environment.apiUrl}/api/worker/requests?t=${Date.now()}`, { headers }).subscribe({
+      next: (res: any) => {
+        if (res.status === 'success') {
+          this.isActive = res.is_active;
+          if (res.data && res.data.length > 0) {
+            this.requests = res.data.map((req: any) => ({
+              id: req.id,
+              clientName: req.cliente ? req.cliente.name : 'Cliente',
+              avatar: req.cliente?.avatarUrl || `https://ui-avatars.com/api/?name=${req.cliente?.name || 'C'}&background=random`,
+              rating: req.cliente?.average_rating !== undefined ? req.cliente.average_rating : 5,
+              phone: req.phone || (req.cliente ? req.cliente.telefono : '600000001'),
+              description: req.description,
+              appointmentType: req.appointment_type,
+              appointmentDate: req.appointment_date,
+              address: req.address,
+              imageUrl: req.image_url,
+              status: req.status || 'pendiente'
+            }));
+          } else {
+            this.requests = [];
+          }
+        }
+      },
+      error: (err) => {
+        console.error('Error al cargar solicitudes de Aiven:', err);
+      }
+    });
   }
 
   loadData() {
@@ -142,8 +201,10 @@ export class WorkerHomePage implements OnInit {
     });
 
     // Cargar Historial de Aiven con TODOS los campos de factura e informe
+    this.isLoadingHistory = true;
     this.http.get(`${environment.apiUrl}/api/worker/history?t=${Date.now()}`, { headers }).subscribe({
       next: (res: any) => {
+        this.isLoadingHistory = false;
         if (res.status === 'success' && res.data && res.data.length > 0) {
           this.history = res.data.map((h: any) => ({
             id: h.id,
@@ -162,7 +223,8 @@ export class WorkerHomePage implements OnInit {
             client_address: h.address || '',
             status: h.status || 'finalizado',
             appointmentType: h.appointment_type,
-            appointmentDate: h.appointment_date
+            appointmentDate: h.appointment_date,
+            imageUrl: h.image_url
           }));
         } else {
           this.history = [];
@@ -171,6 +233,7 @@ export class WorkerHomePage implements OnInit {
       error: (err) => {
         console.error('Error al cargar historial de Aiven:', err);
         this.history = [];
+        this.isLoadingHistory = false;
       }
     });
   }
@@ -313,7 +376,7 @@ export class WorkerHomePage implements OnInit {
         type: job.appointmentType || 'programar',
         date: job.appointmentDate || '',
         address: job.client_address || 'Calle Mayor 12, Úbeda',
-        imageUrl: '',
+        imageUrl: job.imageUrl || '',
         status: job.status || 'aceptado'
       }
     });

@@ -107,8 +107,11 @@
 
     <!-- Botón enviar -->
     <div class="submit-btn-container">
-      <ion-button shape="round" class="submit-btn" (click)="submitReview()" [disabled]="!invoice_base || !worker_report">
-        Finalizar Trabajo y Generar Factura
+      <ion-button shape="round" class="submit-btn" (click)="submitReview()" [disabled]="isSubmitting">
+        <span *ngIf="!isSubmitting">Finalizar Trabajo y Generar Factura</span>
+        <span *ngIf="isSubmitting" style="display: flex; align-items: center; gap: 8px;">
+          <ion-spinner name="dots" style="--color: white;"></ion-spinner> Pensando...
+        </span>
       </ion-button>
     </div>
 

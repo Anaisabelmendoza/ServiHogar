@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ToastController } from '@ionic/angular';
+import { ToastController, LoadingController } from '@ionic/angular';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 
@@ -45,7 +45,8 @@ export class WorkerReviewPage implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private toastController: ToastController,
-    private http: HttpClient
+    private http: HttpClient,
+    private loadingController: LoadingController
   ) {}
 
   ngOnInit() {
@@ -67,8 +68,12 @@ export class WorkerReviewPage implements OnInit {
     this.rating = val;
   }
 
+  isSubmitting: boolean = false;
+
   async submitReview() {
-    if (!this.invoice_base || !this.worker_report) {
+    if (this.isSubmitting) return;
+
+    if (this.invoice_base === null || this.invoice_base === undefined || !this.worker_report || this.worker_report.trim() === '') {
       const warningToast = await this.toastController.create({
         message: 'Por favor, rellena el informe de trabajo y la base imponible.',
         duration: 3000,
@@ -78,6 +83,14 @@ export class WorkerReviewPage implements OnInit {
       await warningToast.present();
       return;
     }
+
+    this.isSubmitting = true;
+    const loading = await this.loadingController.create({
+      message: 'Procesando factura y valoración...',
+      spinner: 'dots',
+      cssClass: 'custom-loading-banner'
+    });
+    await loading.present();
 
     let formattedMaterials = this.invoice_materials;
     if (formattedMaterials && formattedMaterials.trim() !== '') {
@@ -138,18 +151,22 @@ export class WorkerReviewPage implements OnInit {
       invoice_price: this.invoice_total,
       invoice_hours: this.invoice_hours,
       invoice_materials: formattedMaterials,
+      worker_rating: this.rating,
       date: new Date().toLocaleDateString()
     });
     localStorage.setItem('clientReviews', JSON.stringify(reviews));
 
-    const toast = await this.toastController.create({
-      message: '¡Servicio finalizado e informe de factura generado!',
-      duration: 2500,
+    await loading.dismiss();
+    this.isSubmitting = false;
+
+    const successToast = await this.toastController.create({
+      message: 'Factura generada y trabajo finalizado.',
+      duration: 2000,
       color: 'success',
       position: 'bottom'
     });
-    await toast.present();
+    await successToast.present();
 
-    this.router.navigate(['/worker-home']);
+    this.router.navigate(['/worker-home'], { queryParams: { tab: 'historial' } });
   }
 }

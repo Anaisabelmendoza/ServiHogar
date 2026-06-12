@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
-import { AlertController } from '@ionic/angular';
+import { AlertController, LoadingController, ToastController } from '@ionic/angular';
 
 interface Appointment {
   id: number;
@@ -42,10 +42,16 @@ export class AppointmentsHistoryPage implements OnInit {
   constructor(
     private http: HttpClient,
     private router: Router,
-    private alertController: AlertController
+    private alertController: AlertController,
+    private loadingController: LoadingController,
+    private toastController: ToastController
   ) {}
 
   ngOnInit() {
+    this.loadHistory();
+  }
+
+  ionViewWillEnter() {
     this.loadHistory();
   }
 
@@ -54,11 +60,11 @@ export class AppointmentsHistoryPage implements OnInit {
   }
 
   get activeAppointments(): Appointment[] {
-    return this.appointments.filter(apt => apt.status === 'pendiente' || apt.status === 'en_progreso' || apt.status === 'aceptado' || apt.status === 'rechazado');
+    return this.appointments.filter(a => a.status !== 'finalizado' && a.status !== 'cancelado' && a.status !== 'rechazado');
   }
 
-  get historyAppointments(): Appointment[] {
-    return this.appointments.filter(apt => apt.status === 'finalizado' || apt.status === 'cancelado');
+  get historyAppointments() {
+    return this.appointments.filter(a => a.status === 'finalizado' || a.status === 'cancelado' || a.status === 'rechazado');
   }
 
   formatDateTime(isoString: string): string {
@@ -188,23 +194,45 @@ export class AppointmentsHistoryPage implements OnInit {
     await alert.present();
   }
 
-  private executeCancellation(apt: Appointment) {
+  private async executeCancellation(apt: Appointment) {
     const token = localStorage.getItem('token');
     if (!token) return;
+
+    const loading = await this.loadingController.create({
+      message: 'Cancelando cita...',
+      spinner: 'dots',
+      cssClass: 'custom-loading-banner'
+    });
+    await loading.present();
 
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${token}`
     });
 
     this.http.post(`${environment.apiUrl}/api/worker/requests/${apt.id}/status`, { status: 'cancelado' }, { headers }).subscribe({
-      next: (res: any) => {
+      next: async (res: any) => {
+        await loading.dismiss();
         if (res.status === 'success') {
-          // Recargar el historial
+          const toast = await this.toastController.create({
+            message: 'La cita ha sido cancelada.',
+            duration: 2000,
+            color: 'success',
+            position: 'bottom'
+          });
+          await toast.present();
           this.loadHistory();
         }
       },
-      error: (err) => {
+      error: async (err) => {
+        await loading.dismiss();
         console.error('Error al cancelar la cita:', err);
+        const toast = await this.toastController.create({
+          message: 'Error al cancelar la cita.',
+          duration: 2000,
+          color: 'danger',
+          position: 'bottom'
+        });
+        await toast.present();
       }
     });
   }

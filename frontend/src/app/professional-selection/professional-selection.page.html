@@ -49,6 +49,11 @@
             </ion-icon>
           </div>
         </div>
+
+        <div class="prof-urgency-price" *ngIf="appointmentType === 'urgente'" style="margin-top: 8px; color: #e65100; font-weight: bold; font-size: 0.9rem; display: flex; align-items: center; gap: 4px;">
+          <ion-icon name="flash"></ion-icon>
+          <span>Suplemento urgencia: +{{ prof.urgency_price | number:'1.2-2' }}€</span>
+        </div>
       </div>
       
       <div class="prof-actions">

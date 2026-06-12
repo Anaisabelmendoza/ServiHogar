@@ -352,10 +352,12 @@ ion-modal.calendar-modal {
       --background: #04608c;
       --color: white;
       margin: 0 auto;
-      width: 80%;
+      width: 90%;
       font-weight: bold;
       text-transform: none;
-      font-size: 1.2rem;
+      font-size: 0.95rem;
+      --padding-top: 14px;
+      --padding-bottom: 14px;
     }
   }
 }

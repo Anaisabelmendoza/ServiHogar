@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
+import { ToastController } from '@ionic/angular';
 
 @Component({
   selector: 'app-professional-selection',
@@ -24,7 +25,8 @@ export class ProfessionalSelectionPage implements OnInit {
   constructor(
     private router: Router, 
     private route: ActivatedRoute,
-    private http: HttpClient
+    private http: HttpClient,
+    private toastController: ToastController
   ) { }
 
   ngOnInit() {
@@ -90,7 +92,8 @@ export class ProfessionalSelectionPage implements OnInit {
             rating: w.average_rating !== undefined ? w.average_rating : 5,
             avatar: w.avatarUrl || `https://ui-avatars.com/api/?name=${w.name}&background=random`,
             phone: w.telefono,
-            distance: w.distance !== undefined ? w.distance : null
+            distance: w.distance !== undefined ? w.distance : null,
+            urgency_price: w.urgency_price !== undefined ? parseFloat(w.urgency_price) : 10
           }));
         }
         this.isLoading = false;
@@ -143,11 +146,18 @@ export class ProfessionalSelectionPage implements OnInit {
       };
       
       this.http.post(`${environment.apiUrl}/api/service-requests`, payload, { headers }).subscribe({
-        next: (res: any) => {
+        next: async (res: any) => {
           this.isSubmitting = false;
           localStorage.removeItem('temp_request_image');
           
           if (this.appointmentType === 'programar') {
+            const toast = await this.toastController.create({
+              message: 'Cita programada enviada al profesional.',
+              duration: 3000,
+              color: 'success',
+              position: 'bottom'
+            });
+            await toast.present();
             this.router.navigate(['/home']);
           } else {
             const selectedProf = this.professionals.find(p => p.id === this.selectedProfessionalId);

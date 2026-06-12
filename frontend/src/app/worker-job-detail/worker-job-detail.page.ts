@@ -21,6 +21,7 @@ export class WorkerJobDetailPage implements OnInit {
   requestId: number = 0;
   imageUrl: string = '';
   clientStatus: string = 'pendiente'; // 'pendiente' | 'aceptado' | 'en_progreso'
+  isImageModalOpen: boolean = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -109,5 +110,13 @@ export class WorkerJobDetailPage implements OnInit {
         console.error('Error al rechazar la cita:', err);
       }
     });
+  }
+
+  openImageModal() {
+    this.isImageModalOpen = true;
+  }
+
+  closeImageModal() {
+    this.isImageModalOpen = false;
   }
 }

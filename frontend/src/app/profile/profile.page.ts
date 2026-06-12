@@ -142,7 +142,7 @@ export class ProfilePage implements OnInit {
         // Guardar cambios en local
         localStorage.setItem('user', JSON.stringify(res.user));
         this.userName = res.user.name || 'Usuario';
-        this.showAlert('Éxito', 'Perfil actualizado correctamente en la base de datos.');
+        this.showAlert('Éxito', 'Perfil actualizado correctamente.');
 
         if (this.isWorker && res.user.profesion) {
           this.profesion = res.user.profesion;

@@ -293,7 +293,10 @@ class ServiceRequestController extends Controller
         $serviceRequest->status = $newStatus;
 
         // Guardar campos de informe/factura/valoración al finalizar
-        if ($request->has('worker_rating')) $serviceRequest->worker_rating = $request->worker_rating;
+        if ($request->has('worker_rating')) {
+            $serviceRequest->worker_rating = $request->worker_rating;
+            \Illuminate\Support\Facades\Cache::forget("user_{$serviceRequest->cliente_id}_avg_rating");
+        }
         if ($request->has('worker_report')) $serviceRequest->worker_report = $request->worker_report;
         if ($request->has('invoice_price')) $serviceRequest->invoice_price = $request->invoice_price;
         if ($request->has('invoice_materials')) $serviceRequest->invoice_materials = $request->invoice_materials;
@@ -338,7 +341,10 @@ class ServiceRequestController extends Controller
         if ($request->has('invoice_price')) $serviceRequest->invoice_price = $request->invoice_price;
         if ($request->has('invoice_materials')) $serviceRequest->invoice_materials = $request->invoice_materials;
         if ($request->has('invoice_hours')) $serviceRequest->invoice_hours = $request->invoice_hours;
-        if ($request->has('worker_rating')) $serviceRequest->worker_rating = $request->worker_rating;
+        if ($request->has('worker_rating')) {
+            $serviceRequest->worker_rating = $request->worker_rating;
+            \Illuminate\Support\Facades\Cache::forget("user_{$serviceRequest->cliente_id}_avg_rating");
+        }
 
         $serviceRequest->save();
 
@@ -411,6 +417,7 @@ class ServiceRequestController extends Controller
         }
 
         $serviceRequest->rating = $request->rating;
+        \Illuminate\Support\Facades\Cache::forget("user_{$serviceRequest->trabajador_id}_avg_rating");
         $serviceRequest->comment = $request->comment;
         $serviceRequest->save();
 

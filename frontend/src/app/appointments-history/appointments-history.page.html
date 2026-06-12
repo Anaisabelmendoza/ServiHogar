@@ -108,7 +108,7 @@
               <span class="card-date">Fecha: {{ apt.date }}</span>
               <div class="status-row">
                 <span class="status-badge" [ngClass]="apt.status">
-                  {{ apt.status === 'finalizado' ? 'Finalizado' : 'Cancelado' }}
+                  {{ apt.status === 'finalizado' ? 'Finalizado' : (apt.status === 'cancelado' ? 'Cancelado' : 'Rechazado') }}
                 </span>
               </div>
             </div>

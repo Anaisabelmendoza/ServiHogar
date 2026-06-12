@@ -52,3 +52,18 @@ ion-back-button {
   color: #1a5c96 !important;
 }
 
+/* Estilo personalizado para el banner de carga */
+.custom-loading-banner {
+  --background: white;
+  --spinner-color: #04608c;
+  
+  .loading-wrapper {
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(4, 96, 140, 0.2);
+  }
+  
+  .loading-content {
+    color: #04608c !important;
+    font-weight: bold;
+  }
+}
