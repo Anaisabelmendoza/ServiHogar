@@ -113,10 +113,16 @@
               </div>
             </div>
           </div>
-          <div class="card-right">
+          <div class="card-right" style="display: flex; flex-direction: column; align-items: flex-end; gap: 5px;">
             <span *ngIf="apt.status === 'finalizado'" class="price-tag">{{ apt.invoice_price.toFixed(2) }} €</span>
             <span *ngIf="apt.status === 'cancelado'" class="price-tag-cancelled">Cancelado</span>
-            <ion-button *ngIf="apt.status === 'finalizado'" fill="clear" class="btn-pdf">
+            
+            <ion-button *ngIf="apt.status === 'finalizado' && !apt.rating" fill="solid" shape="round" color="primary" size="small" style="font-size: 0.75rem; text-transform: none; --padding-start: 12px; --padding-end: 12px;" (click)="goToReview(apt); $event.stopPropagation()">
+              <ion-icon name="star" slot="start"></ion-icon>
+              Valorar
+            </ion-button>
+
+            <ion-button *ngIf="apt.status === 'finalizado'" fill="clear" class="btn-pdf" style="margin-top: auto;">
               <ion-icon name="document-text-outline" slot="icon-only"></ion-icon>
             </ion-button>
           </div>

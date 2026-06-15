@@ -259,6 +259,124 @@
   }
 }
 
+.bottom-action-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 15px;
+
+  .confirm-btn {
+    --background: #04608c;
+    --border-radius: 12px;
+    width: 100%;
+    max-width: 300px;
+    height: 50px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    --box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    text-transform: none;
+  }
+}
+
+/* Estilos para el Modal de Ubicación */
+ion-modal {
+  --border-radius: 20px 20px 0 0;
+  --box-shadow: 0 -4px 16px rgba(0,0,0,0.2);
+}
+
+.location-modal-toolbar {
+  --background: #04608c;
+  --color: white;
+  
+  ion-title {
+    font-weight: bold;
+    font-size: 1.2rem;
+  }
+  
+  ion-button {
+    --color: white;
+  }
+}
+
+.location-search-toolbar {
+  --background: #f4f5f8;
+  padding: 5px 10px;
+
+  ion-searchbar {
+    --background: white;
+    --border-radius: 10px;
+    --box-shadow: none;
+    --placeholder-color: #888;
+    --icon-color: #04608c;
+    padding-bottom: 5px;
+  }
+}
+
+.location-modal-content {
+  --background: #f4f5f8;
+
+  .loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 30px;
+    color: #666;
+
+    ion-spinner {
+      margin-bottom: 10px;
+      transform: scale(1.5);
+    }
+  }
+
+  .location-list {
+    background: transparent;
+    padding: 0 10px;
+
+    ion-item {
+      --background: white;
+      --border-radius: 12px;
+      margin-bottom: 8px;
+      --padding-start: 15px;
+      --inner-padding-end: 15px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+
+      h2 {
+        font-weight: bold;
+        color: #333;
+        font-size: 1.05rem;
+        margin-bottom: 4px;
+      }
+
+      p {
+        color: #666;
+        font-size: 0.85rem;
+      }
+    }
+  }
+
+  .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 60%;
+    color: #888;
+    text-align: center;
+    padding: 0 20px;
+
+    ion-icon {
+      font-size: 4rem;
+      color: #ccc;
+      margin-bottom: 15px;
+    }
+
+    p {
+      font-size: 1.1rem;
+      margin: 0;
+    }
+  }
+}
+
 ion-modal.calendar-modal {
   --width: 90%;
   --max-width: 400px;

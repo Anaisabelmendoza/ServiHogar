@@ -253,10 +253,10 @@ export class ServiceTrackingPage implements OnInit, OnDestroy {
     // Fetch immediately
     this.fetchTrackingData();
 
-    // Poll every 4 seconds
+    // Poll every 8 seconds to reduce server load
     this.trackingInterval = setInterval(() => {
       this.fetchTrackingData();
-    }, 4000);
+    }, 8000);
   }
 
   fetchTrackingData() {
@@ -272,6 +272,19 @@ export class ServiceTrackingPage implements OnInit, OnDestroy {
         if (res.status === 'success' && res.data) {
           const prevStatus = this.requestStatus;
           this.requestStatus = res.data.status;
+          
+          // Si el profesional finaliza el trabajo, redirigir al cliente para valorar
+          if (this.requestStatus === 'finalizado') {
+            clearInterval(this.trackingInterval);
+            this.router.navigate(['/review'], {
+              queryParams: {
+                profName: this.profName,
+                profAvatar: this.profAvatar,
+                requestId: this.requestId
+              }
+            });
+            return;
+          }
           
           if ((this.requestStatus === 'aceptado' || this.requestStatus === 'en_progreso') && !this.map) {
              this.loadLeaflet();

@@ -67,3 +67,14 @@ ion-back-button {
     font-weight: bold;
   }
 }
+
+/* Simulated Push Notification Toast */
+ion-toast.simulated-push-toast {
+  --background: #04608c;
+  --color: white;
+  --border-radius: 12px;
+  --box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+  font-weight: bold;
+  font-size: 1.05rem;
+  margin-top: 10px;
+}

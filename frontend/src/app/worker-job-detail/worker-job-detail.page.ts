@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { ToastController } from '@ionic/angular';
 import { environment } from 'src/environments/environment';
 
 @Component({
@@ -26,7 +27,8 @@ export class WorkerJobDetailPage implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private http: HttpClient
+    private http: HttpClient,
+    private toastController: ToastController
   ) {}
 
   ngOnInit() {
@@ -37,7 +39,13 @@ export class WorkerJobDetailPage implements OnInit {
       this.appointmentType   = params['type']         || 'urgente';
       this.appointmentDate   = params['date']         || '';
       this.requestId         = params['id']           || 0;
-      this.imageUrl          = params['imageUrl']     || '';
+      
+      let img = params['imageUrl'] || '';
+      if (img && img.includes('localhost:8000')) {
+        img = img.replace('http://localhost:8000', environment.apiUrl);
+      }
+      this.imageUrl = img;
+      
       this.clientStatus      = params['status']       || 'pendiente';
     });
   }
@@ -89,12 +97,15 @@ export class WorkerJobDetailPage implements OnInit {
     }
   }
 
+  isRejecting = false;
+
   rejectJob() {
     console.log('Rejecting request:', this.requestId);
 
     const token = localStorage.getItem('token');
     if (!token || !this.requestId) return;
 
+    this.isRejecting = true;
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${token}`
     });
@@ -103,11 +114,20 @@ export class WorkerJobDetailPage implements OnInit {
       status: 'rechazado'
     }, { headers }).subscribe({
       next: (res) => {
+        this.isRejecting = false;
         console.log('Cita rechazada en Aiven:', res);
         this.router.navigate(['/worker-home'], { queryParams: { tab: 'solicitudes' } });
       },
-      error: (err) => {
+      error: async (err) => {
+        this.isRejecting = false;
         console.error('Error al rechazar la cita:', err);
+        const toast = await this.toastController.create({
+          message: 'Error al rechazar la cita. ' + (err.error?.message || ''),
+          duration: 3000,
+          color: 'danger',
+          position: 'bottom'
+        });
+        await toast.present();
       }
     });
   }

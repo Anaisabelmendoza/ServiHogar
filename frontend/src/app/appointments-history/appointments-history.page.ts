@@ -21,6 +21,7 @@ interface Appointment {
   appointmentType?: string;
   appointmentDate?: string;
   worker_profession?: string;
+  rating?: number | null;
 }
 
 @Component({
@@ -39,6 +40,10 @@ export class AppointmentsHistoryPage implements OnInit {
   selectedDateTime: string | null = null;
   selectedAppointment: Appointment | null = null;
 
+  private pollInterval: any;
+  knownAcceptedIds: Set<number> = new Set();
+  isFirstLoadCompleted: boolean = false;
+
   constructor(
     private http: HttpClient,
     private router: Router,
@@ -53,6 +58,25 @@ export class AppointmentsHistoryPage implements OnInit {
 
   ionViewWillEnter() {
     this.loadHistory();
+    this.startPolling();
+  }
+
+  ionViewWillLeave() {
+    this.stopPolling();
+  }
+
+  startPolling() {
+    this.stopPolling();
+    this.pollInterval = setInterval(() => {
+      this.loadHistory(true);
+    }, 5000);
+  }
+
+  stopPolling() {
+    if (this.pollInterval) {
+      clearInterval(this.pollInterval);
+      this.pollInterval = null;
+    }
   }
 
   setTab(tab: string) {
@@ -86,12 +110,14 @@ export class AppointmentsHistoryPage implements OnInit {
     }
   }
 
-  loadHistory() {
-    this.isLoading = true;
+  loadHistory(silent: boolean = false) {
+    if (!silent) {
+      this.isLoading = true;
+    }
     const token = localStorage.getItem('token');
     if (!token) {
       this.appointments = [];
-      this.isLoading = false;
+      if (!silent) this.isLoading = false;
       return;
     }
 
@@ -99,40 +125,85 @@ export class AppointmentsHistoryPage implements OnInit {
       'Authorization': `Bearer ${token}`
     });
 
-    this.http.get(`${environment.apiUrl}/api/client/history`, { headers }).subscribe({
+    this.http.get(`${environment.apiUrl}/api/client/history?t=${Date.now()}`, { headers }).subscribe({
       next: (res: any) => {
         if (res.status === 'success' && res.data) {
-          this.appointments = res.data.map((h: any) => ({
-            id: h.id,
-            title: h.description || 'Servicio Técnico',
-            date: h.appointment_type === 'programar' && h.appointment_date 
-              ? this.formatDateTime(h.appointment_date) 
-              : new Date(h.created_at).toLocaleDateString(),
-            workerName: h.trabajador ? h.trabajador.name + (h.trabajador.apellidos ? ' ' + h.trabajador.apellidos : '') : 'Pendiente de asignación',
-            avatar: h.trabajador?.avatarUrl || `https://ui-avatars.com/api/?name=${h.trabajador?.name || 'P'}&background=random`,
-            worker_report: h.worker_report || '',
-            invoice_price: Number(h.invoice_price) || 0,
-            invoice_materials: h.invoice_materials || '',
-            invoice_hours: Number(h.invoice_hours) || 0,
-            worker_phone: h.trabajador?.telefono || '',
-            status: h.status || 'pendiente',
-            workerId: h.trabajador_id || null,
-            workerRating: h.trabajador ? (h.trabajador.average_rating !== undefined ? h.trabajador.average_rating : 5) : 5,
-            appointmentType: h.appointment_type,
-            appointmentDate: h.appointment_date,
-            worker_profession: h.trabajador?.profesion || ''
-          }));
+          let newlyAccepted = false;
+
+          this.appointments = res.data.map((h: any) => {
+            if (h.status === 'aceptado') {
+              if (this.isFirstLoadCompleted && !this.knownAcceptedIds.has(h.id)) {
+                newlyAccepted = true;
+              }
+              this.knownAcceptedIds.add(h.id);
+            }
+
+            return {
+              id: h.id,
+              title: h.description || 'Servicio Técnico',
+              date: h.appointment_type === 'programar' && h.appointment_date 
+                ? this.formatDateTime(h.appointment_date) 
+                : new Date(h.created_at).toLocaleDateString(),
+              workerName: h.trabajador ? h.trabajador.name + (h.trabajador.apellidos ? ' ' + h.trabajador.apellidos : '') : 'Pendiente de asignación',
+              avatar: h.trabajador?.avatarUrl || `https://ui-avatars.com/api/?name=${h.trabajador?.name || 'P'}&background=random`,
+              worker_report: h.worker_report || '',
+              invoice_price: Number(h.invoice_price) || 0,
+              invoice_materials: h.invoice_materials || '',
+              invoice_hours: Number(h.invoice_hours) || 0,
+              worker_phone: h.trabajador?.telefono || '',
+              status: h.status || 'pendiente',
+              workerId: h.trabajador_id || null,
+              workerRating: h.trabajador ? (h.trabajador.average_rating !== undefined ? h.trabajador.average_rating : 5) : 5,
+              appointmentType: h.appointment_type,
+              appointmentDate: h.appointment_date,
+              worker_profession: h.trabajador?.profesion || '',
+              rating: h.rating || null
+            };
+          });
+
+          if (newlyAccepted) {
+            this.showPushNotification('¡Tu profesional ha aceptado la cita!', 'success');
+          }
+          this.isFirstLoadCompleted = true;
         } else {
           this.appointments = [];
         }
-        this.isLoading = false;
+        if (!silent) this.isLoading = false;
       },
       error: (err) => {
         console.error('Error al cargar historial del cliente:', err);
         this.appointments = [];
-        this.isLoading = false;
+        if (!silent) this.isLoading = false;
       }
     });
+  }
+
+  goToReview(apt: any) {
+    this.router.navigate(['/review'], {
+      queryParams: {
+        profName: apt.workerName,
+        profAvatar: apt.avatar,
+        requestId: apt.id
+      }
+    });
+  }
+
+  async showPushNotification(msg: string, colorType: string = 'primary') {
+    const toast = await this.toastController.create({
+      message: msg,
+      duration: 5000,
+      position: 'top',
+      color: colorType,
+      icon: 'notifications-outline',
+      cssClass: 'simulated-push-toast',
+      buttons: [
+        {
+          text: 'VER',
+          role: 'cancel'
+        }
+      ]
+    });
+    await toast.present();
   }
 
   goToTracking(apt: Appointment) {

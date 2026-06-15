@@ -58,6 +58,8 @@ export class WorkerHomePage implements OnInit {
   isLoadingHistory: boolean = false;
 
   private pollInterval: any;
+  knownRequestIds: Set<number> = new Set();
+  isFirstLoadCompleted: boolean = false;
 
   constructor(
     private router: Router, 
@@ -97,7 +99,7 @@ export class WorkerHomePage implements OnInit {
   startPolling() {
     this.pollInterval = setInterval(() => {
       this.loadRequestsOnly();
-    }, 5000);
+    }, 10000);
   }
 
   stopPolling() {
@@ -120,22 +122,41 @@ export class WorkerHomePage implements OnInit {
         if (res.status === 'success') {
           this.isActive = res.is_active;
           if (res.data && res.data.length > 0) {
-            this.requests = res.data.map((req: any) => ({
-              id: req.id,
-              clientName: req.cliente ? req.cliente.name : 'Cliente',
-              avatar: req.cliente?.avatarUrl || `https://ui-avatars.com/api/?name=${req.cliente?.name || 'C'}&background=random`,
-              rating: req.cliente?.average_rating !== undefined ? req.cliente.average_rating : 5,
-              phone: req.phone || (req.cliente ? req.cliente.telefono : '600000001'),
-              description: req.description,
-              appointmentType: req.appointment_type,
-              appointmentDate: req.appointment_date,
-              address: req.address,
-              imageUrl: req.image_url,
-              status: req.status || 'pendiente'
-            }));
+            let hasNewRequest = false;
+
+            this.requests = res.data.map((req: any) => {
+              if (this.isFirstLoadCompleted && !this.knownRequestIds.has(req.id)) {
+                hasNewRequest = true;
+              }
+              this.knownRequestIds.add(req.id);
+              
+              let finalImageUrl = req.image_url;
+              if (finalImageUrl && finalImageUrl.includes('localhost:8000')) {
+                finalImageUrl = finalImageUrl.replace('http://localhost:8000', environment.apiUrl);
+              }
+
+              return {
+                id: req.id,
+                clientName: req.cliente ? req.cliente.name : 'Cliente',
+                avatar: req.cliente?.avatarUrl || `https://ui-avatars.com/api/?name=${req.cliente?.name || 'C'}&background=random`,
+                rating: req.cliente?.average_rating !== undefined ? req.cliente.average_rating : 5,
+                phone: req.phone || (req.cliente ? req.cliente.telefono : '600000001'),
+                description: req.description,
+                appointmentType: req.appointment_type,
+                appointmentDate: req.appointment_date,
+                address: req.address,
+                imageUrl: finalImageUrl,
+                status: req.status || 'pendiente'
+              };
+            });
+
+            if (hasNewRequest) {
+              this.showPushNotification('¡Nuevo servicio de trabajo disponible!', 'success');
+            }
           } else {
             this.requests = [];
           }
+          this.isFirstLoadCompleted = true;
         }
       },
       error: (err) => {
@@ -176,19 +197,29 @@ export class WorkerHomePage implements OnInit {
         if (res.status === 'success') {
           this.isActive = res.is_active;
           if (res.data && res.data.length > 0) {
-            this.requests = res.data.map((req: any) => ({
-              id: req.id,
-              clientName: req.cliente ? req.cliente.name : 'Cliente',
-              avatar: req.cliente?.avatarUrl || `https://ui-avatars.com/api/?name=${req.cliente?.name || 'C'}&background=random`,
-              rating: req.cliente?.average_rating !== undefined ? req.cliente.average_rating : 5,
-              phone: req.phone || (req.cliente ? req.cliente.telefono : '600000001'),
-              description: req.description,
-              appointmentType: req.appointment_type,
-              appointmentDate: req.appointment_date,
-              address: req.address,
-              imageUrl: req.image_url,
-              status: req.status || 'pendiente'
-            }));
+            this.requests = res.data.map((req: any) => {
+              this.knownRequestIds.add(req.id);
+              
+              let finalImageUrl = req.image_url;
+              if (finalImageUrl && finalImageUrl.includes('localhost:8000')) {
+                finalImageUrl = finalImageUrl.replace('http://localhost:8000', environment.apiUrl);
+              }
+
+              return {
+                id: req.id,
+                clientName: req.cliente ? req.cliente.name : 'Cliente',
+                avatar: req.cliente?.avatarUrl || `https://ui-avatars.com/api/?name=${req.cliente?.name || 'C'}&background=random`,
+                rating: req.cliente?.average_rating !== undefined ? req.cliente.average_rating : 5,
+                phone: req.phone || (req.cliente ? req.cliente.telefono : '600000001'),
+                description: req.description,
+                appointmentType: req.appointment_type,
+                appointmentDate: req.appointment_date,
+                address: req.address,
+                imageUrl: finalImageUrl,
+                status: req.status || 'pendiente'
+              };
+            });
+            this.isFirstLoadCompleted = true;
           } else {
             this.requests = [];
           }
@@ -206,26 +237,33 @@ export class WorkerHomePage implements OnInit {
       next: (res: any) => {
         this.isLoadingHistory = false;
         if (res.status === 'success' && res.data && res.data.length > 0) {
-          this.history = res.data.map((h: any) => ({
-            id: h.id,
-            clientName: h.cliente ? h.cliente.name : 'Cliente',
-            avatar: h.cliente?.avatarUrl || `https://ui-avatars.com/api/?name=${h.cliente?.name || 'C'}&background=random`,
-            date: h.appointment_type === 'programar' && h.appointment_date
-              ? this.formatDateTime(h.appointment_date)
-              : new Date(h.updated_at).toLocaleDateString(),
-            service: h.description || 'Servicio de Reparación',
-            rating: h.worker_rating || 0,
-            worker_report: h.worker_report || '',
-            invoice_price: Number(h.invoice_price) || 0,
-            invoice_materials: h.invoice_materials || '',
-            invoice_hours: Number(h.invoice_hours) || 0,
-            client_phone: h.phone || (h.cliente ? h.cliente.telefono : ''),
-            client_address: h.address || '',
-            status: h.status || 'finalizado',
-            appointmentType: h.appointment_type,
-            appointmentDate: h.appointment_date,
-            imageUrl: h.image_url
-          }));
+          this.history = res.data.map((h: any) => {
+            let finalImageUrl = h.image_url;
+            if (finalImageUrl && finalImageUrl.includes('localhost:8000')) {
+              finalImageUrl = finalImageUrl.replace('http://localhost:8000', environment.apiUrl);
+            }
+
+            return {
+              id: h.id,
+              clientName: h.cliente ? h.cliente.name : 'Cliente',
+              avatar: h.cliente?.avatarUrl || `https://ui-avatars.com/api/?name=${h.cliente?.name || 'C'}&background=random`,
+              date: h.appointment_type === 'programar' && h.appointment_date
+                ? this.formatDateTime(h.appointment_date)
+                : new Date(h.updated_at).toLocaleDateString(),
+              service: h.description || 'Servicio de Reparación',
+              rating: h.worker_rating || 0,
+              worker_report: h.worker_report || '',
+              invoice_price: Number(h.invoice_price) || 0,
+              invoice_materials: h.invoice_materials || '',
+              invoice_hours: Number(h.invoice_hours) || 0,
+              client_phone: h.phone || (h.cliente ? h.cliente.telefono : ''),
+              client_address: h.address || '',
+              status: h.status || 'finalizado',
+              appointmentType: h.appointment_type,
+              appointmentDate: h.appointment_date,
+              imageUrl: finalImageUrl
+            };
+          });
         } else {
           this.history = [];
         }
@@ -235,6 +273,64 @@ export class WorkerHomePage implements OnInit {
         this.history = [];
         this.isLoadingHistory = false;
       }
+    });
+  }
+
+  async showPushNotification(msg: string, colorType: string = 'primary') {
+    const toast = await this.toastController.create({
+      message: msg,
+      duration: 5000,
+      position: 'top',
+      color: colorType,
+      icon: 'notifications-outline',
+      cssClass: 'simulated-push-toast',
+      buttons: [
+        {
+          text: 'VER',
+          role: 'cancel'
+        }
+      ]
+    });
+    await toast.present();
+  }
+
+  doRefresh(event: any) {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+
+    this.http.get(`${environment.apiUrl}/api/worker/requests?t=${Date.now()}`, { headers }).subscribe({
+      next: (res: any) => {
+        if (res.status === 'success') {
+          this.requests = res.data.map((req: any) => {
+            this.knownRequestIds.add(req.id);
+            
+            let finalImageUrl = req.image_url;
+            if (finalImageUrl && finalImageUrl.includes('localhost:8000')) {
+              finalImageUrl = finalImageUrl.replace('http://localhost:8000', environment.apiUrl);
+            }
+
+            return {
+              id: req.id,
+              clientName: req.cliente ? req.cliente.name : 'Cliente',
+              avatar: req.cliente?.avatarUrl || `https://ui-avatars.com/api/?name=${req.cliente?.name || 'C'}&background=random`,
+              rating: req.cliente?.average_rating !== undefined ? req.cliente.average_rating : 5,
+              phone: req.phone || (req.cliente ? req.cliente.telefono : '600000001'),
+              description: req.description,
+              appointmentType: req.appointment_type,
+              appointmentDate: req.appointment_date,
+              address: req.address,
+              imageUrl: finalImageUrl,
+              status: req.status || 'pendiente'
+            };
+          });
+        }
+        event.target.complete();
+      },
+      error: () => event.target.complete()
     });
   }
 
@@ -268,6 +364,10 @@ export class WorkerHomePage implements OnInit {
 
   setTab(tab: 'solicitudes' | 'historial') {
     this.activeTab = tab;
+    this.router.navigate([], {
+      queryParams: { tab: tab },
+      replaceUrl: true
+    });
   }
 
   getStars(rating: number): string[] {

@@ -83,6 +83,7 @@ export class ServiceDescriptionPage implements OnInit {
 
   submitRequest() {
     console.log('Service requested with description:', this.description);
+    console.log('Navigating to professional selection with address:', this.address);
     
     // Navigate to professional selection
     this.router.navigate(['/professional-selection'], {

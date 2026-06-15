@@ -30,14 +30,19 @@
         <ion-icon name="home" class="card-icon"></ion-icon>
         <h2>Domicilio</h2>
       </div>
-      <ion-input [(ngModel)]="clientAddress" placeholder="Introduce tu dirección completa (Ej: Calle Mayor 12, Úbeda)" class="address-input"></ion-input>
+      <div style="display: flex; gap: 8px; align-items: center; padding-right: 10px;">
+        <ion-input [(ngModel)]="clientAddress" placeholder="Introduce tu dirección completa (Ej: Calle Mayor 12, Úbeda)" class="address-input" style="flex: 1;"></ion-input>
+        <ion-button fill="clear" color="primary" (click)="saveManualAddress()" style="margin: 0; padding: 0;">
+          <ion-icon name="save-outline" slot="icon-only" style="font-size: 1.5rem;"></ion-icon>
+        </ion-button>
+      </div>
     </div>
 
     <!-- Map -->
     <div class="map-container">
       <img src="assets/map.png" alt="Mapa de Ubicación" class="map-image">
       <div class="other-location-link">
-        <a href="#">Otra Ubicación</a>
+        <a href="javascript:void(0)" (click)="openLocationModal()">Otra Ubicación</a>
       </div>
     </div>
 
@@ -116,3 +121,54 @@
     </ng-template>
   </ion-modal>
 </ion-content>
+
+<!-- Modal de Búsqueda de Ubicación -->
+<ion-modal [isOpen]="isLocationModalOpen" (didDismiss)="closeLocationModal()">
+  <ng-template>
+    <ion-header class="ion-no-border">
+      <ion-toolbar class="location-modal-toolbar">
+        <ion-title>Buscar ubicación</ion-title>
+        <ion-buttons slot="end">
+          <ion-button (click)="closeLocationModal()">
+            <ion-icon name="close"></ion-icon>
+          </ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+      <ion-toolbar class="location-search-toolbar">
+        <ion-searchbar 
+          animated="true" 
+          placeholder="Escribe el nombre de la calle..." 
+          [debounce]="0"
+          (ionInput)="onSearchLocation($event)">
+        </ion-searchbar>
+      </ion-toolbar>
+    </ion-header>
+
+    <ion-content class="location-modal-content">
+      <div class="loading-container" *ngIf="isLoadingLocations">
+        <ion-spinner name="crescent" color="primary"></ion-spinner>
+        <p>Buscando calles...</p>
+      </div>
+
+      <ion-list *ngIf="locationResults.length > 0 && !isLoadingLocations" class="location-list">
+        <ion-item *ngFor="let result of locationResults" button (click)="selectLocation(result)" detail="false">
+          <ion-icon name="location-outline" slot="start" color="primary"></ion-icon>
+          <ion-label class="ion-text-wrap">
+            <h2>{{ result.address?.road || result.name || 'Dirección' }}</h2>
+            <p>{{ result.display_name }}</p>
+          </ion-label>
+        </ion-item>
+      </ion-list>
+
+      <div class="empty-state" *ngIf="locationResults.length === 0 && !isLoadingLocations && locationQuery.length >= 3">
+        <ion-icon name="map-outline"></ion-icon>
+        <p>No hemos encontrado resultados.</p>
+      </div>
+
+      <div class="empty-state" *ngIf="locationResults.length === 0 && !isLoadingLocations && locationQuery.length < 3">
+        <ion-icon name="search-outline"></ion-icon>
+        <p>Escribe el nombre de tu calle para ver sugerencias.</p>
+      </div>
+    </ion-content>
+  </ng-template>
+</ion-modal>

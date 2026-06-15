@@ -145,6 +145,8 @@ export class ProfessionalSelectionPage implements OnInit {
         image_base64: imageBase64
       };
       
+      console.log('Sending payload to backend with address:', payload.address);
+      
       this.http.post(`${environment.apiUrl}/api/service-requests`, payload, { headers }).subscribe({
         next: async (res: any) => {
           this.isSubmitting = false;
@@ -178,10 +180,26 @@ export class ProfessionalSelectionPage implements OnInit {
             });
           }
         },
-        error: (err) => {
-          console.error('Error creating request:', err);
+        error: async (err) => {
           this.isSubmitting = false;
-          alert('Hubo un error al crear la solicitud.');
+          console.error('Error creating request:', err);
+          let errorMessage = 'Hubo un error al enviar la solicitud.';
+          if (err.error && err.error.message) {
+            errorMessage = err.error.message;
+          }
+          
+          const toast = await this.toastController.create({
+            message: errorMessage,
+            duration: 4000,
+            color: 'danger',
+            position: 'bottom'
+          });
+          await toast.present();
+
+          // Si el error es que ya tiene una solicitud activa, llevarle a inicio
+          if (errorMessage.includes('Ya tienes una solicitud de servicio activa')) {
+            this.router.navigate(['/home']);
+          }
         }
       });
     }

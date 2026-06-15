@@ -116,7 +116,21 @@ class ServiceRequestController extends Controller
             return response()->json(['status' => 'error', 'errors' => $validator->errors()], 400);
         }
 
+        // Verificar si el cliente ya tiene una solicitud pendiente o en progreso
+        $activeRequest = ServiceRequest::where('cliente_id', $user->id)
+            ->whereIn('status', ['pendiente', 'en_progreso'])
+            ->first();
+
+        if ($activeRequest) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Ya tienes una solicitud de servicio activa. No puedes crear otra hasta que la actual finalice o sea cancelada.'
+            ], 400);
+        }
+
         $address = $request->address;
+        \Illuminate\Support\Facades\Log::info('Received address from frontend: ' . ($address ?? 'NULL'));
+        
         if (empty($address)) {
             $address = implode(', ', array_filter([
                 $user->domicilio,
@@ -124,6 +138,9 @@ class ServiceRequestController extends Controller
                 $user->ciudad,
                 $user->provincia
             ]));
+            \Illuminate\Support\Facades\Log::info('Using default address: ' . $address);
+        } else {
+            \Illuminate\Support\Facades\Log::info('Using provided address: ' . $address);
         }
 
         $imageUrl = null;

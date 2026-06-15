@@ -1,5 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
+import { environment } from 'src/environments/environment';
+import { ToastController } from '@ionic/angular';
 
 @Component({
   selector: 'app-service-request',
@@ -16,7 +19,18 @@ export class ServiceRequestPage implements OnInit {
   serviceId: string | null = null;
   clientAddress: string = '';
 
-  constructor(private router: Router, private route: ActivatedRoute) { }
+  isLocationModalOpen: boolean = false;
+  locationQuery: string = '';
+  locationResults: any[] = [];
+  isLoadingLocations: boolean = false;
+  searchTimeout: any;
+
+  constructor(
+    private router: Router, 
+    private route: ActivatedRoute,
+    private http: HttpClient,
+    private toastController: ToastController
+  ) { }
 
   ngOnInit() {
     this.serviceId = this.route.snapshot.queryParams['service'] || null;
@@ -45,6 +59,165 @@ export class ServiceRequestPage implements OnInit {
 
   goToAppointments() {
     this.router.navigate(['/appointments-history']);
+  }
+
+  openLocationModal() {
+    this.isLocationModalOpen = true;
+    this.locationQuery = '';
+    this.locationResults = [];
+  }
+
+  closeLocationModal() {
+    this.isLocationModalOpen = false;
+  }
+
+  onSearchLocation(event: any) {
+    const query = event.detail.value;
+    if (!query || query.length < 3) {
+      this.locationResults = [];
+      return;
+    }
+
+    if (this.searchTimeout) {
+      clearTimeout(this.searchTimeout);
+    }
+
+    this.isLoadingLocations = true;
+    
+    // Debounce de 500ms para no saturar la API
+    this.searchTimeout = setTimeout(() => {
+      // Usar Nominatim OpenStreetMap API
+      const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&addressdetails=1&countrycodes=es&limit=5`;
+      this.http.get(url).subscribe({
+        next: (results: any) => {
+          this.locationResults = results;
+          this.isLoadingLocations = false;
+        },
+        error: (err) => {
+          console.error('Error fetching locations', err);
+          this.isLoadingLocations = false;
+        }
+      });
+    }, 500);
+  }
+
+  selectLocation(result: any) {
+    if (result.address) {
+      const road = result.address.road || result.name || '';
+      const houseNumber = result.address.house_number ? ' ' + result.address.house_number : '';
+      const city = result.address.city || result.address.town || result.address.village || '';
+      const postcode = result.address.postcode || '';
+      const province = result.address.province || '';
+      
+      const parts = [road + houseNumber, city, province, postcode].filter(p => p.trim() !== '');
+      this.clientAddress = parts.join(', ');
+
+      // Guardar permanentemente en el perfil del cliente
+      const userStr = localStorage.getItem('user');
+      const token = localStorage.getItem('token');
+      if (userStr && token) {
+        try {
+          const user = JSON.parse(userStr);
+          const payload = {
+            name: user.name || 'Usuario',
+            apellidos: user.apellidos || null,
+            telefono: user.telefono || null,
+            email: user.email || 'usuario@servihogar.com',
+            profesion: user.profesion || null,
+            avatarUrl: user.avatarUrl || null,
+            domicilio: road + houseNumber,
+            ciudad: city,
+            provincia: province,
+            codigo_postal: postcode
+          };
+
+          const headers = { 'Authorization': `Bearer ${token}` };
+          this.http.post(`${environment.apiUrl}/api/user/profile`, payload, { headers }).subscribe({
+            next: async (res: any) => {
+              if (res.status === 'success' && res.user) {
+                localStorage.setItem('user', JSON.stringify(res.user));
+                const toast = await this.toastController.create({
+                  message: 'Ubicación modificada',
+                  duration: 2000,
+                  color: 'success',
+                  icon: 'checkmark-circle'
+                });
+                await toast.present();
+              }
+            },
+            error: (err) => console.error('Error al actualizar el perfil con la nueva dirección:', err)
+          });
+        } catch (e) {
+          console.error('Error procesando usuario:', e);
+        }
+      }
+    } else {
+      this.clientAddress = result.display_name;
+    }
+    this.closeLocationModal();
+  }
+
+  clearAddress() {
+    this.clientAddress = '';
+  }
+
+  async saveManualAddress() {
+    if (!this.clientAddress || this.clientAddress.trim() === '') {
+      const toast = await this.toastController.create({
+        message: 'Por favor, escribe una dirección válida.',
+        duration: 2000,
+        color: 'warning'
+      });
+      await toast.present();
+      return;
+    }
+
+    const userStr = localStorage.getItem('user');
+    const token = localStorage.getItem('token');
+    if (userStr && token) {
+      try {
+        const user = JSON.parse(userStr);
+        const payload = {
+          name: user.name || 'Usuario',
+          apellidos: user.apellidos || null,
+          telefono: user.telefono || null,
+          email: user.email || 'usuario@servihogar.com',
+          profesion: user.profesion || null,
+          avatarUrl: user.avatarUrl || null,
+          domicilio: this.clientAddress,
+          ciudad: null,
+          provincia: null,
+          codigo_postal: null
+        };
+
+        const headers = { 'Authorization': `Bearer ${token}` };
+        this.http.post(`${environment.apiUrl}/api/user/profile`, payload, { headers }).subscribe({
+          next: async (res: any) => {
+            if (res.status === 'success' && res.user) {
+              localStorage.setItem('user', JSON.stringify(res.user));
+              const toast = await this.toastController.create({
+                message: 'Ubicación modificada',
+                duration: 2000,
+                color: 'success',
+                icon: 'checkmark-circle'
+              });
+              await toast.present();
+            }
+          },
+          error: async (err) => {
+            console.error('Error al guardar dirección manual:', err);
+            const toast = await this.toastController.create({
+              message: 'Error al guardar la dirección',
+              duration: 2000,
+              color: 'danger'
+            });
+            await toast.present();
+          }
+        });
+      } catch (e) {
+        console.error('Error procesando usuario:', e);
+      }
+    }
   }
 
   setAppointmentType(type: 'programar' | 'urgente') {
@@ -88,12 +261,41 @@ export class ServiceRequestPage implements OnInit {
       console.log('Please select an appointment type first');
       return;
     }
-    
-    // Si es programar y no ha elegido fecha, podríamos avisar
-    if (this.appointmentType === 'programar' && !this.confirmedDateTime) {
-      console.log('Por favor, selecciona una fecha y hora');
-      return;
+
+    // Guardar permanentemente en el perfil del cliente la dirección escrita manualmente
+    const userStr = localStorage.getItem('user');
+    const token = localStorage.getItem('token');
+    if (userStr && token && this.clientAddress) {
+      try {
+        const user = JSON.parse(userStr);
+        const payload = {
+          name: user.name || 'Usuario',
+          apellidos: user.apellidos || null,
+          telefono: user.telefono || null,
+          email: user.email || 'usuario@servihogar.com',
+          profesion: user.profesion || null,
+          avatarUrl: user.avatarUrl || null,
+          domicilio: this.clientAddress, // Usar la dirección completa escrita
+          ciudad: null,
+          provincia: null,
+          codigo_postal: null
+        };
+
+        const headers = { 'Authorization': `Bearer ${token}` };
+        this.http.post(`${environment.apiUrl}/api/user/profile`, payload, { headers }).subscribe({
+          next: (res: any) => {
+            if (res.status === 'success' && res.user) {
+              localStorage.setItem('user', JSON.stringify(res.user));
+            }
+          },
+          error: (err) => console.error('Error al actualizar el perfil al pulsar siguiente:', err)
+        });
+      } catch (e) {
+        console.error('Error procesando usuario:', e);
+      }
     }
+    
+    console.log('Navigating to service description with address:', this.clientAddress);
 
     // Navigate to next screen
     this.router.navigate(['/service-description'], { 

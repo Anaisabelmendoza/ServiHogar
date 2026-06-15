@@ -65,32 +65,41 @@ export class ReviewPage implements OnInit {
         'Authorization': `Bearer ${token}`
       });
 
-      try {
-        await this.http.post(`${environment.apiUrl}/api/service-requests/${this.requestId}/review`, {
-          rating: this.selectedRating,
-          comment: this.commentText
-        }, { headers }).toPromise();
-
-        const toast = await this.toastController.create({
-          message: '¡Muchas gracias por valorar al profesional!',
-          duration: 2500,
-          color: 'success',
-          position: 'bottom'
-        });
-        await toast.present();
-      } catch (err) {
-        console.error('Error al guardar la reseña en Aiven:', err);
-        const toast = await this.toastController.create({
-          message: 'Error al enviar la valoración al servidor.',
-          duration: 2500,
-          color: 'danger',
-          position: 'bottom'
-        });
-        await toast.present();
-      }
+      this.http.post(`${environment.apiUrl}/api/service-requests/${this.requestId}/review`, {
+        rating: this.selectedRating,
+        comment: this.commentText
+      }, { headers }).subscribe({
+        next: async () => {
+          const toast = await this.toastController.create({
+            message: '¡Muchas gracias por valorar al profesional!',
+            duration: 2500,
+            color: 'success',
+            position: 'bottom'
+          });
+          await toast.present();
+          this.router.navigate(['/home']);
+        },
+        error: async (err) => {
+          console.error('Error al guardar la reseña en Aiven:', err);
+          const toast = await this.toastController.create({
+            message: 'Error al enviar la valoración al servidor.',
+            duration: 2500,
+            color: 'danger',
+            position: 'bottom'
+          });
+          await toast.present();
+        }
+      });
+    } else {
+      console.error('Missing token or requestId. Token:', !!token, 'RequestId:', this.requestId);
+      const toast = await this.toastController.create({
+        message: 'Error interno: Faltan datos de la solicitud.',
+        duration: 2500,
+        color: 'danger',
+        position: 'bottom'
+      });
+      await toast.present();
+      this.router.navigate(['/home']);
     }
-
-    // Volvemos a home al terminar el flujo
-    this.router.navigate(['/home']);
   }
 }
