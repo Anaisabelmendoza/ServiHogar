@@ -18,6 +18,18 @@
   
   .calendar-btn {
     color: #04608c;
+    position: relative;
+
+    .notification-dot {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      width: 10px;
+      height: 10px;
+      background-color: red;
+      border-radius: 50%;
+      border: 2px solid white;
+    }
   }
   
   .profile-btn {

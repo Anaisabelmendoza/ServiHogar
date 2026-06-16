@@ -200,6 +200,48 @@ class ServiceRequestController extends Controller
         ], 201);
     }
 
+    // Reasignar una solicitud rechazada a un nuevo profesional
+    public function rebookRequest(Request $request, $id)
+    {
+        $user = Auth::user();
+        if (!$user) {
+            return response()->json(['status' => 'error', 'message' => 'Unauthorized'], 401);
+        }
+
+        $serviceRequest = ServiceRequest::find($id);
+
+        if (!$serviceRequest || $serviceRequest->cliente_id !== $user->id) {
+            return response()->json(['status' => 'error', 'message' => 'Solicitud no encontrada'], 404);
+        }
+
+        if ($serviceRequest->status !== 'rechazado') {
+            return response()->json(['status' => 'error', 'message' => 'Solo puedes reasignar solicitudes rechazadas'], 400);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'trabajador_id' => 'required|exists:users,id'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['status' => 'error', 'errors' => $validator->errors()], 400);
+        }
+
+        // Si se envió una nueva dirección/fecha, actualizarlas
+        if ($request->has('address')) $serviceRequest->address = $request->address;
+        if ($request->has('appointment_date')) $serviceRequest->appointment_date = $request->appointment_date;
+        if ($request->has('appointment_type')) $serviceRequest->appointment_type = $request->appointment_type;
+
+        $serviceRequest->trabajador_id = $request->trabajador_id;
+        $serviceRequest->status = 'pendiente';
+        $serviceRequest->save();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Solicitud reasignada correctamente',
+            'data' => $serviceRequest
+        ], 200);
+    }
+
     // Listar solicitudes activas de profesionales
     public function getActiveRequests()
     {

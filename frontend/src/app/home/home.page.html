@@ -1,8 +1,9 @@
 <ion-header class="ion-no-border">
   <ion-toolbar class="gradient-toolbar">
     <ion-buttons slot="end">
-      <ion-button class="action-btn calendar-btn" (click)="goToAppointments()">
+      <ion-button class="action-btn calendar-btn" (click)="goToAppointments()" style="position: relative;">
         <ion-icon name="calendar-outline" slot="icon-only"></ion-icon>
+        <span *ngIf="hasPendingAppointments" class="notification-dot"></span>
       </ion-button>
       <ion-button class="action-btn profile-btn" (click)="goToProfile()">
         <ion-icon name="person-circle" slot="icon-only"></ion-icon>

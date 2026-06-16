@@ -26,6 +26,7 @@ Route::middleware('auth:sanctum')->group(function () {
     
     // Solicitudes de Servicio y Citas
     Route::post('/service-requests', [ServiceRequestController::class, 'store']);
+    Route::post('/service-requests/{id}/rebook', [ServiceRequestController::class, 'rebookRequest']);
     Route::get('/worker/requests', [ServiceRequestController::class, 'getActiveRequests']);
     Route::post('/worker/requests/{id}/status', [ServiceRequestController::class, 'updateStatus']);
     Route::get('/worker/history', [ServiceRequestController::class, 'getHistory']);

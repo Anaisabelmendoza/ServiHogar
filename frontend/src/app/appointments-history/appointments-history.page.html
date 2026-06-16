@@ -122,6 +122,11 @@
               Valorar
             </ion-button>
 
+            <ion-button *ngIf="apt.status === 'rechazado'" fill="solid" shape="round" color="warning" size="small" style="font-size: 0.75rem; text-transform: none; --padding-start: 12px; --padding-end: 12px;" (click)="searchNewProfessional(apt); $event.stopPropagation()">
+              <ion-icon name="search-outline" slot="start"></ion-icon>
+              Buscar Otro
+            </ion-button>
+
             <ion-button *ngIf="apt.status === 'finalizado'" fill="clear" class="btn-pdf" style="margin-top: auto;">
               <ion-icon name="document-text-outline" slot="icon-only"></ion-icon>
             </ion-button>

@@ -206,6 +206,17 @@ export class AppointmentsHistoryPage implements OnInit {
     await toast.present();
   }
 
+  searchNewProfessional(apt: Appointment) {
+    this.router.navigate(['/professional-selection'], {
+      queryParams: {
+        description: apt.title,
+        type: apt.appointmentType || 'urgente',
+        datetime: apt.appointmentDate,
+        rebookId: apt.id
+      }
+    });
+  }
+
   goToTracking(apt: Appointment) {
     if (!apt.workerId) return;
     this.router.navigate(['/service-tracking'], {

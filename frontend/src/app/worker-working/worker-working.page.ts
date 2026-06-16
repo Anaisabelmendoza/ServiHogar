@@ -99,19 +99,12 @@ export class WorkerWorkingPage implements OnInit, OnDestroy {
   }
 
   // ── GPS ──────────────────────────────────────────────────
-  openGPS() {
+  get gpsUrl(): string {
     const dest = encodeURIComponent(this.address || 'Madrid, Spain');
-    
-    // Si tenemos la ubicación del profesional, trazamos la ruta de origen a destino
     if (this.startLat && this.startLng) {
-      const url = `https://www.google.com/maps/dir/?api=1&origin=${this.startLat},${this.startLng}&destination=${dest}&travelmode=driving`;
-      window.open(url, '_system');
-    } else {
-      // Fallback: Si no tenemos el GPS capturado, abrimos la ruta igualmente 
-      // y dejamos que Google Maps use la ubicación actual del teléfono como origen.
-      const url = `https://www.google.com/maps/dir/?api=1&destination=${dest}&travelmode=driving`;
-      window.open(url, '_system');
+      return `https://www.google.com/maps/dir/?api=1&origin=${this.startLat},${this.startLng}&destination=${dest}&travelmode=driving`;
     }
+    return `https://www.google.com/maps/dir/?api=1&destination=${dest}&travelmode=driving`;
   }
 
   // ── Acciones ─────────────────────────────────────────────

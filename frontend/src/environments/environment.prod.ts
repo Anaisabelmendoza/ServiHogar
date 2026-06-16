@@ -1,5 +1,4 @@
 export const environment = {
   production: true,
-  // En producción, apunta al backend público (ngrok o servidor real)
-  apiUrl: 'https://wildland-upstream-reconvene.ngrok-free.dev'
+  apiUrl: 'http://192.168.15.99:8000'
 };

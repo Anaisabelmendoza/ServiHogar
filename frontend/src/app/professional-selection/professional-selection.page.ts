@@ -19,6 +19,7 @@ export class ProfessionalSelectionPage implements OnInit {
   serviceId: string | null = null;
   description: string | null = null;
   address: string | null = null;
+  rebookId: number | null = null;
   isSubmitting = false;
   isLoading = true;
 
@@ -37,6 +38,7 @@ export class ProfessionalSelectionPage implements OnInit {
       this.serviceId = params['service'] || null;
       this.description = params['description'] || '';
       this.address = params['address'] || null;
+      this.rebookId = params['rebookId'] ? parseInt(params['rebookId'], 10) : null;
       
       this.getUserLocationAndLoad();
     });
@@ -147,7 +149,14 @@ export class ProfessionalSelectionPage implements OnInit {
       
       console.log('Sending payload to backend with address:', payload.address);
       
-      this.http.post(`${environment.apiUrl}/api/service-requests`, payload, { headers }).subscribe({
+      let requestObservable;
+      if (this.rebookId) {
+        requestObservable = this.http.post(`${environment.apiUrl}/api/service-requests/${this.rebookId}/rebook`, payload, { headers });
+      } else {
+        requestObservable = this.http.post(`${environment.apiUrl}/api/service-requests`, payload, { headers });
+      }
+      
+      requestObservable.subscribe({
         next: async (res: any) => {
           this.isSubmitting = false;
           localStorage.removeItem('temp_request_image');
