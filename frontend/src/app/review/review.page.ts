@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
-import { ToastController } from '@ionic/angular';
+import { ToastController, LoadingController } from '@ionic/angular';
 
 @Component({
   selector: 'app-review',
@@ -17,12 +17,14 @@ export class ReviewPage implements OnInit {
   commentText: string = '';
   imageError: boolean = false;
   requestId: number | null = null;
+  isSubmitting: boolean = false;
 
   constructor(
     private router: Router, 
     private route: ActivatedRoute,
     private http: HttpClient,
-    private toastController: ToastController
+    private toastController: ToastController,
+    private loadingController: LoadingController
   ) { }
 
   ngOnInit() {
@@ -59,6 +61,15 @@ export class ReviewPage implements OnInit {
       comment: this.commentText
     });
 
+    this.isSubmitting = true;
+
+    const loading = await this.loadingController.create({
+      message: 'Pensando...',
+      spinner: 'dots',
+      cssClass: 'custom-loading-banner'
+    });
+    await loading.present();
+
     const token = localStorage.getItem('token');
     if (token && this.requestId) {
       const headers = new HttpHeaders({
@@ -70,6 +81,7 @@ export class ReviewPage implements OnInit {
         comment: this.commentText
       }, { headers }).subscribe({
         next: async () => {
+          await loading.dismiss();
           const toast = await this.toastController.create({
             message: '¡Muchas gracias por valorar al profesional!',
             duration: 2500,
@@ -80,6 +92,7 @@ export class ReviewPage implements OnInit {
           this.router.navigate(['/home']);
         },
         error: async (err) => {
+          await loading.dismiss();
           console.error('Error al guardar la reseña en Aiven:', err);
           const toast = await this.toastController.create({
             message: 'Error al enviar la valoración al servidor.',
@@ -88,9 +101,11 @@ export class ReviewPage implements OnInit {
             position: 'bottom'
           });
           await toast.present();
+          this.isSubmitting = false;
         }
       });
     } else {
+      await loading.dismiss();
       console.error('Missing token or requestId. Token:', !!token, 'RequestId:', this.requestId);
       const toast = await this.toastController.create({
         message: 'Error interno: Faltan datos de la solicitud.',

@@ -36,8 +36,9 @@
     </div>
 
     <div class="submit-button-container">
-      <ion-button shape="round" class="submit-btn" (click)="submitReview()">
-        Enviar reseña
+      <ion-button shape="round" class="submit-btn" (click)="submitReview()" [disabled]="isSubmitting">
+        <ion-spinner *ngIf="isSubmitting" name="crescent" class="ion-margin-end" style="width: 20px; height: 20px; margin-right: 8px;"></ion-spinner>
+        {{ isSubmitting ? 'Pensando...' : 'Enviar reseña' }}
       </ion-button>
     </div>
   </div>
