@@ -17,4 +17,4 @@ import { ResetPasswordPage } from './reset-password.page';
   ],
   declarations: [ResetPasswordPage]
 })
-export class ResetPasswordPageModule {}
+export class ResetPasswordPageModule { }

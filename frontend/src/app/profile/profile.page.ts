@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { AlertController, LoadingController } from '@ionic/angular';
-
+import { timeout } from 'rxjs/operators';
 @Component({
   selector: 'app-profile',
   templateUrl: './profile.page.html',
@@ -83,18 +83,47 @@ export class ProfilePage implements OnInit {
   handlePhotoChange(event: Event) {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files[0]) {
+      const file = input.files[0];
       const reader = new FileReader();
       reader.onload = (e: any) => {
-        this.avatarUrl = e.target.result;
-        // Guardar avatar en localStorage
-        const userStr = localStorage.getItem('user');
-        if (userStr) {
-          const user = JSON.parse(userStr);
-          user.avatarUrl = this.avatarUrl;
-          localStorage.setItem('user', JSON.stringify(user));
-        }
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const MAX_WIDTH = 500;
+          const MAX_HEIGHT = 500;
+          let width = img.width;
+          let height = img.height;
+
+          if (width > height) {
+            if (width > MAX_WIDTH) {
+              height *= MAX_WIDTH / width;
+              width = MAX_WIDTH;
+            }
+          } else {
+            if (height > MAX_HEIGHT) {
+              width *= MAX_HEIGHT / height;
+              height = MAX_HEIGHT;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx?.drawImage(img, 0, 0, width, height);
+          
+          this.avatarUrl = canvas.toDataURL(file.type || 'image/jpeg', 0.7);
+
+          // Guardar avatar en localStorage
+          const userStr = localStorage.getItem('user');
+          if (userStr) {
+            const user = JSON.parse(userStr);
+            user.avatarUrl = this.avatarUrl;
+            localStorage.setItem('user', JSON.stringify(user));
+          }
+        };
+        img.src = e.target.result;
       };
-      reader.readAsDataURL(input.files[0]);
+      reader.readAsDataURL(file);
     }
   }
 
@@ -134,7 +163,7 @@ export class ProfilePage implements OnInit {
       profesion: this.profesion,
       avatarUrl: this.avatarUrl,
       urgency_price: this.urgencyPrice
-    }, { headers }).subscribe({
+    }, { headers }).pipe(timeout(10000)).subscribe({
       next: (res: any) => {
         loading.dismiss();
         console.log('Profile updated successfully:', res);
