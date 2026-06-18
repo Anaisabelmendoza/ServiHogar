@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: 'http://192.168.15.99:8000'
+  apiUrl: typeof window !== 'undefined' ? window.location.origin : 'http://127.0.0.1:8000'
 };
